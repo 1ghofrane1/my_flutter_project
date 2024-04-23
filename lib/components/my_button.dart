@@ -8,29 +8,20 @@ class MyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int newAlpha = 128; // 50% transparent
-
-    Color newColor = Color.fromRGBO(
-      Color(0xFFBEF264).red,
-      Color(0xFFBEF264).green,
-      Color(0xFFBEF264).blue,
-      newAlpha / 255.0,
-    );
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(25),
+        padding: const EdgeInsets.all(15),
         margin: const EdgeInsets.symmetric(horizontal: 25),
         decoration: BoxDecoration(
-          color: newColor,
-          borderRadius: BorderRadius.circular(8),
+          color: const Color(0xFFBEF264),
+          borderRadius: BorderRadius.circular(10),
         ),
         child: Center(
           child: Text(
             text,
             style: const TextStyle(
-              color: Colors.white,
+              color: Color(0xFF171717),
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),

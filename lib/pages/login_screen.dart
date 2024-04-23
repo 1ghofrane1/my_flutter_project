@@ -5,20 +5,22 @@ import 'package:my_flutter_project/components/my_textfield.dart';
 
 class LoginScreen extends StatefulWidget {
   final Function()? onTap;
-  LoginScreen({super.key, required this.onTap});
+  LoginScreen({Key? key, required this.onTap});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // text editing controllers
+  // Text editing controllers
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  // sign user in method
+  
+
+  // Method to sign user in
   void signUserIn() async {
-    // show loading circle
+    // Show loading indicator
     showDialog(
       context: context,
       builder: (context) {
@@ -27,52 +29,36 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       },
     );
-    // try sign in
     try {
+      // Sign in with email and password
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text,
         password: passwordController.text,
       );
-      // pop the loading circle
+      // Close loading indicator
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
-      // pop the loading circle
+      // Close loading indicator
       Navigator.pop(context);
-      // print the error code and msg
-
-      print(
-          "HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWIIIIIIIIIIIIIIIIIIIINIIIIIIIIIIIIIIIIIIIIIIIIIIII LEEEEEEEENAAAAAAAAAAAAAAAAAAAAAA WEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
-      print("Error code: ${e.code}");
-      print("Error message: ${e.message}");
-      print("exception: ${e.toString()}");
-      print(
-          "HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWIIIIIIIIIIIIIIIIIIIINIIIIIIIIIIIIIIIIIIIIIIIIIIII LEEEEEEEENAAAAAAAAAAAAAAAAAAAAAA WEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
-
-      if (e.code == 'invalid-credential') {
-        showErrorMessage("Invalid Email or Password!");
-      }
-
-      //Wrong email
-      else if (e.code == 'user-not-found') {
-        // show error to user
+      // Show error message based on exception code
+      if (e.code == 'user-not-found') {
         showErrorMessage("Invalid Email!");
-      }
-      // Wrong password
-      else if (e.code == 'wrong-password') {
-        //show error to user
+      } else if (e.code == 'wrong-password') {
         showErrorMessage("Invalid Password!");
+      } else {
+        //showErrorMessage("message : ${e.code}");
+        showErrorMessage('Invalid Email or Password!');
       }
     }
   }
 
+  // Method to show error message dialog
   void showErrorMessage(String message) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(
-            message,
-          ),
+          title: Text(message),
         );
       },
     );
@@ -81,54 +67,48 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF171717),
+      backgroundColor: const Color(0xFF171717),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(height: 10),
-                // logo
+                const SizedBox(height: 10),
+                // Logo
                 Image.asset(
                   'lib/pics/logo.png',
                   height: 100,
                 ),
-                SizedBox(height: 50),
-
-                // wlc back
-                Text(
+                const SizedBox(height: 50),
+                // Welcome back
+                const Text(
                   'Welcome Back, Sign in now!',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                   ),
                 ),
-
-                SizedBox(height: 25),
-
-                // email txt field
+                const SizedBox(height: 25),
+                // Email text field
                 MyTextFlield(
                   controller: emailController,
                   hintText: 'Email',
                   obscureText: false,
                 ),
-
-                SizedBox(height: 10),
-                // pwd
+                const SizedBox(height: 20),
+                // Password text field
                 MyTextFlield(
                   controller: passwordController,
                   hintText: 'Password',
                   obscureText: true,
                 ),
-
                 const SizedBox(height: 10),
-
-                // forgot pwd?
+                // Forgot password
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
+                    children: const [
                       Text(
                         'Forget Password?',
                         style: TextStyle(color: Colors.white38),
@@ -137,27 +117,25 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 25),
-                // sign in button
+                // Sign in button
                 MyButton(
                   text: 'Sign In',
                   onTap: signUserIn,
+                  
                 ),
-
                 const SizedBox(height: 50),
-                //not a member? Register now
-
+                // Not a member? Register now
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Not a member?',
-                        style: TextStyle(color: Colors.white38)),
+                    const Text('Not a member?',
+                        style: TextStyle(color: Colors.grey)),
                     const SizedBox(width: 4),
                     GestureDetector(
                       onTap: widget.onTap,
                       child: Text(
                         'Register now',
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: const Color(0xFFBEF264)),
                       ),
                     ),
                   ],

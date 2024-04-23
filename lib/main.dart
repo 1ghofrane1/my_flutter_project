@@ -1,10 +1,13 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:my_flutter_project/pages/pre_auth_screen.dart';
+import 'package:my_flutter_project/firebase_options.dart';
+import 'package:my_flutter_project/pages/auth_page.dart';
+import 'package:my_flutter_project/pages/role_screen.dart';
 import 'package:my_flutter_project/pages/admin_page.dart';
 import 'package:my_flutter_project/pages/coach_page.dart';
 import 'package:my_flutter_project/pages/sub_page.dart';
 
-void main() {
+/*void main() {
   runApp(MyApp());
 }
 
@@ -25,9 +28,9 @@ class MyApp extends StatelessWidget {
       },
     );
   }
-}
+}*/
 
-/*void main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -42,8 +45,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: PreAuthScreen(),
+      home: AuthPage(),
     );
   }
 }
-*/
