@@ -160,15 +160,15 @@ class _ResgisterScreenState extends State<ResgisterScreen> {
         String collectionName;
         switch (_selectedRole) {
           case 0:
-            collectionName = 'Gym Managers';
+            collectionName = 'Manager';
 
             // Navigate to gym_acc.dart if the role is Manager
-            /*Navigator.push(
+            Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => AccGym(),
+                builder: (context) => const GymAcc(),
               ),
-            );*/
+            );
             break;
           case 1:
             collectionName = 'Coach';

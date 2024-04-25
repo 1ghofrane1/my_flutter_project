@@ -18,26 +18,28 @@ class MyTextFlield extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 25.0),
       child: TextField(
         controller: controller,
+        
         // for the password only
         obscureText: obscureText,
-        style: TextStyle(
+
+        style: const TextStyle(
           color: Colors.white,
           fontSize: 16,
         ),
         decoration: InputDecoration(
-          border: UnderlineInputBorder(
+          border: const UnderlineInputBorder(
             borderSide: BorderSide(color: Color(0xFF9E9E9E)),
           ),
-          enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Color.fromRGBO(158, 158, 158, 0.62)),
+          enabledBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: Color(0x9E9E9E9E)),
           ),
-          focusedBorder: UnderlineInputBorder(
+          focusedBorder: const UnderlineInputBorder(
             borderSide: BorderSide(color: Color(0x62BEF264)),
           ),
           fillColor: Colors.transparent,
           filled: true,
           hintText: hintText,
-          hintStyle: TextStyle(color: Colors.grey),
+          hintStyle: const TextStyle(color: Colors.grey),
         ),
       ),
     );

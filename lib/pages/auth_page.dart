@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:my_flutter_project/pages/gym_acc.dart';
 import 'package:my_flutter_project/pages/home_page.dart';
 import 'package:my_flutter_project/pages/login_or_register_screen.dart';
+import 'package:my_flutter_project/pages/manager_pages/m_home_page.dart';
 
 class AuthPage extends StatelessWidget {
   const AuthPage({Key? key});
@@ -16,7 +16,7 @@ class AuthPage extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Show a loading indicator while waiting for the authentication state
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(),
             );
           }
@@ -26,21 +26,21 @@ class AuthPage extends StatelessWidget {
             if (user != null) {
               return FutureBuilder<DocumentSnapshot>(
                 future: FirebaseFirestore.instance
-                    .collection('Gym Managers')
+                    .collection('Manager')
                     .doc(user.uid)
                     .get(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
+                    return const Center(
                       child: CircularProgressIndicator(),
                     );
                   }
                   if (snapshot.hasData && snapshot.data!.exists) {
-                    // If the user's document exists in the 'Gym Managers' collection
-                    return const GymAcc(); // Display GymAcc widget
+                    // If the user's document exists in the 'Manager' collection
+                    return MHomePage(); // Redirect to MHomePage for managers
                   } else {
-                    // If the user's document does not exist in the 'Gym Managers' collection
-                    return HomePage(); // Display HomePage widget
+                    // If the user's document does not exist in the 'Manager' collection
+                    return HomePage(); // Redirect to HomePage for non-managers
                   }
                 },
               );

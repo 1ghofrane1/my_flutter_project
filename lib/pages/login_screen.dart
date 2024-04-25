@@ -5,7 +5,7 @@ import 'package:my_flutter_project/components/my_textfield.dart';
 
 class LoginScreen extends StatefulWidget {
   final Function()? onTap;
-  LoginScreen({Key? key, required this.onTap});
+  const LoginScreen({Key? key, required this.onTap});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -104,11 +104,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 10),
                 // Forgot password
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 25.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: const [
+                    children: [
                       Text(
                         'Forget Password?',
                         style: TextStyle(color: Colors.white38),

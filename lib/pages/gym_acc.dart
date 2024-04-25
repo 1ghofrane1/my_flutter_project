@@ -1,11 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 import 'package:my_flutter_project/components/my_button.dart';
-import 'package:my_flutter_project/components/my_textfield.dart';
+import 'package:my_flutter_project/components/skip_button.dart';
 import 'package:my_flutter_project/pages/home_page.dart';
+import 'package:my_flutter_project/pages/manager_pages/m_home_page.dart';
 
 class GymAcc extends StatefulWidget {
-  const GymAcc({super.key});
+  const GymAcc({Key? key});
 
   @override
   State<GymAcc> createState() => _GymAccState();
@@ -17,10 +20,78 @@ class _GymAccState extends State<GymAcc> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
 
+  void _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      String gymName = _gymNameController.text;
+      String address = _addressController.text;
+      String phoneNumber = _phoneNumberController.text;
+
+      // Add gym details to Firestore
+      DocumentReference gymRef =
+          await FirebaseFirestore.instance.collection('Gym').add({
+        'gymName': gymName,
+        'address': address,
+        'phoneNumber': phoneNumber,
+      });
+
+      // Get the gym ID assigned by Firestore
+      String gymId = gymRef.id;
+
+      // Retrieve the manager ID associated with the current user
+      String managerId = getCurrentUserId(); // Retrieve the current user's ID
+
+      // Add gym manager and link to the gym
+
+      addGymAndManager(gymId, managerId);
+
+      // Navigate to the home page
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => MHomePage()),
+      );
+    }
+  }
+
+  void addGymAndManager(String gymId, String managerId) {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    CollectionReference gymManagersRef =
+        firestore.collection('Gym And Managers');
+    gymManagersRef.add({
+      'gymId': gymId,
+      'managerId': managerId,
+    });
+  }
+
+  String getCurrentUserId() {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      return user.uid;
+    } else {
+      // Handle the case where no user is signed in
+      return ''; // Or you can return null if it's appropriate for your use case
+    }
+  }
+
+  InputDecoration _buildInputDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      border: const UnderlineInputBorder(
+        borderSide: BorderSide(color: Color(0xFF9E9E9E)),
+      ),
+      enabledBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(color: Color(0x9E9E9E9E)),
+      ),
+      focusedBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(color: Color(0x62BEF264)),
+      ),
+      labelStyle: const TextStyle(color: Colors.grey),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF171717),
+      backgroundColor: const Color(0xFF171717),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -28,71 +99,71 @@ class _GymAccState extends State<GymAcc> {
               key: _formKey,
               child: Column(
                 children: [
-                  SizedBox(height: 10),
-                  // Logo
+                  const SizedBox(height: 10),
                   Image.asset(
                     'lib/pics/logo.png',
                     height: 90,
                   ),
-                  SizedBox(height: 50),
-                  // Title
-                  Text(
+                  const SizedBox(height: 50),
+                  const Text(
                     'Let\'s create an account for your Gym!',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(color: Colors.white),
                   ),
-                  SizedBox(height: 20),
-                  // Gym Name
-                  MyTextFlield(
-                    controller: _gymNameController,
-                    hintText: 'Gym Name',
-                    obscureText: false,
-                  ),
-                  SizedBox(height: 10),
-                  // Address
-                  MyTextFlield(
-                    controller: _addressController,
-                    hintText: 'Address',
-                    obscureText: false,
-                  ),
-                  SizedBox(height: 10),
-                  // Contact Information
+                  const SizedBox(height: 20),
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: IntlPhoneField(
-                      controller: _phoneNumberController,
-                      keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                        labelText: 'Phone Number',
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (phone) {
-                        print(phone.completeNumber);
-                      },
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        TextField(
+                          controller: _gymNameController,
+                          decoration: _buildInputDecoration('Gym Name'),
+                          style: const TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: _addressController,
+                          decoration: _buildInputDecoration('Address'),
+                          style: const TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        IntlPhoneField(
+                          controller: _phoneNumberController,
+                          keyboardType: TextInputType.phone,
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 16),
+                          initialCountryCode: 'TN',
+                          decoration: _buildInputDecoration('Phone Number'),
+                          //change country code color
+
+                          onChanged: (phone) {
+                            print(phone.completeNumber);
+                          },
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(height: 20),
-                  // Submit Button
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        // If the form is valid, proceed with account creation
-                        // You can access the form field values using the controllers
-                        // For example: _gymNameController.text, _addressController.text, _phoneNumberController.text, etc.
-                      }
-                    },
-                    child: Text('Create Account'),
-                  ),
+                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
                   MyButton(
-                      text: 'skip',
-                      onTap: () {
+                    onTap: _submitForm,
+                    text: 'Submit',
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: SkipButton(
+                      onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => HomePage()),
                         );
-                      }),
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),
