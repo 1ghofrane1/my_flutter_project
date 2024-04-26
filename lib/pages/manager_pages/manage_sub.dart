@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:my_flutter_project/services/firestore.dart';
@@ -19,7 +22,7 @@ class _ManageSubState extends State<ManageSub> {
   final TextEditingController phoneNumberController = TextEditingController();
 
   //open a dialog box to add a sub
-  void openSubBox() {
+  void openSubBox({String? docID}) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -56,12 +59,17 @@ class _ManageSubState extends State<ManageSub> {
           ElevatedButton(
             onPressed: () {
               // add a new Sub
-              firestoreService.addSub(
-                  firstname: firstnameController.text,
-                  lastname: lastnameController.text,
-                  email: emailController.text,
-                  phoneNumber: phoneNumberController.text);
-
+              if (docID == null) {
+                firestoreService.addSub(
+                    firstname: firstnameController.text,
+                    lastname: lastnameController.text,
+                    email: emailController.text,
+                    phoneNumber: phoneNumberController.text);
+              }
+              // update an existing sub
+              else {
+                firestoreService.updateSub(docID, firstnameController.text);
+              }
               // clear the form fields
               firstnameController.clear();
               lastnameController.clear();
@@ -81,7 +89,7 @@ class _ManageSubState extends State<ManageSub> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF171717),
+      //backgroundColor: const Color(0xFF171717),
       appBar: AppBar(
         title: const Text("Manage Subscription"),
         // Adding a leading icon button to navigate back to MHomePage
@@ -95,6 +103,55 @@ class _ManageSubState extends State<ManageSub> {
       floatingActionButton: FloatingActionButton(
         onPressed: openSubBox,
         child: const Icon(Icons.add),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: firestoreService.getAllSubsStream(),
+        builder: (context, snapshot) {
+          // if there s data, get all subs
+          if (snapshot.hasData) {
+            List subsList = snapshot.data!.docs;
+
+            // display as a List
+            return ListView.builder(
+              itemCount: subsList.length,
+              itemBuilder: (context, index) {
+                // get each individual doc
+                DocumentSnapshot document = subsList[index];
+                String docID = document.id;
+
+                // get sub fron each doc
+                Map<String, dynamic> data =
+                    document.data() as Map<String, dynamic>;
+                String firstnameText = data['first name'];
+                String lastnameText = data["last name"];
+
+                // display as a list  tile
+                return ListTile(
+                  title: Text(firstnameText),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      //update button
+                      IconButton(
+                          onPressed: () => openSubBox(docID: docID),
+                          icon: const Icon(Icons.settings)),
+
+                      // delete button
+                      IconButton(
+                        onPressed: () => firestoreService.deleteSub(docID),
+                        icon: const Icon(Icons.delete),
+                      )
+                    ],
+                  ),
+                );
+              },
+            );
+          }
+          // if no data return no Subs
+          else {
+            return Center(child: Text("No Subbscribors yet!"));
+          }
+        },
       ),
     );
   }
