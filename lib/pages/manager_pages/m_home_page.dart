@@ -26,7 +26,7 @@ class MHomePage extends StatelessWidget {
       ),
       body: Center(
         child: MyButton(
-          text: 'Manage Subscribers',
+          text: 'Manage USERS',
           onTap: () {
             // Navigate to ManageSub when the button is tapped
             Navigator.push(
