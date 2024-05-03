@@ -148,7 +148,7 @@ class _ManageSubState extends State<ManageSub> {
           }
           // if no data return no Subs
           else {
-            return Center(child: Text("No Subbscribors yet!"));
+            return const Center(child: Text("No Subbscribors yet!"));
           }
         },
       ),
