@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_flutter_project/components/my_button.dart';
 import 'package:my_flutter_project/components/skip_button.dart';
 import 'package:my_flutter_project/pages/home_page.dart';
@@ -41,8 +41,10 @@ class _GymAccState extends State<GymAcc> {
       String managerId = getCurrentUserId(); // Retrieve the current user's ID
 
       // Add gym manager and link to the gym
-
       addGymAndManager(gymId, managerId);
+
+      // Add initial gym subscriber
+      //addInitialGymSubscriber(gymId);
 
       // Navigate to the home page
       Navigator.push(
@@ -61,6 +63,13 @@ class _GymAccState extends State<GymAcc> {
       'managerId': managerId,
     });
   }
+
+/*void GymSubscriberSubCollection(String gymId) {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    CollectionReference gymSubscribersRef =
+        firestore.collection('Gym').doc(gymId).collection('gym_subscribers');
+    
+  }*/
 
   String getCurrentUserId() {
     User? user = FirebaseAuth.instance.currentUser;

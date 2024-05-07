@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
@@ -30,9 +32,10 @@ class _ManageSubState extends State<ManageSub> {
     fetchSubsList();
   }
 
-  // Method to fetch the list of subscribers
+  // Method to fetch the list of subscribers aka affichage
   void fetchSubsList() async {
-    QuerySnapshot snapshot = await firestoreService.getAllSubsStream().first;
+    QuerySnapshot snapshot =
+        await firestoreService.getCurrentGymSubscribersStream().first;
     setState(() {
       subsList = snapshot.docs;
       // Update countSubscribers when subsList changes
@@ -160,46 +163,37 @@ class _ManageSubState extends State<ManageSub> {
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Column(
-                          children: [
-                            IconButton(
-                              onPressed: () => openSubBox(docID: docID),
-                              icon: const Icon(Icons.edit),
-                            ),
-                            IconButton(
-                              onPressed: () =>
-                                  firestoreService.deleteSub(docID),
-                              icon: const Icon(Icons.delete),
-                              color: Colors.red,
-                            ),
-                          ],
+                        IconButton(
+                          onPressed: () => openSubBox(docID: docID),
+                          icon: const Icon(Icons.edit),
                         ),
-                        const VerticalDivider(thickness: 1, width: 1),
-                        Column(
-                          children: [
-                            IconButton(
-                              onPressed: () async {
-                                final text = 'sms:${data['phone_number']}';
-                                if (await canLaunch(text)) {
-                                  await launch(text);
-                                } else {
-                                  throw 'Could not launch $text';
-                                }
-                              },
-                              icon: const Icon(Icons.message),
-                            ),
-                            IconButton(
-                              onPressed: () async {
-                                final text = 'tel:${data['phone_number']}';
-                                if (await canLaunch(text)) {
-                                  await launch(text);
-                                } else {
-                                  throw 'Could not launch $text';
-                                }
-                              },
-                              icon: const Icon(Icons.phone),
-                            ),
-                          ],
+                        IconButton(
+                          onPressed: () => firestoreService.deleteSub(docID),
+                          icon: const Icon(Icons.delete),
+                          color: Colors.red,
+                        ),
+                        const SizedBox(width: 8), // Add a SizedBox for spacing
+                        IconButton(
+                          onPressed: () async {
+                            final text = 'sms:${data['phone_number']}';
+                            if (await canLaunch(text)) {
+                              await launch(text);
+                            } else {
+                              throw 'Could not launch $text';
+                            }
+                          },
+                          icon: const Icon(Icons.message),
+                        ),
+                        IconButton(
+                          onPressed: () async {
+                            final text = 'tel:${data['phone_number']}';
+                            if (await canLaunch(text)) {
+                              await launch(text);
+                            } else {
+                              throw 'Could not launch $text';
+                            }
+                          },
+                          icon: const Icon(Icons.phone),
                         ),
                       ],
                     ),
