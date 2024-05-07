@@ -157,7 +157,7 @@ class _ManageSubState extends State<ManageSub> {
                     subtitle: Text(
                       subscriptionStatus ? 'Active' : 'Inactive',
                       style: TextStyle(
-                        color: subscriptionStatus ? Colors.green : Colors.grey,
+                        color: subscriptionStatus ? Colors.green : Colors.blue,
                       ),
                     ),
                     trailing: Row(
