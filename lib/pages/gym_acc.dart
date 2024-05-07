@@ -33,6 +33,8 @@ class _GymAccState extends State<GymAcc> {
         'address': address,
         'phoneNumber': phoneNumber,
       });
+      // Create a subcollection called 'my_gym_sub' without initial data
+      await gymRef.collection('my_gym_sub').add({});
 
       // Get the gym ID assigned by Firestore
       String gymId = gymRef.id;
@@ -42,9 +44,6 @@ class _GymAccState extends State<GymAcc> {
 
       // Add gym manager and link to the gym
       addGymAndManager(gymId, managerId);
-
-      // Add initial gym subscriber
-      //addInitialGymSubscriber(gymId);
 
       // Navigate to the home page
       Navigator.push(
@@ -64,20 +63,14 @@ class _GymAccState extends State<GymAcc> {
     });
   }
 
-/*void GymSubscriberSubCollection(String gymId) {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    CollectionReference gymSubscribersRef =
-        firestore.collection('Gym').doc(gymId).collection('gym_subscribers');
-    
-  }*/
-
+//current admin id
   String getCurrentUserId() {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       return user.uid;
     } else {
       // Handle the case where no user is signed in
-      return ''; // Or you can return null if it's appropriate for your use case
+      return '';
     }
   }
 

@@ -10,64 +10,37 @@ class FirestoreService {
 
   // Fetch the current manager ID
   Future<String?> getCurrentManagerId() async {
-    try {
-      // Check if a user is currently authenticated
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        // If a user is authenticated, obtain their user ID
-        return user.uid;
-      }
-    } catch (e) {
-      print('Error fetching current manager ID: $e');
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      return user.uid;
+    } else {
+      // Handle the case where no user is signed in
+      return '';
     }
-    return null; // Return null if no manager ID found
   }
 
   // Fetch the current gym ID
+
   Future<String?> getCurrentGymId() async {
-    try {
-      // Fetch the current manager ID
-      String? managerId = await getCurrentManagerId();
-      if (managerId != null) {
-        // Query the 'Gym and Manager' collection to find the document associated with the managerId
-        QuerySnapshot gymAndManagerSnapshot = await gymAndManagerRef
-            .where('managerId', isEqualTo: managerId)
-            .get();
+    String? gymId;
 
-        if (gymAndManagerSnapshot.docs.isNotEmpty) {
-          DocumentSnapshot gymAndManagerDoc = gymAndManagerSnapshot.docs.first;
-          return gymAndManagerDoc['gymId'];
-        }
-      }
-    } catch (e) {
-      print('Error fetching current gym ID: $e');
-    }
-    return null; // Return null if no gym ID found
-  }
+    String? currentManagerId = await getCurrentManagerId();
 
-  // Function to check if 'gym_subscribers' collection exists
-  Future<bool> gymSubscribersCollectionExists(String gymId) async {
-    DocumentSnapshot gymDocSnapshot = await FirebaseFirestore.instance
-        .collection('Gym')
-        .doc(gymId)
-        .collection('gym_subscribers')
-        .doc('dummyDoc') // Use any existing document ID or a dummy one
+    // Query the 'Gym And Managers' collection
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('Gym And Managers')
+        .where('managerId', isEqualTo: currentManagerId)
+        .limit(1) // Limit the result to 1 document
         .get();
 
-    return gymDocSnapshot.exists;
+    // Extract gymId from the document if it exists
+    if (querySnapshot.docs.isNotEmpty) {
+      gymId = querySnapshot.docs.first['gymId'];
+    }
+
+    return gymId;
   }
 
-  // Function to create 'gym_subscribers' collection
-  Future<void> createGymSubscribersCollection(String gymId) async {
-    await FirebaseFirestore.instance
-        .collection('Gym')
-        .doc(gymId)
-        .collection('gym_subscribers')
-        .doc() // Use any existing document ID or a dummy one
-        .set({}); // Set empty data to create the collection
-  }
-
-  // Add a new subscriber
   Future<void> addSub({
     required String firstname,
     required String lastname,
@@ -77,34 +50,30 @@ class FirestoreService {
     try {
       // Fetch the current gym ID
       String? gymId = await getCurrentGymId();
-      if (gymId != null) {
-        bool gymSubscribersExists = await gymSubscribersCollectionExists(gymId);
-        if (!gymSubscribersExists) {
-          // Create 'gym_subscribers' collection if it doesn't exist
-          await createGymSubscribersCollection(gymId);
-        }
 
-        // Add the new subscriber to the 'subscribers' collection
-        DocumentReference newSubscriberRef = await subscribers.add({
-          'first name': firstname,
-          'last name': lastname,
-          'email': email,
-          'phone_number': phoneNumber,
-          'timestamp': Timestamp.now(),
-        });
+      // add new subscriber to the 'subscribers' collection
+      DocumentReference newSubscriberRef = await subscribers.add({
+        'first name': firstname,
+        'last name': lastname,
+        'email': email,
+        'phone_number': phoneNumber,
+        'timestamp': Timestamp.now(),
+        'gym id': gymId, // in order to link
+      });
 
-        // Add the subscriber ID to the 'gym_subscribers' collection under the gym document
-        await FirebaseFirestore.instance
-            .collection('Gym')
-            .doc(gymId)
-            .collection('gym_subscribers')
-            .doc()
-            .set({
-          'subscriber_id': newSubscriberRef.id,
-        });
-      }
+      // referencement par id
+      await FirebaseFirestore.instance
+          .collection('Gym')
+          .doc(gymId)
+          .collection('my_gym_sub')
+          .doc() // current subscriber id
+          .set({
+        'subscriber_id': newSubscriberRef.id,
+      });
     } catch (e) {
       print('Error adding subscriber: $e');
+      // Handle the error as needed
+      throw e; // Rethrow the exception to propagate it
     }
   }
 
@@ -114,12 +83,11 @@ class FirestoreService {
       // Fetch the current gym ID
       String? gymId = await getCurrentGymId();
       if (gymId != null) {
-        // Get the stream of subscribers under the 'gym_subscribers' collection of the current gym
+        // Get the stream of subscribers under the 'my_gym_sub' collection of the current gym
         yield* FirebaseFirestore.instance
             .collection('Gym')
             .doc(gymId)
-            .collection('gym_subscribers')
-            .orderBy('timestamp', descending: true)
+            .collection('my_gym_sub')
             .snapshots();
       }
     } catch (e) {

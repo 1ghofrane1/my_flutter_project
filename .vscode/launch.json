@@ -2,6 +2,22 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Flutter",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [],
+      "cwd": "c:/Users/Ghofr/my_flutter_project",
+      "flutterMode": "debug"
+    }
+  ]
+}
+
+
+/*{
+  "version": "0.2.0",
+  "configurations": [
+    {
       "name": "C/C++ Runner: Debug Session",
       "type": "cppdbg",
       "request": "launch",
@@ -9,7 +25,8 @@
       "stopAtEntry": false,
       "externalConsole": true,
       "cwd": "c:/Users/Ghofr/my_flutter_project/linux/flutter",
-      "program": "c:/Users/Ghofr/my_flutter_project/linux/flutter/build/Debug/outDebug",
+      "program": "c:/Users/Ghofr/my_flutter_project/lib/main.dart",
+      
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
@@ -21,4 +38,4 @@
       ]
     }
   ]
-}
+}*/
