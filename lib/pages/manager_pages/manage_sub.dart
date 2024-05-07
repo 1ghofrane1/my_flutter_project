@@ -1,9 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:my_flutter_project/services/firestore.dart';
 
 class ManageSub extends StatefulWidget {
+  // Define countSubscribers as a public variable
+  static int countSubscribers = 0;
+
   const ManageSub({Key? key}) : super(key: key);
 
   @override
@@ -11,22 +15,37 @@ class ManageSub extends StatefulWidget {
 }
 
 class _ManageSubState extends State<ManageSub> {
-  // firestore
   final FirestoreService firestoreService = FirestoreService();
-  //txt controller
   final TextEditingController firstnameController = TextEditingController();
   final TextEditingController lastnameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneNumberController = TextEditingController();
 
-  //open a dialog box to add a sub
+  List<DocumentSnapshot> subsList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch the list of subscribers when the widget initializes
+    fetchSubsList();
+  }
+
+  // Method to fetch the list of subscribers
+  void fetchSubsList() async {
+    QuerySnapshot snapshot = await firestoreService.getAllSubsStream().first;
+    setState(() {
+      subsList = snapshot.docs;
+      // Update countSubscribers when subsList changes
+      ManageSub.countSubscribers = subsList.length;
+    });
+  }
+
   void openSubBox({String? docID}) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Add Subscriber"),
         content: Column(
-          //columnBackgroundColor: const Color(0xFFBEF264),
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
@@ -44,7 +63,7 @@ class _ManageSubState extends State<ManageSub> {
             IntlPhoneField(
               controller: phoneNumberController,
               keyboardType: TextInputType.phone,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.black),
               initialCountryCode: 'TN',
               decoration: const InputDecoration(labelText: 'Phone Number'),
               onChanged: (phone) {
@@ -56,25 +75,20 @@ class _ManageSubState extends State<ManageSub> {
         actions: [
           ElevatedButton(
             onPressed: () {
-              // add a new Sub
               if (docID == null) {
                 firestoreService.addSub(
-                    firstname: firstnameController.text,
-                    lastname: lastnameController.text,
-                    email: emailController.text,
-                    phoneNumber: phoneNumberController.text);
-              }
-              // update an existing sub
-              else {
+                  firstname: firstnameController.text,
+                  lastname: lastnameController.text,
+                  email: emailController.text,
+                  phoneNumber: phoneNumberController.text,
+                );
+              } else {
                 firestoreService.updateSub(docID, firstnameController.text);
               }
-              // clear the form fields
               firstnameController.clear();
               lastnameController.clear();
               emailController.clear();
               phoneNumberController.clear();
-
-              //close the box
               Navigator.pop(context);
             },
             child: const Text('Add'),
@@ -87,15 +101,12 @@ class _ManageSubState extends State<ManageSub> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //backgroundColor: const Color(0xFF171717),
       appBar: AppBar(
         title: const Text("Manage Subscriptions"),
-        //ONY FOR TESTING tadaaaaaaaaaaaaaa
-        // Adding a leading icon button to navigate back to MHomePage
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.of(context).pop(); // Navigate back to MHomePage
+            Navigator.of(context).pop();
           },
         ),
       ),
@@ -103,54 +114,101 @@ class _ManageSubState extends State<ManageSub> {
         onPressed: openSubBox,
         child: const Icon(Icons.add),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: firestoreService.getAllSubsStream(),
-        builder: (context, snapshot) {
-          // if there s data, get all subs
-          if (snapshot.hasData) {
-            List subsList = snapshot.data!.docs;
-
-            // display as a List
-            return ListView.builder(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Total Subscribers: ${ManageSub.countSubscribers}',
+                style: const TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: subsList.length,
               itemBuilder: (context, index) {
-                // get each individual doc
                 DocumentSnapshot document = subsList[index];
                 String docID = document.id;
-
-                // get sub fron each doc
                 Map<String, dynamic> data =
                     document.data() as Map<String, dynamic>;
-                String firstnameText = data['first name'];
-                String lastnameText = data["last name"];
+                String firstNameText = data['first name'];
+                String lastNameText = data["last name"];
 
-                // display as a list  tile
-                return ListTile(
-                  title: Text(firstnameText),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      //update button
-                      IconButton(
-                          onPressed: () => openSubBox(docID: docID),
-                          icon: const Icon(Icons.settings)),
+                // Update the line where you retrieve the subscription status
+                bool subscriptionStatus = data['subscription_status'] ?? false;
 
-                      // delete button
-                      IconButton(
-                        onPressed: () => firestoreService.deleteSub(docID),
-                        icon: const Icon(Icons.delete),
-                      )
-                    ],
+                return Card(
+                  elevation: 2,
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  child: ListTile(
+                    title: Text(
+                      '$firstNameText $lastNameText',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      subscriptionStatus ? 'Active' : 'Inactive',
+                      style: TextStyle(
+                        color: subscriptionStatus ? Colors.green : Colors.red,
+                      ),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Column(
+                          children: [
+                            IconButton(
+                              onPressed: () => openSubBox(docID: docID),
+                              icon: const Icon(Icons.edit),
+                            ),
+                            IconButton(
+                              onPressed: () =>
+                                  firestoreService.deleteSub(docID),
+                              icon: const Icon(Icons.delete),
+                              color: Colors.red,
+                            ),
+                          ],
+                        ),
+                        const VerticalDivider(thickness: 1, width: 1),
+                        Column(
+                          children: [
+                            IconButton(
+                              onPressed: () async {
+                                final text = 'sms:${data['phone_number']}';
+                                if (await canLaunch(text)) {
+                                  await launch(text);
+                                } else {
+                                  throw 'Could not launch $text';
+                                }
+                              },
+                              icon: const Icon(Icons.message),
+                            ),
+                            IconButton(
+                              onPressed: () async {
+                                final text = 'tel:${data['phone_number']}';
+                                if (await canLaunch(text)) {
+                                  await launch(text);
+                                } else {
+                                  throw 'Could not launch $text';
+                                }
+                              },
+                              icon: const Icon(Icons.phone),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
-            );
-          }
-          // if no data return no Subs
-          else {
-            return const Center(child: Text("No Subbscribors yet!"));
-          }
-        },
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -36,8 +36,9 @@ class FirestoreService {
       'timestamp': Timestamp.now(),
     });
   }
+
   // delete a sub by ID
-  Future<void> deleteSub(String docID){
+  Future<void> deleteSub(String docID) {
     return subscribers.doc(docID).delete();
   }
 }
