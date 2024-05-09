@@ -24,6 +24,7 @@ class _MembershipState extends State<Membership> {
 
   void _fetchGymId() async {
     gymId = await _firestoreService.getCurrentGymId();
+    print('Gym ID: $gymId');
     setState(() {});
   }
 
@@ -32,7 +33,9 @@ class _MembershipState extends State<Membership> {
         await FirebaseFirestore.instance.collection('Membership').get();
 
     for (final membership in snapshot.docs) {
-      final membershipGymId = membership['gym_id'];
+      final membershipGymId = membership['gym id'];
+      print('Membership Gym ID: $membershipGymId'); // Add this line
+      print('bla bla');
 
       if (membershipGymId == gymId) {
         final membershipName = membership['Membership Name'];
@@ -41,6 +44,7 @@ class _MembershipState extends State<Membership> {
         });
       }
     }
+    print('list over heeeeeeeeeeeeeere ${membershipNames}');
   }
 
   @override
