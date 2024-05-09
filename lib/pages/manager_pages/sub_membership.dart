@@ -11,7 +11,7 @@ class Membership extends StatefulWidget {
 
 class _MembershipState extends State<Membership> {
   String? gymId;
-  final List<String> membershipNames = []; // Move membershipNames here
+  final List<String> membershipNames = [];
 
   final FirestoreService _firestoreService = FirestoreService();
 
@@ -19,7 +19,7 @@ class _MembershipState extends State<Membership> {
   void initState() {
     super.initState();
     _fetchGymId();
-    _fetchMembershipNames(); // Call _fetchMembershipNames in initState
+    _fetchMembershipNames();
   }
 
   void _fetchGymId() async {
@@ -28,23 +28,18 @@ class _MembershipState extends State<Membership> {
   }
 
   Future<void> _fetchMembershipNames() async {
-    // Change return type to void
-    final snapshot = await FirebaseFirestore.instance
-        .collection('Gym')
-        .doc(gymId)
-        .collection('gym_membership')
-        .get();
+    final snapshot =
+        await FirebaseFirestore.instance.collection('Membership').get();
 
     for (final membership in snapshot.docs) {
-      final membershipId = membership['membership_id'];
-      final membershipDoc = await FirebaseFirestore.instance
-          .collection('Membership')
-          .doc(membershipId)
-          .get();
-      final membershipName = membershipDoc['Membership Name'];
-      setState(() {
-        membershipNames.add(membershipName);
-      });
+      final membershipGymId = membership['gym_id'];
+
+      if (membershipGymId == gymId) {
+        final membershipName = membership['Membership Name'];
+        setState(() {
+          membershipNames.add(membershipName);
+        });
+      }
     }
   }
 
@@ -81,9 +76,8 @@ class _MembershipState extends State<Membership> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              height: 100, // Adjust the height as needed
-              child: membershipNames
-                      .isEmpty // Check if membershipNames is empty
+              height: 100,
+              child: membershipNames.isEmpty
                   ? const Center(child: CircularProgressIndicator())
                   : ListView.builder(
                       scrollDirection: Axis.horizontal,
@@ -98,8 +92,7 @@ class _MembershipState extends State<Membership> {
                       },
                     ),
             ),
-            const SizedBox(
-                height: 20.0), // Add spacing between membership types and form
+            const SizedBox(height: 20.0),
           ],
         ),
       ),
@@ -107,7 +100,7 @@ class _MembershipState extends State<Membership> {
   }
 }
 
-//membership form
+// Membership form
 class MembershipForm extends StatefulWidget {
   const MembershipForm({super.key});
 
@@ -193,16 +186,13 @@ class _MembershipFormState extends State<MembershipForm> {
                     membershipPricing: membershipPricing,
                   );
 
-                  // Clear text field controllers after successful submission
                   _membershipNameController.clear();
                   _membershipPricingController.clear();
                   setState(() {
                     _selectedDuration = null;
                   });
                 } catch (e) {
-                  // Handle the error
                   print('Error adding membership: $e');
-                  // Show a snackbar or display an error message to the user
                 }
               },
               child: const Text('Submit'),
