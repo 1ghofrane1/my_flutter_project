@@ -11,6 +11,7 @@ class Membership extends StatefulWidget {
 
 class _MembershipState extends State<Membership> {
   String? gymId;
+  String? id;
   final List<String> membershipNames = [];
 
   final FirestoreService _firestoreService = FirestoreService();
@@ -23,8 +24,10 @@ class _MembershipState extends State<Membership> {
   }
 
   void _fetchGymId() async {
-    gymId = await _firestoreService.getCurrentGymId();
-    print('Gym ID: $gymId');
+    id = await _firestoreService.getCurrentGymId();
+    gymId = id?.trim();
+    print('Gym ID: ${gymId.runtimeType}');
+    _fetchMembershipNames(); // Call _fetchMembershipNames after updating gymId
     setState(() {});
   }
 
@@ -33,18 +36,22 @@ class _MembershipState extends State<Membership> {
         await FirebaseFirestore.instance.collection('Membership').get();
 
     for (final membership in snapshot.docs) {
-      final membershipGymId = membership['gym id'];
-      print('Membership Gym ID: $membershipGymId'); // Add this line
-      print('bla bla');
+      final String membershipGymId = membership['gym id'].trim();
+      print('Membership Gym ID type: ${membershipGymId.runtimeType}');
 
       if (membershipGymId == gymId) {
         final membershipName = membership['Membership Name'];
         setState(() {
           membershipNames.add(membershipName);
+          print('true');
         });
+      } else {
+        print('maha2ah');
       }
+
+      print(
+          'membershipGymId: $membershipGymId, gymId: $gymId'); // Add this line
     }
-    print('list over heeeeeeeeeeeeeere ${membershipNames}');
   }
 
   @override
