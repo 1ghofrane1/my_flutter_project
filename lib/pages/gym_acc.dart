@@ -36,6 +36,9 @@ class _GymAccState extends State<GymAcc> {
       // Create a subcollection called 'my_gym_sub' without initial data
       await gymRef.collection('my_gym_sub').add({});
 
+      // Create a subcollection called 'gym_membership' without initial data
+      await gymRef.collection('gym_membership').add({});
+
       // Get the gym ID assigned by Firestore
       String gymId = gymRef.id;
 
@@ -48,7 +51,7 @@ class _GymAccState extends State<GymAcc> {
       // Navigate to the home page
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => MHomePage()),
+        MaterialPageRoute(builder: (context) => const MHomePage()),
       );
     }
   }

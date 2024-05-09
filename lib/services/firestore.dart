@@ -108,4 +108,35 @@ class FirestoreService {
   Future<void> deleteSub(String docID) {
     return subscribers.doc(docID).delete();
   }
+
+  Future<void> addMembership({
+    required String membershipName,
+    required String? selectedDuration,
+    required double membershipPricing,
+  }) async {
+    try {
+      String? gymId = await getCurrentGymId();
+      // Add new membership to the 'Membership' collection
+      DocumentReference newMembershipType =
+          await FirebaseFirestore.instance.collection('Membership').add({
+        'Membership Name': membershipName,
+        'Membership Duration': selectedDuration,
+        'Membership Pricing': membershipPricing,
+        'gym id': gymId,
+      });
+
+      // Reference by ID
+      await FirebaseFirestore.instance
+          .collection('Gym')
+          .doc(gymId)
+          .collection('gym_membership')
+          .doc()
+          .set({
+        'membership_id': newMembershipType.id,
+      });
+    } catch (e) {
+      print('Error adding membership: $e');
+      throw e; // Rethrow the exception to propagate it
+    }
+  }
 }
