@@ -16,8 +16,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  
-
   // Method to sign user in
   void signUserIn() async {
     // Show loading indicator
@@ -121,7 +119,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 MyButton(
                   text: 'Sign In',
                   onTap: signUserIn,
-                  
                 ),
                 const SizedBox(height: 50),
                 // Not a member? Register now
@@ -133,9 +130,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(width: 4),
                     GestureDetector(
                       onTap: widget.onTap,
-                      child: Text(
+                      child: const Text(
                         'Register now',
-                        style: TextStyle(color: const Color(0xFFBEF264)),
+                        style: TextStyle(color: Color(0xFFBEF264)),
                       ),
                     ),
                   ],

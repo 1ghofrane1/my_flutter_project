@@ -6,6 +6,7 @@ import 'package:my_flutter_project/components/quick_action.dart';
 import 'package:my_flutter_project/components/notification_widget.dart';
 import 'package:my_flutter_project/components/chat_widget.dart';
 import 'package:my_flutter_project/components/class_calendar.dart'; // Import the class calendar widget
+import 'package:my_flutter_project/pages/manager_pages/gym_members.dart';
 import 'package:my_flutter_project/pages/manager_pages/manage_sub.dart';
 import 'package:my_flutter_project/pages/manager_pages/sub_membership.dart'; // Import the ManageSub page
 
@@ -58,7 +59,7 @@ class MHomePage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const ManageSub(),
+                        builder: (context) => const GymMembers(),
                       ),
                     );
                   },

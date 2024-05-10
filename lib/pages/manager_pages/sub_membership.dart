@@ -91,11 +91,13 @@ class _MembershipState extends State<Membership> {
           showDialog(
             context: context,
             builder: (BuildContext context) {
-              return SubscriptionForm(); // Display the SubscriptionForm
+              return Builder(builder: (BuildContext context) {
+                return const SubscriptionForm(); // Display the SubscriptionForm
+              });
             },
           );
         },
-        child: Icon(
+        child: const Icon(
           Icons.add,
           color: Colors.white,
         ),
@@ -132,7 +134,6 @@ class _MembershipState extends State<Membership> {
   void addSubscrition() {}
 }
 
-//subscription form
 class SubscriptionForm extends StatefulWidget {
   const SubscriptionForm({Key? key}) : super(key: key);
 
@@ -160,12 +161,15 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
     final snapshot =
         await FirebaseFirestore.instance.collection('Subscriber').get();
 
+    setState(() {
+      subsList.clear(); // Clear the list before updating with new data
+    });
+
     for (final sub in snapshot.docs) {
       final String subGymId = sub['gym id'].trim();
       print('Subscription Gym ID type: ${subGymId.runtimeType}');
 
       if (subGymId == gymId) {
-        //final String subId = sub.id;
         final String firstName = sub['first name'];
         final String lastName = sub['last name'];
         final String fullName = '$firstName $lastName';
@@ -181,32 +185,42 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Builder(
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Select a Subscriber"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: subsList.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(subsList[index]),
-                  );
-                },
-              ),
-            ],
+    return AlertDialog(
+      title: const Text("Select a Subscriber"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            height: 100,
+            child: subsList.isEmpty
+                ? const Center(
+                    child:
+                        CircularProgressIndicator()) // Show a loading indicator if data is still loading
+                : SizedBox(
+                    height: 100,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: subsList.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Chip(
+                            label: Text(subsList[index]),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
           ),
-          actions: [
-            ElevatedButton(
-              onPressed: () {},
-              child: const Text('Add'),
-            ),
-          ],
-        );
-      }
+          const SizedBox(height: 20.0),
+        ],
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () {},
+          child: const Text('Add'),
+        ),
+      ],
     );
   }
 }
