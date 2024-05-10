@@ -11,7 +11,7 @@ class Membership extends StatefulWidget {
 
 class _MembershipState extends State<Membership> {
   String? gymId;
-  String? id;
+
   final List<String> membershipNames = [];
 
   final FirestoreService _firestoreService = FirestoreService();
@@ -24,11 +24,15 @@ class _MembershipState extends State<Membership> {
   }
 
   void _fetchGymId() async {
-    id = await _firestoreService.getCurrentGymId();
-    gymId = id?.trim();
+    gymId = await _getGymId();
+
     print('Gym ID: ${gymId.runtimeType}');
     _fetchMembershipNames(); // Call _fetchMembershipNames after updating gymId
     setState(() {});
+  }
+
+  Future<String?> _getGymId() async {
+    return (await _firestoreService.getCurrentGymId())?.trim();
   }
 
   Future<void> _fetchMembershipNames() async {
@@ -82,6 +86,21 @@ class _MembershipState extends State<Membership> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return SubscriptionForm(); // Display the SubscriptionForm
+            },
+          );
+        },
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
+        backgroundColor: Colors.grey[900],
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,6 +126,87 @@ class _MembershipState extends State<Membership> {
           ],
         ),
       ),
+    );
+  }
+
+  void addSubscrition() {}
+}
+
+//subscription form
+class SubscriptionForm extends StatefulWidget {
+  const SubscriptionForm({Key? key}) : super(key: key);
+
+  @override
+  _SubscriptionFormState createState() => _SubscriptionFormState();
+}
+
+class _SubscriptionFormState extends State<SubscriptionForm> {
+  final FirestoreService firestoreService = FirestoreService();
+  List<String> subsList = [];
+  String? gymId;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchGymId();
+  }
+
+  Future<void> _fetchGymId() async {
+    gymId = await firestoreService.getCurrentGymId();
+    _getSub();
+  }
+
+  Future<void> _getSub() async {
+    final snapshot =
+        await FirebaseFirestore.instance.collection('Subscriber').get();
+
+    for (final sub in snapshot.docs) {
+      final String subGymId = sub['gym id'].trim();
+      print('Subscription Gym ID type: ${subGymId.runtimeType}');
+
+      if (subGymId == gymId) {
+        //final String subId = sub.id;
+        final String firstName = sub['first name'];
+        final String lastName = sub['last name'];
+        final String fullName = '$firstName $lastName';
+        setState(() {
+          subsList.add(fullName);
+          print('trueeeeeeeeeeeeeeee');
+        });
+      } else {
+        print('maha2ah subbbb');
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Builder(
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Select a Subscriber"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: subsList.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(subsList[index]),
+                  );
+                },
+              ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {},
+              child: const Text('Add'),
+            ),
+          ],
+        );
+      }
     );
   }
 }
