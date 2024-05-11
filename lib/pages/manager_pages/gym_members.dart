@@ -21,7 +21,7 @@ class _GymMembersState extends State<GymMembers> {
     super.initState();
     _fetchGymId();
     _fetchMembershipNames();
-    _getSub();
+    //_getSub();
   }
 
   void _fetchGymId() async {
@@ -29,7 +29,7 @@ class _GymMembersState extends State<GymMembers> {
 
     print('Gym ID: ${gymId.runtimeType}');
     _fetchMembershipNames(); // Call _fetchMembershipNames after updating gymId
-    _getSub();
+    //_getSub();
     setState(() {});
   }
 
@@ -93,7 +93,7 @@ class _GymMembersState extends State<GymMembers> {
 
     // Query for documents
     Stream<QuerySnapshot> subStream = subRef
-        .where('gym_id', isEqualTo: gymId)
+        .where('gym id', isEqualTo: gymId)
         .orderBy('timestamp', descending: true)
         .snapshots();
 
