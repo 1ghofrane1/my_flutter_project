@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_flutter_project/components/my_button.dart';
 import 'package:my_flutter_project/components/skip_button.dart';
 import 'package:my_flutter_project/pages/home_page.dart';
+import 'package:my_flutter_project/pages/manager_pages/gym_members.dart';
 import 'package:my_flutter_project/pages/manager_pages/m_home_page.dart';
 
 class GymAcc extends StatefulWidget {
@@ -51,7 +52,7 @@ class _GymAccState extends State<GymAcc> {
       // Navigate to the home page
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const MHomePage()),
+        MaterialPageRoute(builder: (context) => const GymMembers()),
       );
     }
   }
@@ -164,7 +165,7 @@ class _GymAccState extends State<GymAcc> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => HomePage()),
+                          MaterialPageRoute(builder: (context) => MHomePage()),
                         );
                       },
                     ),

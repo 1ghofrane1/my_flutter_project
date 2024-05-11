@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_flutter_project/forms/membershipTypeForm.dart';
 import 'package:my_flutter_project/services/firestore.dart';
@@ -109,6 +110,14 @@ class _GymMembersState extends State<GymMembers> {
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            onPressed: () {
+              FirebaseAuth.instance.signOut();
+            },
+            icon: const Icon(Icons.logout),
+          ),
+        ],
       ),
       body: Expanded(
         child: SingleChildScrollView(
@@ -216,7 +225,7 @@ class _GymMembersState extends State<GymMembers> {
                 builder: (context, snapshot) {
                   // if connection state is waiting, show a loading indicator
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   }
 
                   // if data available

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_flutter_project/pages/home_page.dart';
 import 'package:my_flutter_project/pages/login_or_register_screen.dart';
+import 'package:my_flutter_project/pages/manager_pages/gym_members.dart';
 import 'package:my_flutter_project/pages/manager_pages/m_home_page.dart';
 
 class AuthPage extends StatelessWidget {
@@ -37,7 +38,7 @@ class AuthPage extends StatelessWidget {
                   }
                   if (snapshot.hasData && snapshot.data!.exists) {
                     // If the user's document exists in the 'Manager' collection
-                    return MHomePage(); // Redirect to MHomePage for managers
+                    return const GymMembers(); // Redirect to GymMembers for managers
                   } else {
                     // If the user's document does not exist in the 'Manager' collection
                     return HomePage(); // Redirect to HomePage for non-managers
