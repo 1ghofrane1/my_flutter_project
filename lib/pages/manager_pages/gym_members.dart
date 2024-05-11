@@ -92,10 +92,8 @@ class _GymMembersState extends State<GymMembers> {
         FirebaseFirestore.instance.collection('Subscriber');
 
     // Query for documents
-    Stream<QuerySnapshot> subStream = subRef
-        .where('gym id', isEqualTo: gymId)
-        .orderBy('timestamp', descending: true)
-        .snapshots();
+    Stream<QuerySnapshot> subStream =
+        subRef.where('gym id', isEqualTo: gymId).snapshots();
 
     return subStream;
   }
@@ -121,116 +119,130 @@ class _GymMembersState extends State<GymMembers> {
         ),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Stack(
-                alignment: Alignment.topCenter,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return const AlertDialog(
-                                content: MembershipForm(),
-                              );
-                            },
-                          );
-                        },
-                        icon: const Icon(Icons.add),
-                        color: Colors.white,
-                      ),
-                      Expanded(
-                        child: SizedBox(
-                          height: 100,
-                          child: membershipNames.isEmpty
-                              ? const SizedBox
-                                  .shrink() // If membershipNames is empty, don't show anything
-                              : ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: membershipNames.length,
-                                  itemBuilder: (context, index) {
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0),
-                                      child: Chip(
-                                        label: Text(membershipNames[index]),
-                                      ),
-                                    );
-                                  },
-                                ),
+      body: Expanded(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Stack(
+                  alignment: Alignment.topCenter,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return const AlertDialog(
+                                  content: MembershipForm(),
+                                );
+                              },
+                            );
+                          },
+                          icon: const Icon(Icons.add),
+                          color: Colors.white,
+                        ),
+                        Expanded(
+                          child: SizedBox(
+                            height: 100,
+                            child: membershipNames.isEmpty
+                                ? const SizedBox
+                                    .shrink() // If membershipNames is empty, don't show anything
+                                : ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: membershipNames.length,
+                                    itemBuilder: (context, index) {
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0),
+                                        child: Chip(
+                                          label: Text(membershipNames[index]),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Positioned(
+                      top: 0,
+                      child: Text(
+                        'Membership Type',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
                         ),
                       ),
-                    ],
-                  ),
-                  const Positioned(
-                    top: 0,
-                    child: Text(
-                      'Membership Type',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 2),
-            const Text(
-              "Total Subscribers:",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 20.0,
+              const SizedBox(height: 2),
+              const Text(
+                "Total Subscribers:",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20.0,
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
-            StreamBuilder<QuerySnapshot>(
-              stream: subscribersListStream(gymId!),
-              builder: (context, snapshot) {
-                // if data available
-                if (snapshot.hasData) {
-                  List listSub = snapshot.data!.docs;
+              const SizedBox(height: 10),
+              StreamBuilder<QuerySnapshot>(
+                stream: subscribersListStream(gymId!),
+                builder: (context, snapshot) {
+                  // if connection state is waiting, show a loading indicator
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
 
-                  // display as list
-                  return ListView.builder(itemBuilder: (context, index) {
-                    // get each individual doc
-                    DocumentSnapshot document = listSub[index];
-                    String docID = document.id;
+                  // if data available
+                  if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                    List listSub = snapshot.data!.docs;
 
-                    //get sub from each doc
-                    Map<String, dynamic> data =
-                        document.data() as Map<String, dynamic>;
-                    String firstName = data['fname'];
-                    String lastName = data['lname'];
-                    String fullName = '$firstName $lastName';
+                    // display as list
+                    return ListView.builder(
+                      shrinkWrap: true, // Add this line
+                      itemCount: listSub.length,
+                      itemBuilder: (context, index) {
+                        // get each individual doc
+                        DocumentSnapshot document = listSub[index];
 
-                    // display as list tile
-                    return ListTile(
-                      title: Text(fullName),
+                        //get sub from each doc
+                        Map<String, dynamic> data =
+                            document.data() as Map<String, dynamic>;
+                        String firstName = data['fname'];
+                        String lastName = data['lname'];
+                        String fullName = '$firstName $lastName';
+
+                        // display as list tile
+                        return ListTile(
+                          title: Text(
+                            fullName,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        );
+                      },
                     );
-                  });
-
-                  // no sub yet
-                } else {
-                  return const Text(
-                    "No Subscribers Yet :/",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-                  );
-                }
-              },
-            ),
-          ],
+                  } else {
+                    // no subscribers
+                    return const Center(
+                      child: Text(
+                        "No Subscribers Yet :/",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
