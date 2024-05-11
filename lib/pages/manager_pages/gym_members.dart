@@ -98,15 +98,6 @@ class _GymMembersState extends State<GymMembers> {
     return subStream;
   }
 
-  /*Stream<QuerySnapshot> subscribersListStream() {
-    final CollectionReference subRef =
-        FirebaseFirestore.instance.collection('Subscriber');
-
-    final subStream = subRef.orderBy('timestamp', descending: true).snapshots();
-
-    return subStream;
-  }*/
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -182,13 +173,42 @@ class _GymMembersState extends State<GymMembers> {
                 ),
               ),
               const SizedBox(height: 2),
-              const Text(
-                "Total Subscribers:",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20.0,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    "Total Subscribers: ",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20.0,
+                    ),
+                  ),
+                  StreamBuilder<QuerySnapshot>(
+                    stream: subscribersListStream(gymId!),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                        return Text(
+                          "${snapshot.data!.docs.length}",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.0,
+                          ),
+                        );
+                      } else {
+                        return const Text(
+                          "0",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.0,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ],
               ),
               const SizedBox(height: 10),
               StreamBuilder<QuerySnapshot>(
@@ -219,10 +239,29 @@ class _GymMembersState extends State<GymMembers> {
                         String fullName = '$firstName $lastName';
 
                         // display as list tile
-                        return ListTile(
-                          title: Text(
-                            fullName,
-                            style: const TextStyle(color: Colors.white),
+                        return Card(
+                          color: const Color.fromARGB(255, 39, 38, 38),
+                          margin: const EdgeInsets.symmetric(
+                            vertical: 4.0,
+                            horizontal: 8.0,
+                          ),
+                          child: ListTile(
+                            title: Text(
+                              fullName,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.0,
+                              ),
+                            ),
+                            trailing: IconButton(
+                              icon: const Icon(
+                                Icons.visibility,
+                                color: Color(0xFFBEF264),
+                              ),
+                              onPressed: () {
+                                // Handle view functionality
+                              },
+                            ),
                           ),
                         );
                       },
