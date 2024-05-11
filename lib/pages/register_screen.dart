@@ -17,7 +17,8 @@ class ResgisterScreen extends StatefulWidget {
 class _ResgisterScreenState extends State<ResgisterScreen> {
   int? _selectedRole;
   // text editing controllers
-  final nameController = TextEditingController();
+  final fnameController = TextEditingController();
+  final lnameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmpasswordController = TextEditingController();
@@ -52,8 +53,15 @@ class _ResgisterScreenState extends State<ResgisterScreen> {
 
                 // name txt field
                 MyTextFlield(
-                  controller: nameController,
-                  hintText: 'Name',
+                  controller: fnameController,
+                  hintText: 'First Name',
+                  obscureText: false,
+                ),
+                SizedBox(height: 10),
+
+                MyTextFlield(
+                  controller: lnameController,
+                  hintText: 'Last Name',
                   obscureText: false,
                 ),
                 SizedBox(height: 10),
@@ -185,7 +193,8 @@ class _ResgisterScreenState extends State<ResgisterScreen> {
             .collection(collectionName)
             .doc(userCredential.user!.uid)
             .set({
-          'name': nameController.text,
+          'fname': fnameController.text,
+          'lname': lnameController.text,
           'email': emailController.text,
           //'role': _selectedRole,
         });
