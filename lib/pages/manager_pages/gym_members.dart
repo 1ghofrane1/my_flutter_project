@@ -73,8 +73,9 @@ class _GymMembersState extends State<GymMembers> {
       print('Subscription Gym ID type: ${subGymId.runtimeType}');
 
       if (subGymId == gymId) {
-        final String firstName = sub['first name'];
-        final String lastName = sub['last name'];
+        final String id = sub.id;
+        final String firstName = sub['fname'];
+        final String lastName = sub['lname'];
         final String fullName = '$firstName $lastName';
         setState(() {
           subList.add(fullName);
@@ -85,6 +86,28 @@ class _GymMembersState extends State<GymMembers> {
       }
     }
   }
+
+  Stream<QuerySnapshot> subscribersListStream(String gymId) {
+    final CollectionReference subRef =
+        FirebaseFirestore.instance.collection('Subscriber');
+
+    // Query for documents
+    Stream<QuerySnapshot> subStream = subRef
+        .where('gym_id', isEqualTo: gymId)
+        .orderBy('timestamp', descending: true)
+        .snapshots();
+
+    return subStream;
+  }
+
+  /*Stream<QuerySnapshot> subscribersListStream() {
+    final CollectionReference subRef =
+        FirebaseFirestore.instance.collection('Subscriber');
+
+    final subStream = subRef.orderBy('timestamp', descending: true).snapshots();
+
+    return subStream;
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +150,8 @@ class _GymMembersState extends State<GymMembers> {
                         child: SizedBox(
                           height: 100,
                           child: membershipNames.isEmpty
-                              ? const Center(child: CircularProgressIndicator())
+                              ? const SizedBox
+                                  .shrink() // If membershipNames is empty, don't show anything
                               : ListView.builder(
                                   scrollDirection: Axis.horizontal,
                                   itemCount: membershipNames.length,
@@ -158,7 +182,54 @@ class _GymMembersState extends State<GymMembers> {
                 ],
               ),
             ),
-            const Placeholder(),
+            const SizedBox(height: 2),
+            const Text(
+              "Total Subscribers:",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20.0,
+              ),
+            ),
+            const SizedBox(height: 10),
+            StreamBuilder<QuerySnapshot>(
+              stream: subscribersListStream(gymId!),
+              builder: (context, snapshot) {
+                // if data available
+                if (snapshot.hasData) {
+                  List listSub = snapshot.data!.docs;
+
+                  // display as list
+                  return ListView.builder(itemBuilder: (context, index) {
+                    // get each individual doc
+                    DocumentSnapshot document = listSub[index];
+                    String docID = document.id;
+
+                    //get sub from each doc
+                    Map<String, dynamic> data =
+                        document.data() as Map<String, dynamic>;
+                    String firstName = data['fname'];
+                    String lastName = data['lname'];
+                    String fullName = '$firstName $lastName';
+
+                    // display as list tile
+                    return ListTile(
+                      title: Text(fullName),
+                    );
+                  });
+
+                  // no sub yet
+                } else {
+                  return const Text(
+                    "No Subscribers Yet :/",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  );
+                }
+              },
+            ),
           ],
         ),
       ),
