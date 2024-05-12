@@ -133,4 +133,21 @@ class FirestoreService {
       throw e; // Rethrow the exception to propagate it
     }
   }
+
+  Future<String?> getMembershipDuration(String _selectedMembership) async {
+    String? gymId = await getCurrentGymId();
+    // Add new membership to the 'Membership' collection
+    final snapshot =
+        await FirebaseFirestore.instance.collection('Membership').get();
+    for (final membership in snapshot.docs) {
+      final String membershipGymId = membership['gym id'];
+      if (membershipGymId == gymId &&
+          membership['Membership Name'] == _selectedMembership) {
+        final String membershipDuration = membership['Membership Duration'];
+
+        return membershipDuration;
+      }
+    }
+    return null; // Return null if membership not found
+  }
 }

@@ -22,17 +22,26 @@ class _GymMembersState extends State<GymMembers> {
   final List<String> membershipNames = [];
   List<String> subList = [];
   final FirestoreService _firestoreService = FirestoreService();
-  String? _selectedDuration;
+
+  String? _selectedMembership;
   late TextEditingController startDate = TextEditingController();
 
   late TextEditingController endDate = TextEditingController();
+  String? membershipDuration = '';
 
   @override
   void initState() {
     super.initState();
+    _initializeMembershipDuration();
     _fetchGymId();
-    _fetchMembershipNames();
-    //_getSub();
+  }
+
+  void _initializeMembershipDuration() async {
+    String? duration =
+        await _firestoreService.getMembershipDuration(_selectedMembership!);
+    setState(() {
+      membershipDuration = duration ?? '';
+    });
   }
 
   void _fetchGymId() async {
@@ -84,7 +93,7 @@ class _GymMembersState extends State<GymMembers> {
       print('Subscription Gym ID type: ${subGymId.runtimeType}');
 
       if (subGymId == gymId) {
-        final String id = sub.id;
+        //final String id = sub.id;
         final String firstName = sub['fname'];
         final String lastName = sub['lname'];
         final String fullName = '$firstName $lastName';
@@ -308,6 +317,16 @@ class _GymMembersState extends State<GymMembers> {
                                     children: [
                                       IconButton(
                                         onPressed: () async {
+                                          final Uri _emailLaunchUri = Uri(
+                                            scheme: 'mailto',
+                                            path: email,
+                                          );
+                                          launch(_emailLaunchUri.toString());
+                                        },
+                                        icon: const Icon(Icons.email),
+                                      ),
+                                      IconButton(
+                                        onPressed: () async {
                                           final text =
                                               'sms:${data['phone_number']}';
                                           if (await canLaunch(text)) {
@@ -343,89 +362,81 @@ class _GymMembersState extends State<GymMembers> {
                                     ),
                                   ),
                                   DropdownButtonFormField<String>(
-                                    value: _selectedDuration,
-                                    onChanged: (newValue) {
+                                    value: _selectedMembership,
+                                    onChanged: (newValue) async {
                                       setState(() {
-                                        _selectedDuration = newValue;
+                                        _selectedMembership = newValue;
                                       });
+                                      print(_selectedMembership);
                                     },
                                     decoration: const InputDecoration(
-                                      labelText: 'Duration',
+                                      labelText: 'Membership Type',
                                       labelStyle: TextStyle(fontSize: 14.0),
                                     ),
-                                    items: <String?>[
-                                      'Monthly',
-                                      'Quarterly',
-                                      'Semi-annual',
-                                      'Annual'
-                                    ].map<DropdownMenuItem<String>>(
-                                        (String? value) {
+                                    items: membershipNames
+                                        .map((String membershipName) {
                                       return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(value ?? ''),
+                                        value: membershipName,
+                                        child: Text(membershipName),
                                       );
                                     }).toList(),
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please select membership duration';
-                                      }
-                                      return null;
-                                    },
                                   ),
                                   TextField(
-                                      controller:
-                                          startDate, //editing controller of this TextField
-                                      decoration: const InputDecoration(
-                                          icon: Icon(Icons
-                                              .calendar_today), //icon of text field
-                                          labelText:
-                                              "Start Date" //label text of field
-                                          ),
-                                      readOnly:
-                                          true, // when true user cannot edit text
-                                      onTap: () async {
-                                        DateTime? pickedDate =
-                                            await showDatePicker(
-                                                context: context,
-                                                initialDate: DateTime
-                                                    .now(), //get today's date
-                                                firstDate: DateTime(
-                                                    2000), //DateTime.now() - not to allow to choose before today.
-                                                lastDate: DateTime(2101));
-                                        if (pickedDate != null) {
-                                          setState(() {
-                                            startDate.text =
-                                                pickedDate.toString();
-                                          });
-                                        }
-                                      }),
-                                  TextField(
-                                      controller:
-                                          endDate, //editing controller of this TextField
-                                      decoration: const InputDecoration(
-                                          icon: Icon(Icons
-                                              .calendar_today), //icon of text field
-                                          labelText:
-                                              "End Date" //label text of field
-                                          ),
-                                      readOnly:
-                                          true, // when true user cannot edit text
-                                      onTap: () async {
-                                        DateTime? pickedDate =
-                                            await showDatePicker(
-                                                context: context,
-                                                initialDate: DateTime
-                                                    .now(), //get today's date
-                                                firstDate: DateTime(
-                                                    2000), //DateTime.now() - not to allow to choose before today.
-                                                lastDate: DateTime(2101));
-                                        if (pickedDate != null) {
-                                          setState(() {
+                                    controller: startDate,
+                                    decoration: const InputDecoration(
+                                      icon: Icon(Icons.calendar_today),
+                                      labelText: "Start Date",
+                                    ),
+                                    readOnly: true,
+                                    onTap: () async {
+                                      DateTime? pickedDate =
+                                          await showDatePicker(
+                                        context: context,
+                                        initialDate: DateTime.now(),
+                                        firstDate: DateTime(2000),
+                                        lastDate: DateTime(2101),
+                                      );
+                                      if (pickedDate != null) {
+                                        setState(() {
+                                          startDate.text =
+                                              pickedDate.toString();
+                                          if (membershipDuration == 'Monthly') {
+                                            DateTime endDateValue = pickedDate
+                                                .add(const Duration(days: 30));
                                             endDate.text =
-                                                pickedDate.toString();
-                                          });
-                                        }
-                                      }),
+                                                endDateValue.toString();
+                                          } else if (membershipDuration ==
+                                              'Quarterly') {
+                                            DateTime endDateValue = pickedDate
+                                                .add(const Duration(days: 90));
+                                            endDate.text =
+                                                endDateValue.toString();
+                                          } else if (membershipDuration ==
+                                              'Semi-annual') {
+                                            DateTime endDateValue = pickedDate
+                                                .add(const Duration(days: 180));
+                                            endDate.text =
+                                                endDateValue.toString();
+                                          } else if (membershipDuration ==
+                                              'Annual') {
+                                            DateTime endDateValue = pickedDate
+                                                .add(const Duration(days: 365));
+                                            endDate.text =
+                                                endDateValue.toString();
+                                          }
+                                          print(endDate.text);
+                                          print("duration $membershipDuration");
+                                        });
+                                      }
+                                    },
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Text("End Date: ${endDate.text}"),
+                                    ],
+                                  ),
                                   const SizedBox(
                                     height: 5,
                                   ),

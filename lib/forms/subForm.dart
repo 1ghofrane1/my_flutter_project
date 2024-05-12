@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:my_flutter_project/components/phone.dart';
 import 'package:my_flutter_project/services/firestore.dart';
 
 class SubForm extends StatefulWidget {
@@ -129,13 +131,70 @@ class _SubFormState extends State<SubForm> {
                   labelStyle: TextStyle(fontSize: 14.0),
                 ),
                 keyboardType: TextInputType.phone,
+                maxLength: 8, // Set maximum length to 8 characters
                 validator: (value) {
+                  // Check if the phone number is empty
                   if (value == null || value.isEmpty) {
                     return "Please enter subscriber's phone number";
                   }
+
+                  // Check if all characters are numbers
+                  if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                    return "Phone number should contain only numbers";
+                  }
+
+                  // Check if the first digit is 2, 3, 5, 7, or 9
+                  if (!['2', '3', '5', '7', '9'].contains(value[0])) {
+                    return "Invalid phone number format";
+                  }
+
+                  // If all conditions are met, return null (no error)
                   return null;
                 },
               ),
+
+              /*const SizedBox(height: 20.0),
+              IntlPhoneField(
+                controller: _phoneNumberController,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+                dropdownTextStyle: const TextStyle(color: Colors.grey),
+                decoration: const InputDecoration(
+                  border: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF9E9E9E)),
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color(0x9E9E9E9E)),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color(0x62BEF264)),
+                  ),
+                  fillColor: Colors.transparent,
+                  filled: true,
+                  labelText: 'Phone Number',
+                  labelStyle: TextStyle(fontSize: 14.0),
+                ),
+                initialCountryCode: 'TN',
+                onChanged: (phone) {
+                  // Check if the phone number is empty or not
+                  if (phone.completeNumber.isEmpty) {
+                    // If empty, set the error message
+                    setState(() {
+                      _phoneNumberError =
+                          "Please enter subscriber's phone number";
+                    });
+                  } else {
+                    // If not empty, clear the error message
+                    setState(() {
+                      _phoneNumberError = null;
+                    });
+                  }
+                },
+                keyboardType: TextInputType
+                    .phone, // Use TextInputType.phone for phone numbers
+              ),*/
               const SizedBox(height: 20.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
