@@ -79,11 +79,12 @@ class _ManageSubState extends State<ManageSub> {
           ElevatedButton(
             onPressed: () {
               if (docID == null) {
-                firestoreService.addSub(
-                  firstname: firstnameController.text,
-                  lastname: lastnameController.text,
+                firestoreService.ajoutMember(
+                  
+                  fname: firstnameController.text,
+                  lname: lastnameController.text,
                   email: emailController.text,
-                  phoneNumber: phoneNumberController.text,
+                  phone: phoneNumberController.text,
                 );
               } else {
                 firestoreService.updateSub(docID, firstnameController.text);

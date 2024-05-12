@@ -41,39 +41,33 @@ class FirestoreService {
     return gymId;
   }
 
-  Future<void> addSub({
-    required String firstname,
-    required String lastname,
-    required String email,
-    required String phoneNumber,
-  }) async {
+  Future<void> ajoutMember(
+      {required String fname,
+      required String lname,
+      required String email,
+      required String phone}) async {
     try {
-      // Fetch the current gym ID
       String? gymId = await getCurrentGymId();
-
-      // add new subscriber to the 'subscribers' collection
-      DocumentReference newSubscriberRef = await subscribers.add({
-        'first name': firstname,
-        'last name': lastname,
+      DocumentReference newMemberRef =
+          await FirebaseFirestore.instance.collection('Subscriber').add({
+        'first name': fname,
+        'last name': lname,
         'email': email,
-        'phone_number': phoneNumber,
+        'phone_number': phone,
         'timestamp': Timestamp.now(),
-        'gym id': gymId, // in order to link
+        'gym id': gymId,
       });
-
-      // referencement par id
       await FirebaseFirestore.instance
           .collection('Gym')
           .doc(gymId)
           .collection('my_gym_sub')
-          .doc() // current subscriber id
+          .doc()
           .set({
-        'subscriber_id': newSubscriberRef.id,
+        'sub_id': newMemberRef.id,
       });
     } catch (e) {
-      print('Error adding subscriber: $e');
-      // Handle the error as needed
-      throw e; // Rethrow the exception to propagate it
+      print('Error adding member: $e');
+      throw e;
     }
   }
 
@@ -109,38 +103,34 @@ class FirestoreService {
     return subscribers.doc(docID).delete();
   }
 
+  Future<void> addMembership({
+    required String membershipName,
+    required String? selectedDuration,
+    required double membershipPricing,
+  }) async {
+    try {
+      String? gymId = await getCurrentGymId();
+      // Add new membership to the 'Membership' collection
+      DocumentReference newMembershipType =
+          await FirebaseFirestore.instance.collection('Membership').add({
+        'Membership Name': membershipName,
+        'Membership Duration': selectedDuration,
+        'Membership Pricing': membershipPricing,
+        'gym id': gymId,
+      });
 
-Future<void> addMembership({
-  required String membershipName,
-  required String? selectedDuration,
-  required double membershipPricing,
-}) async {
-  try {
-    String? gymId = await getCurrentGymId();
-    // Add new membership to the 'Membership' collection
-    DocumentReference newMembershipType = await FirebaseFirestore.instance.collection('Membership').add({
-      'Membership Name': membershipName,
-      'Membership Duration': selectedDuration,
-      'Membership Pricing': membershipPricing,
-      'gym id': gymId,
-    });
-
-    // Reference by ID
-    await FirebaseFirestore.instance
-        .collection('Gym')
-        .doc(gymId)
-        .collection('gym_membership')
-        .doc()
-        .set({
-      'membership_id': newMembershipType.id,
-    });
-  } catch (e) {
-    print('Error adding membership: $e');
-    throw e; // Rethrow the exception to propagate it
+      // Reference by ID
+      await FirebaseFirestore.instance
+          .collection('Gym')
+          .doc(gymId)
+          .collection('gym_membership')
+          .doc()
+          .set({
+        'membership_id': newMembershipType.id,
+      });
+    } catch (e) {
+      print('Error adding membership: $e');
+      throw e; // Rethrow the exception to propagate it
+    }
   }
-}
-
-
-
-
 }

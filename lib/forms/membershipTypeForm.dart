@@ -29,13 +29,13 @@ class _MembershipFormState extends State<MembershipForm> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              /*const Text(
                 'Membership Type',
                 style: TextStyle(
                   color: Color(0xFF171717),
                   fontSize: 18.0,
                 ),
-              ),
+              ),*/
               const SizedBox(height: 10),
               TextFormField(
                 controller: _membershipNameController,
@@ -108,44 +108,59 @@ class _MembershipFormState extends State<MembershipForm> {
                 },
               ),
               const SizedBox(height: 20.0),
-              ElevatedButton(
-                onPressed: _isSubmitting
-                    ? null
-                    : () async {
-                        // Disable button if submitting
-                        if (_formKey.currentState!.validate()) {
-                          setState(() {
-                            _isSubmitting =
-                                true; // Set submitting state to true
-                          });
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _isSubmitting
+                        ? null
+                        : () async {
+                            // Disable button if submitting
+                            if (_formKey.currentState!.validate()) {
+                              setState(() {
+                                _isSubmitting =
+                                    true; // Set submitting state to true
+                              });
 
-                          final membershipPricing = double.tryParse(
-                                  _membershipPricingController.text) ??
-                              0;
-                          final membershipName = _membershipNameController.text;
+                              final membershipPricing = double.tryParse(
+                                      _membershipPricingController.text) ??
+                                  0;
+                              final membershipName =
+                                  _membershipNameController.text;
 
-                          try {
-                            await _firestoreService.addMembership(
-                              membershipName: membershipName,
-                              selectedDuration: _selectedDuration,
-                              membershipPricing: membershipPricing,
-                            );
+                              try {
+                                // Call addMembership method from FirestoreService
+                                await _firestoreService.addMembership(
+                                  membershipName: membershipName,
+                                  selectedDuration: _selectedDuration,
+                                  membershipPricing: membershipPricing,
+                                );
 
-                            _membershipNameController.clear();
-                            _membershipPricingController.clear();
-                            setState(() {
-                              _selectedDuration = null;
-                            });
-                          } catch (e) {
-                            print('Error adding membership: $e');
-                          } finally {
-                            setState(() {
-                              _isSubmitting = false; // Reset submitting state
-                            });
-                          }
-                        }
-                      },
-                child: const Text('Submit'),
+                                // Clear text controllers and reset selected duration
+                                _membershipNameController.clear();
+                                _membershipPricingController.clear();
+                                setState(() {
+                                  _selectedDuration = null;
+                                });
+                              } catch (e) {
+                                print('Error adding membership: $e');
+                              } finally {
+                                setState(() {
+                                  _isSubmitting =
+                                      false; // Reset submitting state
+                                });
+                              }
+                            }
+                          },
+                    child: const Text('Submit'),
+                  ),
+                ],
               ),
             ],
           ),

@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:my_flutter_project/components/expandable_fab.dart';
 import 'package:my_flutter_project/components/expandable_fab.dart';
 import 'package:my_flutter_project/forms/membershipTypeForm.dart';
+import 'package:my_flutter_project/forms/subForm.dart';
 import 'package:my_flutter_project/services/firestore.dart';
+import 'package:my_flutter_project/voids/openSubBox.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
@@ -148,6 +150,10 @@ class _GymMembersState extends State<GymMembers> {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return const AlertDialog(
+                                    title: const Text(
+                                      'Add Membership Type',
+                                      style: TextStyle(fontSize: 20),
+                                    ),
                                     content: MembershipForm(),
                                   );
                                 },
@@ -428,10 +434,10 @@ class _GymMembersState extends State<GymMembers> {
                                     children: [
                                       TextButton(
                                           onPressed: () {},
-                                          child: Text("Save")),
+                                          child: const Text("Save")),
                                       TextButton(
                                           onPressed: () {},
-                                          child: Text("Candel")),
+                                          child: const Text("Cancel")),
                                     ],
                                   )
                                 ],
@@ -486,6 +492,108 @@ class _GymMembersState extends State<GymMembers> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: const ExpandableFab(),
+    );
+  }
+}
+
+class ExpandableFab extends StatefulWidget {
+  const ExpandableFab({Key? key}) : super(key: key);
+
+  @override
+  _ExpandableFabState createState() => _ExpandableFabState();
+}
+
+class _ExpandableFabState extends State<ExpandableFab>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _toggleExpanded() {
+    if (_animationController.isDismissed) {
+      _animationController.forward();
+    } else {
+      _animationController.reverse();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        _buildFab(_animationController, Icons.event, () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return const AlertDialog(
+                title: Text("Membership Form"),
+                content: MembershipForm(),
+                actions: <Widget>[],
+              );
+            },
+          );
+        }),
+        const SizedBox(height: 8),
+        _buildFab(_animationController, Icons.person_add, () {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return const AlertDialog(
+                  title: Text('Add Subscriber'),
+                  content: SubForm(),
+                  actions: <Widget>[],
+                );
+              });
+
+          print("Second fab button pressed!");
+        }),
+        const SizedBox(height: 16),
+        FloatingActionButton(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          backgroundColor: const Color(0xFFBEF264),
+          onPressed: _toggleExpanded,
+          tooltip: 'Toggle',
+          child: AnimatedIcon(
+            icon: AnimatedIcons.menu_close,
+            progress: _animationController,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFab(AnimationController animationController, IconData iconData,
+      VoidCallback onPressed) {
+    return ScaleTransition(
+      scale: CurvedAnimation(
+        parent: animationController,
+        curve: Curves.easeInOut,
+      ),
+      child: FloatingActionButton(
+        backgroundColor: const Color(0xFFBEF264),
+        onPressed: onPressed,
+        tooltip: 'Add',
+        child: Icon(
+          iconData,
+          color: const Color(0xFF171717),
+        ),
+      ),
     );
   }
 }

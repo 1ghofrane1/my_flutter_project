@@ -30,7 +30,7 @@ class PhoneField extends StatelessWidget {
           color: Colors.white,
           fontSize: 16,
         ),
-        dropdownTextStyle: const TextStyle(color: Colors.white),
+        dropdownTextStyle: const TextStyle(color: Colors.grey),
         pickerDialogStyle: customDialogStyle,
         decoration: InputDecoration(
           border: const UnderlineInputBorder(
