@@ -354,12 +354,17 @@ class _GymMembersState extends State<GymMembers> {
                                   const SizedBox(
                                     height: 5,
                                   ),
-                                  const Text(
-                                    'Membership Type',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 16.0,
-                                    ),
+                                  const Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Membership Type',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 16.0,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   DropdownButtonFormField<String>(
                                     value: _selectedMembership,
@@ -440,6 +445,27 @@ class _GymMembersState extends State<GymMembers> {
                                   const SizedBox(
                                     height: 5,
                                   ),
+                                  SizedBox(
+                                    width: 100, // Set the desired width
+                                    height: 30, // Set the desired height
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        // Action to perform when button is pressed
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        // You can also customize the button's appearance further using styleFrom
+                                        textStyle: const TextStyle(
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Generate Invoice',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -469,15 +495,27 @@ class _GymMembersState extends State<GymMembers> {
                                   fontSize: 16.0,
                                 ),
                               ),
-                              /*trailing: IconButton(
+
+                              // tO DO: UPDATE SUBSCRIBER'S INFO : optional
+
+                              trailing: IconButton(
                                 icon: const Icon(
-                                  Icons.visibility,
+                                  Icons.edit,
                                   color: Color(0xFFBEF264),
                                 ),
                                 onPressed: () {
-                                  // Handle view functionality
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return const AlertDialog(
+                                        title: Text('Edit Subscriber'),
+                                        content: SubForm(),
+                                        actions: [], // You can add actions if needed
+                                      );
+                                    },
+                                  );
                                 },
-                              ),*/
+                              ),
                             ),
                           ),
                         );
