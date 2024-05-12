@@ -7,12 +7,12 @@ class DropDownList extends StatelessWidget {
   final void Function(String?)? onChanged;
 
   const DropDownList({
-    Key? key,
+    super.key,
     required this.items,
     this.hintText,
     this.value,
     this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -21,11 +21,11 @@ class DropDownList extends StatelessWidget {
       child: DropdownButtonFormField<String>(
         value: value,
         hint: hintText != null
-            ? Text(hintText!, style: TextStyle(color: Colors.grey))
+            ? Text(hintText!, style: const TextStyle(color: Colors.grey))
             : null,
-        dropdownColor: Color(0xFF171717),
+        dropdownColor: const Color(0xFF171717),
         focusColor: Colors.transparent,
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           filled: true,
           fillColor: Colors.transparent,
           border: UnderlineInputBorder(
@@ -45,7 +45,7 @@ class DropDownList extends StatelessWidget {
             value: item,
             child: Text(
               item,
-              style: TextStyle(color: Colors.white), // Set color to white
+              style: const TextStyle(color: Colors.white), // Set color to white
             ),
           );
         }).toList(),

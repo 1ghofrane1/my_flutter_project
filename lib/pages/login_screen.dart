@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_flutter_project/components/my_button.dart';
 import 'package:my_flutter_project/components/my_textfield.dart';
+import 'package:my_flutter_project/components/phone.dart';
 
 class LoginScreen extends StatefulWidget {
   final Function()? onTap;
@@ -93,6 +94,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   hintText: 'Email',
                   obscureText: false,
                 ),
+
+                const SizedBox(height: 10),
+
                 const SizedBox(height: 20),
                 // Password text field
                 MyTextFlield(
@@ -120,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   text: 'Sign In',
                   onTap: signUserIn,
                 ),
-                const SizedBox(height: 50),
+                const SizedBox(height: 10),
                 // Not a member? Register now
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

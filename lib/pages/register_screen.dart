@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:my_flutter_project/components/drop_list.dart';
 import 'package:my_flutter_project/components/my_button.dart';
 import 'package:my_flutter_project/components/my_textfield.dart';
+import 'package:my_flutter_project/components/phone.dart';
 import 'package:my_flutter_project/pages/gym_acc.dart';
 
 class ResgisterScreen extends StatefulWidget {
@@ -20,28 +21,29 @@ class _ResgisterScreenState extends State<ResgisterScreen> {
   final fnameController = TextEditingController();
   final lnameController = TextEditingController();
   final emailController = TextEditingController();
+  final TextEditingController phoneNumberController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmpasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF171717),
+      backgroundColor: const Color(0xFF171717),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 // logo
                 Image.asset(
                   'lib/pics/logo.png',
                   height: 90,
                 ),
-                SizedBox(height: 50),
+                const SizedBox(height: 20),
 
                 // create account
-                Text(
+                const Text(
                   'Let\'s create an account!',
                   style: TextStyle(
                     color: Colors.white,
@@ -49,7 +51,7 @@ class _ResgisterScreenState extends State<ResgisterScreen> {
                   ),
                 ),
 
-                SizedBox(height: 25),
+                const SizedBox(height: 25),
 
                 // name txt field
                 MyTextFlield(
@@ -57,14 +59,14 @@ class _ResgisterScreenState extends State<ResgisterScreen> {
                   hintText: 'First Name',
                   obscureText: false,
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
 
                 MyTextFlield(
                   controller: lnameController,
                   hintText: 'Last Name',
                   obscureText: false,
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
 
                 // email txt field
                 MyTextFlield(
@@ -72,8 +74,29 @@ class _ResgisterScreenState extends State<ResgisterScreen> {
                   hintText: 'Email',
                   obscureText: false,
                 ),
+                const SizedBox(height: 10),
+                // phone
+                PhoneField(
+                    controller: phoneNumberController,
+                    hintText: 'Phone Number'),
 
-                SizedBox(height: 10),
+                //choose role
+
+                DropDownList(
+                  items: ['Manager', 'Coach', 'Subscriber'],
+                  hintText: 'Select Role',
+                  value: _selectedRole != null
+                      ? ['Manager', 'Coach', 'Subscriber'][_selectedRole!]
+                      : null,
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedRole = value != null
+                          ? ['Manager', 'Coach', 'Subscriber'].indexOf(value)
+                          : null;
+                    });
+                  },
+                ),
+                const SizedBox(height: 10),
                 // pwd
                 MyTextFlield(
                   controller: passwordController,
@@ -90,24 +113,6 @@ class _ResgisterScreenState extends State<ResgisterScreen> {
                   obscureText: true,
                 ),
 
-                //choose role
-
-                SizedBox(height: 10),
-                DropDownList(
-                  items: ['Manager', 'Coach', 'Subscriber'],
-                  hintText: 'Select Role',
-                  value: _selectedRole != null
-                      ? ['Manager', 'Coach', 'Subscriber'][_selectedRole!]
-                      : null,
-                  onChanged: (String? value) {
-                    setState(() {
-                      _selectedRole = value != null
-                          ? ['Manager', 'Coach', 'Subscriber'].indexOf(value)
-                          : null;
-                    });
-                  },
-                ),
-
                 const SizedBox(height: 25),
                 // sign in button
                 MyButton(
@@ -115,7 +120,7 @@ class _ResgisterScreenState extends State<ResgisterScreen> {
                   onTap: signUserUp,
                 ),
 
-                const SizedBox(height: 50),
+                const SizedBox(height: 10),
 
                 //not a member? Register now
 
@@ -163,6 +168,7 @@ class _ResgisterScreenState extends State<ResgisterScreen> {
             await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailController.text,
           password: passwordController.text,
+
         );
 
         String collectionName;
@@ -196,6 +202,7 @@ class _ResgisterScreenState extends State<ResgisterScreen> {
           'fname': fnameController.text,
           'lname': lnameController.text,
           'email': emailController.text,
+          'phone_number' : phoneNumberController.text,
           //'role': _selectedRole,
         });
       } else {

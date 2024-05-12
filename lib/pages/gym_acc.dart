@@ -19,20 +19,20 @@ class _GymAccState extends State<GymAcc> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _gymNameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _phoneNumberController = TextEditingController();
+  //final TextEditingController _phoneNumberController = TextEditingController();
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       String gymName = _gymNameController.text;
       String address = _addressController.text;
-      String phoneNumber = _phoneNumberController.text;
+      //String phoneNumber = _phoneNumberController.text;
 
       // Add gym details to Firestore
       DocumentReference gymRef =
           await FirebaseFirestore.instance.collection('Gym').add({
         'gymName': gymName,
         'address': address,
-        'phoneNumber': phoneNumber,
+        //'phoneNumber': phoneNumber,
       });
       // Create a subcollection called 'my_gym_sub' without initial data
       await gymRef.collection('my_gym_sub').add({});
@@ -136,7 +136,7 @@ class _GymAccState extends State<GymAcc> {
                             color: Colors.white,
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        /*const SizedBox(height: 10),
                         IntlPhoneField(
                           controller: _phoneNumberController,
                           keyboardType: TextInputType.phone,
@@ -149,7 +149,7 @@ class _GymAccState extends State<GymAcc> {
                           onChanged: (phone) {
                             print(phone.completeNumber);
                           },
-                        ),
+                        ),*/
                       ],
                     ),
                   ),

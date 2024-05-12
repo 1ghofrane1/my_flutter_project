@@ -40,6 +40,17 @@ class _MembershipFormState extends State<MembershipForm> {
               TextFormField(
                 controller: _membershipNameController,
                 decoration: const InputDecoration(
+                  border: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF9E9E9E)),
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color(0x9E9E9E9E)),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color(0x62BEF264)),
+                  ),
+                  fillColor: Colors.transparent,
+                  filled: true,
                   labelText: 'Name',
                   labelStyle: TextStyle(fontSize: 14.0),
                 ),

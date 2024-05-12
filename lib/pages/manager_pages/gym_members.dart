@@ -1,8 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:my_flutter_project/components/expandable_fab.dart';
+import 'package:my_flutter_project/components/expandable_fab.dart';
 import 'package:my_flutter_project/forms/membershipTypeForm.dart';
 import 'package:my_flutter_project/services/firestore.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class GymMembers extends StatefulWidget {
   const GymMembers({super.key});
@@ -16,6 +20,10 @@ class _GymMembersState extends State<GymMembers> {
   final List<String> membershipNames = [];
   List<String> subList = [];
   final FirestoreService _firestoreService = FirestoreService();
+  String? _selectedDuration;
+  late TextEditingController startDate = TextEditingController();
+
+  late TextEditingController endDate = TextEditingController();
 
   @override
   void initState() {
@@ -78,6 +86,7 @@ class _GymMembersState extends State<GymMembers> {
         final String firstName = sub['fname'];
         final String lastName = sub['lname'];
         final String fullName = '$firstName $lastName';
+        final String email = sub['email'];
         setState(() {
           subList.add(fullName);
           print('trueeeeeeeeeeeeeeee');
@@ -131,19 +140,22 @@ class _GymMembersState extends State<GymMembers> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        IconButton(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return const AlertDialog(
-                                  content: MembershipForm(),
-                                );
-                              },
-                            );
-                          },
-                          icon: const Icon(Icons.add),
-                          color: Colors.white,
+                        Tooltip(
+                          message: 'add a membership type',
+                          child: IconButton(
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return const AlertDialog(
+                                    content: MembershipForm(),
+                                  );
+                                },
+                              );
+                            },
+                            icon: const Icon(Icons.add),
+                            color: Colors.white,
+                          ),
                         ),
                         Expanded(
                           child: SizedBox(
@@ -246,30 +258,209 @@ class _GymMembersState extends State<GymMembers> {
                         String firstName = data['fname'];
                         String lastName = data['lname'];
                         String fullName = '$firstName $lastName';
+                        final String email = data['email'];
 
                         // display as list tile
-                        return Card(
-                          color: const Color.fromARGB(255, 39, 38, 38),
-                          margin: const EdgeInsets.symmetric(
-                            vertical: 4.0,
-                            horizontal: 8.0,
+                        return GestureDetector(
+                          onTap: () => showDialog(
+                            context: context,
+                            barrierDismissible: false, // user must tap button!
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Details'),
+                                content: SingleChildScrollView(
+                                  child: ListBody(
+                                    children: <Widget>[
+                                      // Text(
+                                      //   id,
+                                      //   style: const TextStyle(
+                                      //     color: Colors.black,
+                                      //     fontSize: 16.0,
+                                      //   ),
+                                      // ),
+                                      Text(
+                                        fullName,
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 16.0,
+                                        ),
+                                      ),
+                                      Text(
+                                        email,
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 16.0,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                actions: <Widget>[
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      IconButton(
+                                        onPressed: () async {
+                                          final text =
+                                              'sms:${data['phone_number']}';
+                                          if (await canLaunch(text)) {
+                                            await launch(text);
+                                          } else {
+                                            throw 'Could not launch $text';
+                                          }
+                                        },
+                                        icon: const Icon(Icons.message),
+                                      ),
+                                      IconButton(
+                                        onPressed: () async {
+                                          final text =
+                                              'tel:${data['phone_number']}';
+                                          if (await canLaunch(text)) {
+                                            await launch(text);
+                                          } else {
+                                            throw 'Could not launch $text';
+                                          }
+                                        },
+                                        icon: const Icon(Icons.phone),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  const Text(
+                                    'Membership Type',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16.0,
+                                    ),
+                                  ),
+                                  DropdownButtonFormField<String>(
+                                    value: _selectedDuration,
+                                    onChanged: (newValue) {
+                                      setState(() {
+                                        _selectedDuration = newValue;
+                                      });
+                                    },
+                                    decoration: const InputDecoration(
+                                      labelText: 'Duration',
+                                      labelStyle: TextStyle(fontSize: 14.0),
+                                    ),
+                                    items: <String?>[
+                                      'Monthly',
+                                      'Quarterly',
+                                      'Semi-annual',
+                                      'Annual'
+                                    ].map<DropdownMenuItem<String>>(
+                                        (String? value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value ?? ''),
+                                      );
+                                    }).toList(),
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please select membership duration';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  TextField(
+                                      controller:
+                                          startDate, //editing controller of this TextField
+                                      decoration: const InputDecoration(
+                                          icon: Icon(Icons
+                                              .calendar_today), //icon of text field
+                                          labelText:
+                                              "Start Date" //label text of field
+                                          ),
+                                      readOnly:
+                                          true, // when true user cannot edit text
+                                      onTap: () async {
+                                        DateTime? pickedDate =
+                                            await showDatePicker(
+                                                context: context,
+                                                initialDate: DateTime
+                                                    .now(), //get today's date
+                                                firstDate: DateTime(
+                                                    2000), //DateTime.now() - not to allow to choose before today.
+                                                lastDate: DateTime(2101));
+                                        if (pickedDate != null) {
+                                          setState(() {
+                                            startDate.text =
+                                                pickedDate.toString();
+                                          });
+                                        }
+                                      }),
+                                  TextField(
+                                      controller:
+                                          endDate, //editing controller of this TextField
+                                      decoration: const InputDecoration(
+                                          icon: Icon(Icons
+                                              .calendar_today), //icon of text field
+                                          labelText:
+                                              "End Date" //label text of field
+                                          ),
+                                      readOnly:
+                                          true, // when true user cannot edit text
+                                      onTap: () async {
+                                        DateTime? pickedDate =
+                                            await showDatePicker(
+                                                context: context,
+                                                initialDate: DateTime
+                                                    .now(), //get today's date
+                                                firstDate: DateTime(
+                                                    2000), //DateTime.now() - not to allow to choose before today.
+                                                lastDate: DateTime(2101));
+                                        if (pickedDate != null) {
+                                          setState(() {
+                                            endDate.text =
+                                                pickedDate.toString();
+                                          });
+                                        }
+                                      }),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      TextButton(
+                                          onPressed: () {},
+                                          child: Text("Save")),
+                                      TextButton(
+                                          onPressed: () {},
+                                          child: Text("Candel")),
+                                    ],
+                                  )
+                                ],
+                              );
+                            },
                           ),
-                          child: ListTile(
-                            title: Text(
-                              fullName,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16.0,
-                              ),
+                          child: Card(
+                            color: const Color.fromARGB(255, 39, 38, 38),
+                            margin: const EdgeInsets.symmetric(
+                              vertical: 4.0,
+                              horizontal: 8.0,
                             ),
-                            trailing: IconButton(
-                              icon: const Icon(
-                                Icons.visibility,
-                                color: Color(0xFFBEF264),
+                            child: ListTile(
+                              title: Text(
+                                fullName,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16.0,
+                                ),
                               ),
-                              onPressed: () {
-                                // Handle view functionality
-                              },
+                              /*trailing: IconButton(
+                                icon: const Icon(
+                                  Icons.visibility,
+                                  color: Color(0xFFBEF264),
+                                ),
+                                onPressed: () {
+                                  // Handle view functionality
+                                },
+                              ),*/
                             ),
                           ),
                         );
@@ -293,6 +484,8 @@ class _GymMembersState extends State<GymMembers> {
           ),
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: const ExpandableFab(),
     );
   }
 }

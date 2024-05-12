@@ -5,9 +5,6 @@ class MyTextFlield extends StatelessWidget {
   final String hintText;
   final bool obscureText;
 
-
-
-
   const MyTextFlield({
     super.key,
     required this.controller,
@@ -21,7 +18,7 @@ class MyTextFlield extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 25.0),
       child: TextField(
         controller: controller,
-        
+
         // for the password only
         obscureText: obscureText,
 
