@@ -10,8 +10,8 @@ class _ClassCalendarState extends State<ClassCalendar> {
   DateTime today = DateTime.now();
   CalendarFormat _calendarFormat = CalendarFormat.month; // Added state variable
 
-  void _onDaySelected(DateTime day, DateTime focusedDay){
-    setState((){
+  void _onDaySelected(DateTime day, DateTime focusedDay) {
+    setState(() {
       today = day;
     });
   }
@@ -25,26 +25,49 @@ class _ClassCalendarState extends State<ClassCalendar> {
 
   @override
   Widget build(BuildContext context) {
-    return TableCalendar(
-      headerStyle: HeaderStyle(
-        titleCentered: true,
-        formatButtonVisible: true, // Show the format button
-        formatButtonDecoration: BoxDecoration(
-          color: Colors.blue,
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        formatButtonTextStyle: TextStyle(color: Colors.white),
-        formatButtonShowsNext: false,
+    return Card(
+      elevation: 4, // Adjust elevation for shadow effect
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20), // Soft edges
       ),
-      availableGestures: AvailableGestures.all,
-      selectedDayPredicate: (day) => isSameDay(
-        day, today),
-      focusedDay: today,
-      firstDay: DateTime.utc(2000, 1, 1),
-      lastDay: DateTime.utc(2999, 12, 31),
-      onFormatChanged: _onFormatChanged, // Pass the callback function
-      calendarFormat: _calendarFormat, // Pass the current format
-      onDaySelected: _onDaySelected,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TableCalendar(
+          headerStyle: HeaderStyle(
+            titleCentered: true,
+            formatButtonVisible: true, // Show the format button
+            formatButtonDecoration: BoxDecoration(
+              color: Color.fromARGB(207, 190, 242, 100),
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            formatButtonTextStyle: const TextStyle(
+              color: Color(0xFF171717),
+              fontWeight: FontWeight.bold,
+            ),
+            formatButtonShowsNext: false,
+          ),
+          availableGestures: AvailableGestures.all,
+          selectedDayPredicate: (day) => isSameDay(day, today),
+          focusedDay: today,
+          firstDay: DateTime.utc(2000, 1, 1),
+          lastDay: DateTime.utc(2999, 12, 31),
+          onFormatChanged: _onFormatChanged, // Pass the callback function
+          calendarFormat: _calendarFormat, // Pass the current format
+          onDaySelected: _onDaySelected,
+          calendarStyle: CalendarStyle(
+            todayDecoration: BoxDecoration(
+              color: Color.fromARGB(255, 190, 242, 100).withOpacity(0.5),
+              shape: BoxShape.circle,
+            ),
+            selectedDecoration: BoxDecoration(
+              color: Color(0xFFBEF264).withOpacity(0.8),
+              shape: BoxShape.circle,
+            ),
+            selectedTextStyle: TextStyle(color: Color(0xFF171717)),
+            outsideTextStyle: TextStyle(color: Colors.black54),
+          ),
+        ),
+      ),
     );
   }
 }

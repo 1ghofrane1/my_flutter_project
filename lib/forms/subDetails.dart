@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class MembershipDetailsDialog {
+class SubDetailsDialog {
   static void show(BuildContext context, String fullName, String email) {
     showDialog(
       context: context,

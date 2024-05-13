@@ -1,14 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:my_flutter_project/components/expandable_fab.dart';
-import 'package:my_flutter_project/components/expandable_fab.dart';
+import 'package:get/get.dart';
 import 'package:my_flutter_project/forms/membershipTypeForm.dart';
 import 'package:my_flutter_project/forms/subForm.dart';
+import 'package:my_flutter_project/pages/manager_pages/controllers/gym_members_controller.dart';
 import 'package:my_flutter_project/services/firestore.dart';
-import 'package:my_flutter_project/voids/openSubBox.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+import 'package:my_flutter_project/pages/manager_pages/classes.dart';
+import 'package:my_flutter_project/components/expandable_fab.dart';
 
 class GymMembers extends StatefulWidget {
   const GymMembers({super.key});
@@ -18,6 +18,8 @@ class GymMembers extends StatefulWidget {
 }
 
 class _GymMembersState extends State<GymMembers> {
+  final controller = Get.put(GymMemberController());
+
   String? gymId;
   final List<String> membershipNames = [];
   List<String> subList = [];
@@ -26,7 +28,7 @@ class _GymMembersState extends State<GymMembers> {
   String? _selectedMembership;
   late TextEditingController startDate = TextEditingController();
 
-  late TextEditingController endDate = TextEditingController();
+  late String endDate = "";
   String? membershipDuration = '';
 
   @override
@@ -366,6 +368,9 @@ class _GymMembersState extends State<GymMembers> {
                                       ),
                                     ],
                                   ),
+
+                                  // backend ne9es w kol sub data mte3ou
+                                  
                                   DropdownButtonFormField<String>(
                                     value: _selectedMembership,
                                     onChanged: (newValue) async {
@@ -378,8 +383,12 @@ class _GymMembersState extends State<GymMembers> {
                                       labelText: 'Membership Type',
                                       labelStyle: TextStyle(fontSize: 14.0),
                                     ),
-                                    items: membershipNames
-                                        .map((String membershipName) {
+                                    items: <String>[
+                                      'Monthly',
+                                      'Quarterly',
+                                      'Semi-annual',
+                                      'Annual'
+                                    ].map((String membershipName) {
                                       return DropdownMenuItem<String>(
                                         value: membershipName,
                                         child: Text(membershipName),
@@ -405,45 +414,57 @@ class _GymMembersState extends State<GymMembers> {
                                         setState(() {
                                           startDate.text =
                                               pickedDate.toString();
-                                          if (membershipDuration == 'Monthly') {
+                                          if (_selectedMembership ==
+                                              'Monthly') {
                                             DateTime endDateValue = pickedDate
                                                 .add(const Duration(days: 30));
-                                            endDate.text =
-                                                endDateValue.toString();
-                                          } else if (membershipDuration ==
+                                            setState(() {
+                                              endDate = endDateValue.toString();
+                                            });
+                                            controller.endDateUpdate(endDate);
+                                          } else if (_selectedMembership ==
                                               'Quarterly') {
                                             DateTime endDateValue = pickedDate
                                                 .add(const Duration(days: 90));
-                                            endDate.text =
-                                                endDateValue.toString();
-                                          } else if (membershipDuration ==
+                                            endDate = endDateValue.toString();
+                                            setState(() {
+                                              endDate = endDateValue.toString();
+                                            });
+                                            controller.endDateUpdate(endDate);
+                                          } else if (_selectedMembership ==
                                               'Semi-annual') {
                                             DateTime endDateValue = pickedDate
                                                 .add(const Duration(days: 180));
-                                            endDate.text =
-                                                endDateValue.toString();
-                                          } else if (membershipDuration ==
+                                            endDate = endDateValue.toString();
+                                            setState(() {
+                                              endDate = endDateValue.toString();
+                                            });
+                                            controller.endDateUpdate(endDate);
+                                          } else if (_selectedMembership ==
                                               'Annual') {
                                             DateTime endDateValue = pickedDate
                                                 .add(const Duration(days: 365));
-                                            endDate.text =
-                                                endDateValue.toString();
+                                            endDate = endDateValue.toString();
+                                            setState(() {
+                                              endDate = endDateValue.toString();
+                                            });
+                                            controller.endDateUpdate(endDate);
                                           }
-                                          print(endDate.text);
-                                          print("duration $membershipDuration");
                                         });
                                       }
                                     },
                                   ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text("End Date: ${endDate.text}"),
-                                    ],
-                                  ),
                                   const SizedBox(
                                     height: 5,
+                                  ),
+                                  Obx(
+                                    () => Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Text("End Date: ${controller.enddate}"),
+                                      ],
+                                    ),
                                   ),
                                   SizedBox(
                                     width: 100, // Set the desired width
@@ -539,66 +560,19 @@ class _GymMembersState extends State<GymMembers> {
           ),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: const ExpandableFab(),
-    );
-  }
-}
-
-class ExpandableFab extends StatefulWidget {
-  const ExpandableFab({Key? key}) : super(key: key);
-
-  @override
-  _ExpandableFabState createState() => _ExpandableFabState();
-}
-
-class _ExpandableFabState extends State<ExpandableFab>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 250),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  void _toggleExpanded() {
-    if (_animationController.isDismissed) {
-      _animationController.forward();
-    } else {
-      _animationController.reverse();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        _buildFab(_animationController, Icons.event, () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return const AlertDialog(
-                title: Text("Membership Form"),
-                content: MembershipForm(),
-                actions: <Widget>[],
-              );
-            },
+      floatingActionButton: ExpandableFab(
+        firstSecondaryIcon: Icons.event,
+        secondSecondaryIcon: Icons.person_add,
+        firstSecondaryOnPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const Classes(),
+            ),
           );
-        }),
-        const SizedBox(height: 8),
-        _buildFab(_animationController, Icons.person_add, () {
+          // First secondary fab onPressed function
+        },
+        secondSecondaryOnPressed: () {
           showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -608,40 +582,8 @@ class _ExpandableFabState extends State<ExpandableFab>
                   actions: <Widget>[],
                 );
               });
-
-          print("Second fab button pressed!");
-        }),
-        const SizedBox(height: 16),
-        FloatingActionButton(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          backgroundColor: const Color(0xFFBEF264),
-          onPressed: _toggleExpanded,
-          tooltip: 'Toggle',
-          child: AnimatedIcon(
-            icon: AnimatedIcons.menu_close,
-            progress: _animationController,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFab(AnimationController animationController, IconData iconData,
-      VoidCallback onPressed) {
-    return ScaleTransition(
-      scale: CurvedAnimation(
-        parent: animationController,
-        curve: Curves.easeInOut,
-      ),
-      child: FloatingActionButton(
-        backgroundColor: const Color(0xFFBEF264),
-        onPressed: onPressed,
-        tooltip: 'Add',
-        child: Icon(
-          iconData,
-          color: const Color(0xFF171717),
-        ),
+          // Second secondary fab onPressed function
+        },
       ),
     );
   }
