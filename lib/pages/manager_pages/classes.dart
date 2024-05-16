@@ -1,49 +1,54 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_flutter_project/components/class_calendar.dart';
 import 'package:my_flutter_project/components/expandable_fab.dart';
 import 'package:my_flutter_project/forms/AddClassForm.dart';
 import 'package:my_flutter_project/pages/manager_pages/gym_members.dart';
+import 'package:my_flutter_project/services/firestore.dart';
+import 'package:intl/intl.dart';
 
 class Classes extends StatefulWidget {
-  const Classes({Key? key});
+  const Classes({Key? key}) : super(key: key);
 
   @override
-  State<Classes> createState() => _ClassesState();
+  _ClassesState createState() => _ClassesState();
 }
 
 class _ClassesState extends State<Classes> {
-  late DateTime _nextClassTime;
-  late String _coachName;
-  late Timer _timer;
+  final FirestoreService _firestoreService = FirestoreService();
+  String? _gymId;
+  DateTime _nextClassTime = DateTime.now().add(const Duration(hours: 1));
+  String _coachName = "John Doe";
+  final ValueNotifier<DateTime> _nextClassTimeNotifier =
+      ValueNotifier(DateTime.now().add(const Duration(hours: 1)));
 
   @override
   void initState() {
     super.initState();
-    // Initialize next class time and coach name (replace with your actual data)
-    _nextClassTime = DateTime.now()
-        .add(const Duration(hours: 1)); // Example: Next class in 1 hour
-    _coachName = "John Doe"; // Example: Coach name
-    // Start a timer to update the countdown every second
-    _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
-      setState(() {}); // Update the UI every second
-    });
+    _fetchGymIdAndStartTimer();
   }
 
-  @override
-  void dispose() {
-    _timer.cancel(); // Cancel the timer to avoid memory leaks
-    super.dispose();
+  Future<void> _fetchGymIdAndStartTimer() async {
+    _gymId = await _firestoreService.getCurrentGymId();
+    print("***************************");
+    print('Gym ID: $_gymId');
+    print("***************************");
+  }
+
+  Stream<QuerySnapshot> _classesListStream() {
+    if (_gymId != null) {
+      return FirebaseFirestore.instance
+          .collection('Class')
+          .where('gym_id', isEqualTo: _gymId)
+          .snapshots();
+      print("trueeeeeeee");
+    } else {
+      return const Stream.empty();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Calculate the time difference between now and the next class time
-    Duration timeDifference = _nextClassTime.difference(DateTime.now());
-    // Format the time remaining as hours and minutes
-    String timeRemaining =
-        '${timeDifference.inHours}h ${timeDifference.inMinutes.remainder(60)}m';
-
     return Scaffold(
       backgroundColor: const Color(0xFF171717),
       body: Column(
@@ -60,7 +65,7 @@ class _ClassesState extends State<Classes> {
           Card(
             color: Colors.grey[800],
             elevation: 4,
-            margin: EdgeInsets.symmetric(horizontal: 20),
+            margin: const EdgeInsets.symmetric(horizontal: 20),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
@@ -72,7 +77,7 @@ class _ClassesState extends State<Classes> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'Next class in',
                         style: TextStyle(
                           color: Colors.white,
@@ -80,24 +85,85 @@ class _ClassesState extends State<Classes> {
                           fontSize: 16,
                         ),
                       ),
-                      Text(
-                        '$timeRemaining',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                        ),
+                      ValueListenableBuilder(
+                        valueListenable: _nextClassTimeNotifier,
+                        builder: (context, value, child) {
+                          final timeDifference =
+                              value.difference(DateTime.now());
+                          final timeRemaining =
+                              '${timeDifference.inHours}h ${timeDifference.inMinutes.remainder(60)}m';
+                          return Text(
+                            timeRemaining,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
                   Text(
                     'with Coach $_coachName',
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                     ),
                   ),
                 ],
               ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _classesListStream(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                  List<DocumentSnapshot> listClass = snapshot.data!.docs;
+
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: listClass.length,
+                    itemBuilder: (context, index) {
+                      DocumentSnapshot document = listClass[index];
+                      Map<String, dynamic> data =
+                          document.data() as Map<String, dynamic>;
+                      String className = data['class_name'];
+                      DateTime classTime = data['class_time'].toDate();
+                      String coachName = data['coach_name'];
+
+                      return Card(
+                        color: const Color.fromARGB(255, 39, 38, 38),
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 4.0,
+                          horizontal: 8.0,
+                        ),
+                        child: ListTile(
+                          title: Text(className),
+                          /*subtitle: Text(
+                              'Time: ${DateFormat.yMMMd().add_jm().format(classTime)}\nCoach: $coachName'),*/
+                        ),
+                      );
+                    },
+                  );
+                }
+
+                return const Center(
+                  child: Text(
+                    'No classes available',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                );
+              },
             ),
           ),
         ],

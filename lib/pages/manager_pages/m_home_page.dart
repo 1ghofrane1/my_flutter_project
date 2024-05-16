@@ -1,3 +1,4 @@
+/*
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:my_flutter_project/components/summary_card.dart';
@@ -148,3 +149,4 @@ class MHomePage extends StatelessWidget {
     );
   }
 }
+*/

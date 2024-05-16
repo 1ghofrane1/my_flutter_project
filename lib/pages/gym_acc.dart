@@ -159,17 +159,17 @@ class _GymAccState extends State<GymAcc> {
                     onTap: _submitForm,
                     text: 'Submit',
                   ),
-                  Align(
+                  /*Align(
                     alignment: Alignment.centerRight,
                     child: SkipButton(
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => MHomePage()),
+                          MaterialPageRoute(builder: (context) =>  HomePage(),
                         );
                       },
                     ),
-                  ),
+                  ),*/
                 ],
               ),
             ),

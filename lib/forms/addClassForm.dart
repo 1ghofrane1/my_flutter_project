@@ -141,22 +141,43 @@ class _AddClassFormState extends State<AddClassForm> {
                           final classCapacity =
                               int.parse(_classCapacityController.text);
                           DateTime? classDateTime;
-                          if (_selectedDate != null && _startTime != null) {
+                          DateTime? endTime;
+                          DateTime? startTime;
+                          if (_selectedDate != null) {
                             classDateTime = DateTime(
                               _selectedDate!.year,
                               _selectedDate!.month,
                               _selectedDate!.day,
-                              _startTime!.hour,
-                              _startTime!.minute,
                             );
+                            // Assign the value to the existing startTime variable, don't redefine it
+                            if (_startTime != null) {
+                              startTime = DateTime(
+                                _selectedDate!.year,
+                                _selectedDate!.month,
+                                _selectedDate!.day,
+                                _startTime!.hour,
+                                _startTime!.minute,
+                              );
+                            }
+                            if (_endTime != null) {
+                              endTime = DateTime(
+                                _selectedDate!.year,
+                                _selectedDate!.month,
+                                _selectedDate!.day,
+                                _endTime!.hour,
+                                _endTime!.minute,
+                              );
+                            }
                           }
                           try {
-                            /*await _firestoreService.addClass(
+                            await _firestoreService.addClass(
                               className: className,
                               coach: _selectedCoach!,
                               capacity: classCapacity,
-                              dateTime: classDateTime,
-                            );*/
+                              scheduledDate: classDateTime,
+                              startTime: startTime,
+                              endTime: endTime,
+                            );
                             _classNameController.clear();
                             _classCapacityController.clear();
                             setState(() {
@@ -166,8 +187,9 @@ class _AddClassFormState extends State<AddClassForm> {
                               _selectedCoach = null;
                             });
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text('Class added successfully')),
+                              const SnackBar(
+                                content: Text('Class added successfully'),
+                              ),
                             );
                           } catch (e) {
                             print('Error adding class: $e');

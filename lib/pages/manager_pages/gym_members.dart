@@ -9,6 +9,7 @@ import 'package:my_flutter_project/services/firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:my_flutter_project/pages/manager_pages/classes.dart';
 import 'package:my_flutter_project/components/expandable_fab.dart';
+import 'invoice.dart';
 
 class GymMembers extends StatefulWidget {
   const GymMembers({super.key});
@@ -370,7 +371,7 @@ class _GymMembersState extends State<GymMembers> {
                                   ),
 
                                   // backend ne9es w kol sub data mte3ou
-                                  
+
                                   DropdownButtonFormField<String>(
                                     value: _selectedMembership,
                                     onChanged: (newValue) async {
@@ -471,7 +472,7 @@ class _GymMembersState extends State<GymMembers> {
                                     height: 30, // Set the desired height
                                     child: ElevatedButton(
                                       onPressed: () {
-                                        // Action to perform when button is pressed
+                                        generateInvoice(context);
                                       },
                                       style: ElevatedButton.styleFrom(
                                         // You can also customize the button's appearance further using styleFrom

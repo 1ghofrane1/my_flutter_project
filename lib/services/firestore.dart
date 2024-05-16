@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -71,8 +72,19 @@ class FirestoreService {
     }
   }
 
+  Stream<QuerySnapshot> subscribersListStream(String gymId) {
+    final CollectionReference subRef =
+        FirebaseFirestore.instance.collection('Subscriber');
+
+    // Query for documents
+    Stream<QuerySnapshot> subStream =
+        subRef.where('gym id', isEqualTo: gymId).snapshots();
+
+    return subStream;
+  }
+
   // Get the stream of current gym subscribers
-  Stream<QuerySnapshot> getCurrentGymSubscribersStream() async* {
+  /*Stream<QuerySnapshot> getCurrentGymSubscribersStream() async* {
     try {
       // Fetch the current gym ID
       String? gymId = await getCurrentGymId();
@@ -88,7 +100,7 @@ class FirestoreService {
       print('Error fetching current gym subscribers: $e');
       // You can handle the error here as needed
     }
-  }
+  }*/
 
   // Update a subscriber by ID
   Future<void> updateSub(String docID, String newFirstName) {
@@ -150,4 +162,47 @@ class FirestoreService {
     }
     return null; // Return null if membership not found
   }
+
+  Future<void> addClass({
+    required String className,
+    required String coach,
+    required int capacity,
+    required DateTime? scheduledDate,
+    required DateTime? startTime,
+    required DateTime? endTime,
+  }) async {
+    try {
+      String? gymId = await getCurrentGymId();
+      // Add new class to the 'Class' collection
+      await FirebaseFirestore.instance.collection('Class').add({
+        'Class Name': className,
+        'Coach': coach,
+        'Capacity': capacity,
+        'Scheduled Time': scheduledDate,
+        'Creation Date': Timestamp.now(),
+        'Start Time': startTime,
+        'End Time': endTime,
+        'gym_id': gymId,
+      });
+    } catch (e) {
+      print('Error adding class: $e');
+      throw e; // Rethrow the exception to propagate it
+    }
+  }
+/*Stream<QuerySnapshot> getCurrentGymClassesStream() async* {
+    try {
+      // Fetch the current gym ID
+      String? gymId = await getCurrentGymId();
+      if (gymId != null) {
+        yield* FirebaseFirestore.instance
+            .collection('Gym')
+            .doc(gymId)
+            .collection('my_gym_sub')
+            .snapshots();
+      }
+    } catch (e) {
+      print('Error fetching current gym subscribers: $e');
+      // You can handle the error here as needed
+    }
+  }*/
 }
