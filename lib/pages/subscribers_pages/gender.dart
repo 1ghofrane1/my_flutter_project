@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:my_flutter_project/pages/subscribers_pages/birthday.dart';
+import 'package:my_flutter_project/pages/subscribers_pages/height_weight.dart';
+import 'package:my_flutter_project/pages/subscribers_pages/target_muscle.dart';
 
 class GenderSelectionScreen extends StatefulWidget {
   @override
@@ -8,6 +10,13 @@ class GenderSelectionScreen extends StatefulWidget {
 
 class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
   String selectedGender = "";
+  late DateTime _selectedDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = DateTime.now();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,92 +25,135 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(25.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                'lib/pics/logo.png',
-                height: 100,
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Welcome to ATHLETIX',
-                style: TextStyle(
-                  fontSize: 24,
-                  color: Colors.white,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'lib/pics/logo.png',
+                  height: 100,
                 ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Select your gender',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                'To estimate your body\'s metabolic rate',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  genderRadioButton('Male'),
-                  const SizedBox(height: 20),
-                  genderRadioButton('Female'),
-                ],
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: 200,
-                child: ElevatedButton(
-                  onPressed: selectedGender.isNotEmpty
-                      ? () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Birthday(),
-                            ),
-                          );
-                        }
-                      : () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Please select your gender'),
-                            ),
-                          );
-                        },
-                  style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all(const Color(0xFFBEF264)),
-                    minimumSize: MaterialStateProperty.all(const Size(50, 50)),
+                const SizedBox(height: 20),
+                const Text(
+                  'Welcome to ATHLETIX',
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: Colors.white,
                   ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Continue',
-                        style: TextStyle(
-                          color: Color(0xFF171717),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Select your gender',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'To estimate your body\'s metabolic rate',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    genderRadioButton('Male'),
+                    const SizedBox(width: 20),
+                    genderRadioButton('Female'),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Select your birthday',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'To help personalize ATHLETIX for you.',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  height: 200,
+                  child: CupertinoTheme(
+                    data: const CupertinoThemeData(
+                      brightness: Brightness.dark,
+                      textTheme: CupertinoTextThemeData(
+                        dateTimePickerTextStyle: TextStyle(
+                          fontSize: 20,
+                          color: Color(0xFFBEF264),
                         ),
                       ),
-                      SizedBox(width: 10),
-                      Icon(Icons.arrow_forward_ios,
-                          size: 20.0,
-                          color: Color.fromARGB(197, 255, 255, 255)),
-                    ],
+                    ),
+                    child: CupertinoDatePicker(
+                      mode: CupertinoDatePickerMode.date,
+                      initialDateTime: _selectedDate,
+                      maximumDate: DateTime.now(),
+                      onDateTimeChanged: (DateTime newDate) {
+                        setState(() {
+                          _selectedDate = newDate;
+                        });
+                      },
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              // Additional content can be added here
-            ],
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: 200,
+                  child: ElevatedButton(
+                    onPressed: selectedGender.isNotEmpty
+                        ? () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    HeightWeightSelectionScreen(),
+                              ),
+                            );
+                          }
+                        : () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Please select your gender'),
+                              ),
+                            );
+                          },
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(const Color(0xFFBEF264)),
+                      minimumSize:
+                          MaterialStateProperty.all(const Size(50, 50)),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Continue',
+                          style: TextStyle(
+                            color: Color(0xFF171717),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Icon(Icons.arrow_forward_ios,
+                            size: 20.0,
+                            color: Color.fromARGB(197, 255, 255, 255)),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),

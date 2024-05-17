@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_flutter_project/pages/subscribers_pages/sub_home_page.dart';
 
 class TargetMuscleScreen extends StatefulWidget {
   @override
@@ -15,23 +16,30 @@ class _TargetMuscleScreenState extends State<TargetMuscleScreen> {
       backgroundColor: const Color(0xFF171717),
       body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Text(
-                'Target Muscle',
-                style: TextStyle(fontSize: 24, color: Colors.white),
+              padding: const EdgeInsets.all(25.0),
+              child: Image.asset(
+                'lib/pics/logo.png',
+                height: 50,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            const Text(
+              'Welcome to ATHLETIX',
+              style: TextStyle(
+                fontSize: 24,
+                color: Colors.white,
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Text(
                 'Select target muscle group',
                 style: TextStyle(fontSize: 18, color: Colors.white),
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -44,14 +52,27 @@ class _TargetMuscleScreenState extends State<TargetMuscleScreen> {
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                       (Set<MaterialState> states) {
-                        return _showFrontSide ? Colors.green : Colors.white;
+                        return _showFrontSide
+                            ? const Color(0xFFBEF264)
+                            : Colors.white;
                       },
                     ),
+                    minimumSize: MaterialStateProperty.all(const Size(140, 50)),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                    ),
                   ),
-                  child:
-                      Text('Front Side', style: TextStyle(color: Colors.black)),
+                  child: Text(
+                    'Front Side',
+                    style: TextStyle(
+                      color: _showFrontSide ? Colors.black : Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
@@ -61,16 +82,29 @@ class _TargetMuscleScreenState extends State<TargetMuscleScreen> {
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                       (Set<MaterialState> states) {
-                        return !_showFrontSide ? Colors.green : Colors.white;
+                        return !_showFrontSide
+                            ? const Color(0xFFBEF264)
+                            : Colors.white;
                       },
                     ),
+                    minimumSize: MaterialStateProperty.all(const Size(140, 50)),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                    ),
                   ),
-                  child:
-                      Text('Back Side', style: TextStyle(color: Colors.black)),
+                  child: Text(
+                    'Back Side',
+                    style: TextStyle(
+                      color: !_showFrontSide ? Colors.black : Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ],
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Expanded(
               child: ListView(
                 scrollDirection: Axis.vertical,
@@ -94,16 +128,41 @@ class _TargetMuscleScreenState extends State<TargetMuscleScreen> {
                       ],
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Perform action when Finished button is pressed
-                  },
-                  child: Text('Finished'),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0, vertical: 10.0),
+                child: SizedBox(
+                  width: 200,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => SubHomePage()),
+                      );
+                    },
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(const Color(0xFFBEF264)),
+                      padding: MaterialStateProperty.all(
+                          const EdgeInsets.symmetric(vertical: 15)),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                      ),
+                    ),
+                    child: const Text(
+                      'Finished',
+                      style: TextStyle(
+                        color: Color(0xFF171717),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -126,17 +185,17 @@ class _TargetMuscleScreenState extends State<TargetMuscleScreen> {
       },
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(0),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: _selectedMuscles.contains(title)
                 ? const Color(0xFFBEF264)
                 : const Color.fromARGB(255, 255, 255, 255).withOpacity(0.5),
             width: 1,
-           
           ),
           color: Colors.transparent,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
