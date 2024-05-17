@@ -41,7 +41,6 @@ class _ClassesState extends State<Classes> {
           .collection('Class')
           .where('gym_id', isEqualTo: _gymId)
           .snapshots();
-      print("trueeeeeeee");
     } else {
       return const Stream.empty();
     }
@@ -137,9 +136,9 @@ class _ClassesState extends State<Classes> {
                       DocumentSnapshot document = listClass[index];
                       Map<String, dynamic> data =
                           document.data() as Map<String, dynamic>;
-                      String className = data['class_name'];
-                      DateTime classTime = data['class_time'].toDate();
-                      String coachName = data['coach_name'];
+                      String className = data['Class Name'];
+                      /*DateTime classTime = data['class_time'].toDate();
+                      String coachName = data['coach_name'];*/
 
                       return Card(
                         color: const Color.fromARGB(255, 39, 38, 38),
@@ -155,14 +154,14 @@ class _ClassesState extends State<Classes> {
                       );
                     },
                   );
+                } else {
+                  return const Center(
+                    child: Text(
+                      'No classes available',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
                 }
-
-                return const Center(
-                  child: Text(
-                    'No classes available',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                );
               },
             ),
           ),

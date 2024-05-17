@@ -5,6 +5,7 @@ import 'package:my_flutter_project/pages/home_page.dart';
 import 'package:my_flutter_project/pages/login_or_register_screen.dart';
 import 'package:my_flutter_project/pages/manager_pages/gym_members.dart';
 import 'package:my_flutter_project/pages/manager_pages/m_home_page.dart';
+import 'package:my_flutter_project/pages/subscribers_pages/gender.dart';
 
 class AuthPage extends StatelessWidget {
   const AuthPage({Key? key});
@@ -41,7 +42,7 @@ class AuthPage extends StatelessWidget {
                     return const GymMembers(); // Redirect to GymMembers for managers
                   } else {
                     // If the user's document does not exist in the 'Manager' collection
-                    return HomePage(); // Redirect to HomePage for non-managers
+                    return GenderSelectionScreen(); // Redirect to HomePage for non-managers
                   }
                 },
               );

@@ -289,13 +289,6 @@ class _GymMembersState extends State<GymMembers> {
                                 content: SingleChildScrollView(
                                   child: ListBody(
                                     children: <Widget>[
-                                      // Text(
-                                      //   id,
-                                      //   style: const TextStyle(
-                                      //     color: Colors.black,
-                                      //     fontSize: 16.0,
-                                      //   ),
-                                      // ),
                                       Text(
                                         fullName,
                                         style: const TextStyle(
