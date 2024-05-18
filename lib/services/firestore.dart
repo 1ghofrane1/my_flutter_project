@@ -1,106 +1,53 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class FirestoreService {
   final CollectionReference subscribers =
       FirebaseFirestore.instance.collection('Subscriber');
 
-  final CollectionReference gymAndManagerRef =
-      FirebaseFirestore.instance.collection('Gym and Manager');
-
-  // Fetch the current manager ID
-  Future<String?> getCurrentManagerId() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      return user.uid;
-    } else {
-      // Handle the case where no user is signed in
-      return '';
-    }
-  }
-
-  // Fetch the current gym ID
-
-  Future<String?> getCurrentGymId() async {
-    String? gymId;
-
-    String? currentManagerId = await getCurrentManagerId();
-
-    // Query the 'Gym And Managers' collection
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('Gym And Managers')
-        .where('managerId', isEqualTo: currentManagerId)
-        .limit(1) // Limit the result to 1 document
-        .get();
-
-    // Extract gymId from the document if it exists
-    if (querySnapshot.docs.isNotEmpty) {
-      gymId = querySnapshot.docs.first['gymId'];
-    }
-
-    return gymId;
-  }
-
-  Future<void> ajoutMember(
-      {required String fname,
-      required String lname,
-      required String email,
-      required String phone}) async {
+////////////////////////////////////// ADD NEW SUBSCRIBER //////////////////////////////////////
+  Future<String> addSubscriber({
+    required String fname,
+    required String lname,
+    required String email,
+    required String phone,
+    //required Membership membership,
+    //required startDate,
+  }) async {
     try {
-      String? gymId = await getCurrentGymId();
+      // Check if the email already exists in the Subscriber collection
+      QuerySnapshot existingSubscribers = await FirebaseFirestore.instance
+          .collection('Subscriber')
+          .where('email', isEqualTo: email)
+          .get();
+
+      if (existingSubscribers.docs.isNotEmpty) {
+        return 'Email already exists in the Subscriber collection.';
+      }
+
+      // Add the new subscriber if the email does not exist
       DocumentReference newMemberRef =
           await FirebaseFirestore.instance.collection('Subscriber').add({
-        'first name': fname,
-        'last name': lname,
+        'first_name': fname,
+        'last_name': lname,
         'email': email,
         'phone_number': phone,
         'timestamp': Timestamp.now(),
-        'gym id': gymId,
       });
-      await FirebaseFirestore.instance
-          .collection('Gym')
-          .doc(gymId)
-          .collection('my_gym_sub')
-          .doc()
-          .set({
-        'sub_id': newMemberRef.id,
-      });
+
+      // Optionally, print a success message
+      print('Subscriber added successfully with ID: ${newMemberRef.id}');
+      return 'Subscriber added successfully.';
     } catch (e) {
-      print('Error adding member: $e');
-      throw e;
+      print('Error adding subscriber: $e');
+      // Rethrow the error with more context
+      throw Exception('Failed to add subscriber. Please try again later.');
     }
   }
 
-  Stream<QuerySnapshot> subscribersListStream(String gymId) {
-    final CollectionReference subRef =
-        FirebaseFirestore.instance.collection('Subscriber');
-
-    // Query for documents
-    Stream<QuerySnapshot> subStream =
-        subRef.where('gym id', isEqualTo: gymId).snapshots();
-
-    return subStream;
+/////////////////////////////////// DISPLAY SUBSCRIBERS /////////////////////////////////////
+  Stream<QuerySnapshot> subscribersListStream() {
+    return FirebaseFirestore.instance.collection('Subscriber').snapshots();
   }
-
-  // Get the stream of current gym subscribers
-  /*Stream<QuerySnapshot> getCurrentGymSubscribersStream() async* {
-    try {
-      // Fetch the current gym ID
-      String? gymId = await getCurrentGymId();
-      if (gymId != null) {
-        // Get the stream of subscribers under the 'my_gym_sub' collection of the current gym
-        yield* FirebaseFirestore.instance
-            .collection('Gym')
-            .doc(gymId)
-            .collection('my_gym_sub')
-            .snapshots();
-      }
-    } catch (e) {
-      print('Error fetching current gym subscribers: $e');
-      // You can handle the error here as needed
-    }
-  }*/
 
   // Update a subscriber by ID
   Future<void> updateSub(String docID, String newFirstName) {
@@ -115,54 +62,80 @@ class FirestoreService {
     return subscribers.doc(docID).delete();
   }
 
+///////////////////////////////////////// NEW MEMBERSHIP ////////////////////////////////////////
   Future<void> addMembership({
     required String membershipName,
     required String? selectedDuration,
     required double membershipPricing,
   }) async {
+    // Validate input parameters
+    if (membershipName.isEmpty) {
+      throw ArgumentError('Membership name cannot be empty');
+    }
+    if (selectedDuration == null || selectedDuration.isEmpty) {
+      throw ArgumentError('Selected duration cannot be empty');
+    }
+    if (membershipPricing <= 0) {
+      throw ArgumentError('Membership pricing must be a positive value');
+    }
+
     try {
-      String? gymId = await getCurrentGymId();
+      // Optionally, check if the membership already exists
+      QuerySnapshot existingMemberships = await FirebaseFirestore.instance
+          .collection('Membership')
+          .where('Membership Name', isEqualTo: membershipName)
+          .where('Membership Duration', isEqualTo: selectedDuration)
+          .get();
+
+      if (existingMemberships.docs.isNotEmpty) {
+        throw Exception(
+            'A membership with the same name and duration already exists.');
+      }
+
       // Add new membership to the 'Membership' collection
       DocumentReference newMembershipType =
           await FirebaseFirestore.instance.collection('Membership').add({
         'Membership Name': membershipName,
         'Membership Duration': selectedDuration,
         'Membership Pricing': membershipPricing,
-        'gym id': gymId,
       });
 
-      // Reference by ID
-      await FirebaseFirestore.instance
-          .collection('Gym')
-          .doc(gymId)
-          .collection('gym_membership')
-          .doc()
-          .set({
-        'membership_id': newMembershipType.id,
-      });
+      // Optionally, log or return a success message
+      print('Membership added successfully with ID: ${newMembershipType.id}');
     } catch (e) {
       print('Error adding membership: $e');
-      throw e; // Rethrow the exception to propagate it
+      // Rethrow the error with more context
+      throw Exception('Failed to add membership. Please try again later.');
     }
   }
 
-  Future<String?> getMembershipDuration(String _selectedMembership) async {
-    String? gymId = await getCurrentGymId();
-    // Add new membership to the 'Membership' collection
-    final snapshot =
-        await FirebaseFirestore.instance.collection('Membership').get();
-    for (final membership in snapshot.docs) {
-      final String membershipGymId = membership['gym id'];
-      if (membershipGymId == gymId &&
-          membership['Membership Name'] == _selectedMembership) {
-        final String membershipDuration = membership['Membership Duration'];
-
-        return membershipDuration;
-      }
-    }
-    return null; // Return null if membership not found
+///////////////////////////////////////// DISPLAY MEMBERSHIPS ////////////////////////////////////////
+  Stream<QuerySnapshot> membershipsListStream() {
+    return FirebaseFirestore.instance.collection('Membership').snapshots();
   }
 
+  // Update a membership by ID
+  Future<void> updateMembership(String docID, String newMembershipName,
+      String newMembershipDuration, double newMembershipPricing) {
+    return FirebaseFirestore.instance
+        .collection('Membership')
+        .doc(docID)
+        .update({
+      'Membership Name': newMembershipName,
+      'Membership Duration': newMembershipDuration,
+      'Membership Pricing': newMembershipPricing,
+    });
+  }
+
+  // Delete a membership by ID
+  Future<void> deleteMembership(String docID) {
+    return FirebaseFirestore.instance
+        .collection('Membership')
+        .doc(docID)
+        .delete();
+  }
+
+///////////////////////////////////////// ADD CLASS ////////////////////////////////////////
   Future<void> addClass({
     required String className,
     required String coach,
@@ -171,8 +144,43 @@ class FirestoreService {
     required DateTime? startTime,
     required DateTime? endTime,
   }) async {
+    // Validate input parameters
+    if (className.isEmpty) {
+      throw ArgumentError('Class name cannot be empty');
+    }
+    if (coach.isEmpty) {
+      throw ArgumentError('Coach name cannot be empty');
+    }
+    if (capacity <= 0) {
+      throw ArgumentError('Capacity must be a positive integer');
+    }
+    if (scheduledDate == null) {
+      throw ArgumentError('Scheduled date cannot be null');
+    }
+    if (startTime == null) {
+      throw ArgumentError('Start time cannot be null');
+    }
+    if (endTime == null) {
+      throw ArgumentError('End time cannot be null');
+    }
+    if (startTime.isAfter(endTime)) {
+      throw ArgumentError('Start time must be before end time');
+    }
+
     try {
-      String? gymId = await getCurrentGymId();
+      // Check for schedule conflicts
+      QuerySnapshot existingClasses = await FirebaseFirestore.instance
+          .collection('Class')
+          .where('Coach', isEqualTo: coach)
+          .where('Scheduled Time', isEqualTo: scheduledDate)
+          .where('Start Time', isEqualTo: startTime)
+          .get();
+
+      if (existingClasses.docs.isNotEmpty) {
+        throw Exception(
+            'There is already a class with the same coach at the same time.');
+      }
+
       // Add new class to the 'Class' collection
       await FirebaseFirestore.instance.collection('Class').add({
         'Class Name': className,
@@ -182,27 +190,19 @@ class FirestoreService {
         'Creation Date': Timestamp.now(),
         'Start Time': startTime,
         'End Time': endTime,
-        'gym_id': gymId,
       });
+
+      // Optionally, log a success message
+      print('Class added successfully');
     } catch (e) {
       print('Error adding class: $e');
-      throw e; // Rethrow the exception to propagate it
+      // Rethrow the error with more context
+      throw Exception('Failed to add class. Please try again later.');
     }
   }
-/*Stream<QuerySnapshot> getCurrentGymClassesStream() async* {
-    try {
-      // Fetch the current gym ID
-      String? gymId = await getCurrentGymId();
-      if (gymId != null) {
-        yield* FirebaseFirestore.instance
-            .collection('Gym')
-            .doc(gymId)
-            .collection('my_gym_sub')
-            .snapshots();
-      }
-    } catch (e) {
-      print('Error fetching current gym subscribers: $e');
-      // You can handle the error here as needed
-    }
-  }*/
+
+///////////////////////////////////////// DISPLAY CLASSES ////////////////////////////////////////
+  Stream<QuerySnapshot> classesListStream() {
+    return FirebaseFirestore.instance.collection('Class').snapshots();
+  }
 }

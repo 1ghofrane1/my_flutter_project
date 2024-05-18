@@ -14,25 +14,12 @@ class _MembershipState extends State<Membership> {
 
   final List<String> membershipNames = [];
 
-  final FirestoreService _firestoreService = FirestoreService();
+  final FirestoreService firestoreService = FirestoreService();
 
   @override
   void initState() {
     super.initState();
-    _fetchGymId();
     _fetchMembershipNames();
-  }
-
-  void _fetchGymId() async {
-    gymId = await _getGymId();
-
-    print('Gym ID: ${gymId.runtimeType}');
-    _fetchMembershipNames(); // Call _fetchMembershipNames after updating gymId
-    setState(() {});
-  }
-
-  Future<String?> _getGymId() async {
-    return (await _firestoreService.getCurrentGymId())?.trim();
   }
 
   Future<void> _fetchMembershipNames() async {
@@ -149,38 +136,6 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
   @override
   void initState() {
     super.initState();
-    _fetchGymId();
-  }
-
-  Future<void> _fetchGymId() async {
-    gymId = await firestoreService.getCurrentGymId();
-    _getSub();
-  }
-
-  Future<void> _getSub() async {
-    final snapshot =
-        await FirebaseFirestore.instance.collection('Subscriber').get();
-
-    setState(() {
-      subsList.clear(); // Clear the list before updating with new data
-    });
-
-    for (final sub in snapshot.docs) {
-      final String subGymId = sub['gym id'].trim();
-      print('Subscription Gym ID type: ${subGymId.runtimeType}');
-
-      if (subGymId == gymId) {
-        final String firstName = sub['first name'];
-        final String lastName = sub['last name'];
-        final String fullName = '$firstName $lastName';
-        setState(() {
-          subsList.add(fullName);
-          print('trueeeeeeeeeeeeeeee');
-        });
-      } else {
-        print('maha2ah subbbb');
-      }
-    }
   }
 
   @override

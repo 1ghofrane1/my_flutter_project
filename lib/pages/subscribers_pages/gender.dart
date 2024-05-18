@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_flutter_project/pages/subscribers_pages/height_weight.dart';
-import 'package:my_flutter_project/pages/subscribers_pages/target_muscle.dart';
 
 class GenderSelectionScreen extends StatefulWidget {
   @override

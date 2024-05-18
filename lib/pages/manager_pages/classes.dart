@@ -15,8 +15,7 @@ class Classes extends StatefulWidget {
 }
 
 class _ClassesState extends State<Classes> {
-  final FirestoreService _firestoreService = FirestoreService();
-  String? _gymId;
+  final FirestoreService firestoreService = FirestoreService();
   DateTime _nextClassTime = DateTime.now().add(const Duration(hours: 1));
   String _coachName = "John Doe";
   final ValueNotifier<DateTime> _nextClassTimeNotifier =
@@ -25,25 +24,6 @@ class _ClassesState extends State<Classes> {
   @override
   void initState() {
     super.initState();
-    _fetchGymIdAndStartTimer();
-  }
-
-  Future<void> _fetchGymIdAndStartTimer() async {
-    _gymId = await _firestoreService.getCurrentGymId();
-    print("***************************");
-    print('Gym ID: $_gymId');
-    print("***************************");
-  }
-
-  Stream<QuerySnapshot> _classesListStream() {
-    if (_gymId != null) {
-      return FirebaseFirestore.instance
-          .collection('Class')
-          .where('gym_id', isEqualTo: _gymId)
-          .snapshots();
-    } else {
-      return const Stream.empty();
-    }
   }
 
   @override
@@ -116,7 +96,7 @@ class _ClassesState extends State<Classes> {
           const SizedBox(height: 20),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: _classesListStream(),
+              stream: firestoreService.classesListStream(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
@@ -127,6 +107,8 @@ class _ClassesState extends State<Classes> {
                 }
 
                 if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                  print(
+                      "HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEREEEEEEEEEEEEEEEEEEEEEEEEEEE");
                   List<DocumentSnapshot> listClass = snapshot.data!.docs;
 
                   return ListView.builder(
@@ -147,7 +129,13 @@ class _ClassesState extends State<Classes> {
                           horizontal: 8.0,
                         ),
                         child: ListTile(
-                          title: Text(className),
+                          title: Text(
+                            className,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.0,
+                            ),
+                          ),
                           /*subtitle: Text(
                               'Time: ${DateFormat.yMMMd().add_jm().format(classTime)}\nCoach: $coachName'),*/
                         ),

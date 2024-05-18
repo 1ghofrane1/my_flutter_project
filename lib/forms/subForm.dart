@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
-import 'package:my_flutter_project/components/phone.dart';
 import 'package:my_flutter_project/services/firestore.dart';
 
 class SubForm extends StatefulWidget {
@@ -19,7 +17,7 @@ class _SubFormState extends State<SubForm> {
   final TextEditingController _phoneNumberController = TextEditingController();
   bool _isSubmitting = false; // Track whether form is being submitted
 
-  final FirestoreService _firestoreService = FirestoreService();
+  final FirestoreService firestoreService = FirestoreService();
 
   @override
   Widget build(BuildContext context) {
@@ -30,13 +28,6 @@ class _SubFormState extends State<SubForm> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              /*const Text(
-                'Add Subscriber',
-                style: TextStyle(
-                  color: Color(0xFF171717),
-                  fontSize: 18.0,
-                ),
-              ),*/
               const SizedBox(height: 10),
               TextFormField(
                 controller: _firstnameController,
@@ -152,49 +143,6 @@ class _SubFormState extends State<SubForm> {
                   return null;
                 },
               ),
-
-              /*const SizedBox(height: 20.0),
-              IntlPhoneField(
-                controller: _phoneNumberController,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
-                dropdownTextStyle: const TextStyle(color: Colors.grey),
-                decoration: const InputDecoration(
-                  border: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF9E9E9E)),
-                  ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0x9E9E9E9E)),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0x62BEF264)),
-                  ),
-                  fillColor: Colors.transparent,
-                  filled: true,
-                  labelText: 'Phone Number',
-                  labelStyle: TextStyle(fontSize: 14.0),
-                ),
-                initialCountryCode: 'TN',
-                onChanged: (phone) {
-                  // Check if the phone number is empty or not
-                  if (phone.completeNumber.isEmpty) {
-                    // If empty, set the error message
-                    setState(() {
-                      _phoneNumberError =
-                          "Please enter subscriber's phone number";
-                    });
-                  } else {
-                    // If not empty, clear the error message
-                    setState(() {
-                      _phoneNumberError = null;
-                    });
-                  }
-                },
-                keyboardType: TextInputType
-                    .phone, // Use TextInputType.phone for phone numbers
-              ),*/
               const SizedBox(height: 20.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -220,7 +168,7 @@ class _SubFormState extends State<SubForm> {
                               final email = _emailController.text;
                               final phoneNumber = _phoneNumberController.text;
                               try {
-                                await _firestoreService.ajoutMember(
+                                await firestoreService.addSubscriber(
                                   fname: firstname,
                                   lname: lastname,
                                   email: email,
