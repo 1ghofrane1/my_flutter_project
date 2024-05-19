@@ -19,7 +19,7 @@ class _SubFormState extends State<SubForm> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   bool _isSubmitting = false; // Track whether form is being submitted
-  bool _isLoading = false; // Track whether data is being fetched
+  bool _isLoading = false;
   final FirestoreService firestoreService = FirestoreService();
   String? _selectedDuration;
   List<String> _membershipDurations = [];
@@ -272,6 +272,7 @@ class _SubFormState extends State<SubForm> {
                                 _emailController.clear();
                                 _phoneNumberController.clear();
 
+                                // Reset the flag to enable the submit button
                                 setState(() {
                                   _isSubmitting = false;
                                 });
@@ -287,18 +288,15 @@ class _SubFormState extends State<SubForm> {
                                     backgroundColor: Colors.red,
                                   ),
                                 );
+
+                                // Reset the flag to enable the submit button
                                 setState(() {
                                   _isSubmitting = false;
                                 });
                               }
                             }
                           },
-                    child: _isSubmitting
-                        ? const CircularProgressIndicator(
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
-                          )
-                        : const Text('Submit'),
+                    child: const Text('Submit'),
                   ),
                 ],
               ),

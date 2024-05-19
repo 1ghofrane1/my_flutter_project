@@ -352,12 +352,44 @@ class _GymMembersState extends State<GymMembers> {
                                                     const InputDecoration(
                                                         labelText: 'Phone'),
                                               ),
+                                              TextField(
+                                                controller: TextEditingController(
+                                                    text: data[
+                                                            'selected_duration'] ??
+                                                        ''),
+                                                decoration:
+                                                    const InputDecoration(
+                                                        labelText:
+                                                            'Selected Duration'),
+                                              ),
+                                              TextField(
+                                                controller: TextEditingController(
+                                                    text: data['start_date'] !=
+                                                            null
+                                                        ? (data['start_date']
+                                                                as Timestamp)
+                                                            .toDate()
+                                                            .toString()
+                                                        : 'N/A'),
+                                                decoration:
+                                                    const InputDecoration(
+                                                        labelText:
+                                                            'Start Date'),
+                                              ),
+                                              TextField(
+                                                controller:
+                                                    TextEditingController(
+                                                        text: endDate),
+                                                decoration:
+                                                    const InputDecoration(
+                                                        labelText: 'End Date'),
+                                              ),
                                             ],
                                           ),
                                           actions: <Widget>[
                                             ElevatedButton(
                                               onPressed: () {
-                                                // Action to perform when saving edited details
+                                                // edit
                                                 Navigator.pop(context);
                                               },
                                               child: const Text('Save'),
