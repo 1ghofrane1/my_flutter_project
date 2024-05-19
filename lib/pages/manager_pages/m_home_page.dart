@@ -1,3 +1,55 @@
+import 'package:flutter/material.dart';
+import 'package:my_flutter_project/pages/manager_pages/bottom_navbar.dart';
+import 'package:my_flutter_project/pages/manager_pages/classes.dart';
+import 'package:my_flutter_project/pages/manager_pages/gym_members.dart';
+
+
+class MHomePage extends StatefulWidget {
+  @override
+  _MHomePageState createState() => _MHomePageState();
+}
+
+class _MHomePageState extends State<MHomePage> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    if (index != _selectedIndex) {
+      if (index == 1) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const GymMembers()),
+        );
+      } else if (index == 2) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Classes()),
+        );
+      }
+    }
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Home'),
+      ),
+      body: const Center(
+        child: Text('Home Screen Content'),
+      ),
+      bottomNavigationBar: MyBottomNavBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+}
+
+
+
 /*
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';

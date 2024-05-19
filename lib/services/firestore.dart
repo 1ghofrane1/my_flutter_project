@@ -10,8 +10,9 @@ class FirestoreService {
     required String lname,
     required String email,
     required String phone,
-    //required Membership membership,
-    //required startDate,
+    required String selectedDuration,
+    required DateTime startDate,
+    required DateTime endDate,
   }) async {
     try {
       // Check if the email already exists in the Subscriber collection
@@ -27,14 +28,17 @@ class FirestoreService {
       // Add the new subscriber if the email does not exist
       DocumentReference newMemberRef =
           await FirebaseFirestore.instance.collection('Subscriber').add({
-        'first_name': fname,
-        'last_name': lname,
+        'fname': fname,
+        'lname': lname,
         'email': email,
         'phone_number': phone,
+        'selected_duration': selectedDuration,
+        'start_date': startDate,
+        'end_date': endDate,
         'timestamp': Timestamp.now(),
       });
 
-      // Optionally, print a success message
+      // tesssst
       print('Subscriber added successfully with ID: ${newMemberRef.id}');
       return 'Subscriber added successfully.';
     } catch (e) {
@@ -64,14 +68,11 @@ class FirestoreService {
 
 ///////////////////////////////////////// NEW MEMBERSHIP ////////////////////////////////////////
   Future<void> addMembership({
-    required String membershipName,
     required String? selectedDuration,
     required double membershipPricing,
   }) async {
     // Validate input parameters
-    if (membershipName.isEmpty) {
-      throw ArgumentError('Membership name cannot be empty');
-    }
+
     if (selectedDuration == null || selectedDuration.isEmpty) {
       throw ArgumentError('Selected duration cannot be empty');
     }
@@ -83,7 +84,6 @@ class FirestoreService {
       // Optionally, check if the membership already exists
       QuerySnapshot existingMemberships = await FirebaseFirestore.instance
           .collection('Membership')
-          .where('Membership Name', isEqualTo: membershipName)
           .where('Membership Duration', isEqualTo: selectedDuration)
           .get();
 
@@ -95,7 +95,6 @@ class FirestoreService {
       // Add new membership to the 'Membership' collection
       DocumentReference newMembershipType =
           await FirebaseFirestore.instance.collection('Membership').add({
-        'Membership Name': membershipName,
         'Membership Duration': selectedDuration,
         'Membership Pricing': membershipPricing,
       });
@@ -109,7 +108,28 @@ class FirestoreService {
     }
   }
 
-///////////////////////////////////////// DISPLAY MEMBERSHIPS ////////////////////////////////////////
+  Future<List<String>> fetchMembershipDurations() async {
+    try {
+      // Query the 'Membership' collection to fetch all documents
+      QuerySnapshot membershipSnapshots =
+          await FirebaseFirestore.instance.collection('Membership').get();
+
+      // Extract membership durations from the snapshots
+      List<String> membershipDurations = membershipSnapshots.docs
+          .map((doc) => doc['Membership Duration'] as String)
+          .toList();
+
+      // Return the list of membership durations
+      return membershipDurations;
+    } catch (e) {
+      print('Error fetching membership durations: $e');
+      // Rethrow the error with more context
+      throw Exception(
+          'Failed to fetch membership durations. Please try again later.');
+    }
+  }
+
+//////////////////////////////////////// DISPLAY MEMBERSHIPS ////////////////////////////////////////
   Stream<QuerySnapshot> membershipsListStream() {
     return FirebaseFirestore.instance.collection('Membership').snapshots();
   }

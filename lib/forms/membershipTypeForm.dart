@@ -11,8 +11,6 @@ class MembershipForm extends StatefulWidget {
 class _MembershipFormState extends State<MembershipForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _membershipNameController =
-      TextEditingController();
   final TextEditingController _membershipPricingController =
       TextEditingController();
   String? _selectedDuration;
@@ -37,31 +35,8 @@ class _MembershipFormState extends State<MembershipForm> {
                 ),
               ),*/
               const SizedBox(height: 10),
-              TextFormField(
-                controller: _membershipNameController,
-                decoration: const InputDecoration(
-                  border: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF9E9E9E)),
-                  ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0x9E9E9E9E)),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0x62BEF264)),
-                  ),
-                  fillColor: Colors.transparent,
-                  filled: true,
-                  labelText: 'Name',
-                  labelStyle: TextStyle(fontSize: 14.0),
-                ),
-                keyboardType: TextInputType.text,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter membership name';
-                  }
-                  return null;
-                },
-              ),
+              
+              
               const SizedBox(height: 10.0),
               DropdownButtonFormField<String>(
                 value: _selectedDuration,
@@ -131,19 +106,18 @@ class _MembershipFormState extends State<MembershipForm> {
                               final membershipPricing = double.tryParse(
                                       _membershipPricingController.text) ??
                                   0;
-                              final membershipName =
-                                  _membershipNameController.text;
+                              
 
                               try {
                                 // Call addMembership method from FirestoreService
                                 await _firestoreService.addMembership(
-                                  membershipName: membershipName,
+                                  
                                   selectedDuration: _selectedDuration,
                                   membershipPricing: membershipPricing,
                                 );
 
                                 // Clear text controllers and reset selected duration
-                                _membershipNameController.clear();
+                                
                                 _membershipPricingController.clear();
                                 setState(() {
                                   _selectedDuration = null;
