@@ -54,12 +54,28 @@ class FirestoreService {
   }
 
   // Update a subscriber by ID
-  Future<void> updateSub(String docID, String newFirstName) {
-    return subscribers.doc(docID).update({
-      'first name': newFirstName,
-      'timestamp': Timestamp.now(),
-    });
-  }
+  Future<void> updateSub(
+  String docID,
+  String newFirstName,
+  String newLastName,
+  String newEmail,
+  String newPhone,
+  String newSelectedDuration,
+  String newStartDate,
+  String newEndDate
+) {
+  return subscribers.doc(docID).update({
+    'fname': newFirstName,
+    'lname': newLastName,
+    'email': newEmail,
+    'phone': newPhone,
+    'selected_duration': newSelectedDuration,
+    'start_date': Timestamp.fromDate(DateTime.parse(newStartDate)),
+    'end_date': Timestamp.fromDate(DateTime.parse(newEndDate)),
+    'timestamp': Timestamp.now(),
+  });
+}
+
 
   // Delete a subscriber by ID
   Future<void> deleteSub(String docID) {
