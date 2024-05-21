@@ -331,4 +331,50 @@ class FirestoreService {
       throw Exception('Failed to delete user. Please try again later.');
     }
   }
+
+// Method to calculate the number of new subscribers for each month
+  Future<Map<String, int>> calculateNewSubscribersByMonth() async {
+    try {
+      // Get all subscribers from Firestore
+      QuerySnapshot subscriberSnapshot =
+          await subscribers.orderBy('timestamp').get();
+
+      // Map to store the count of new subscribers for each month
+      Map<String, int> newSubscribersByMonth = {};
+
+      // Iterate through each subscriber document
+      for (QueryDocumentSnapshot subscriberDoc in subscriberSnapshot.docs) {
+        // Extract timestamp of subscriber registration
+        Map<String, dynamic>? data =
+            subscriberDoc.data() as Map<String, dynamic>?;
+
+        if (data != null) {
+          Timestamp? timestamp = data['timestamp'] as Timestamp?;
+
+          // Perform null check before proceeding
+          if (timestamp != null) {
+            // Extract year and month from timestamp
+            String yearMonth =
+                '${timestamp.toDate().year}-${timestamp.toDate().month}';
+
+            // If the month doesn't exist in the map, initialize count to 1
+            if (!newSubscribersByMonth.containsKey(yearMonth)) {
+              newSubscribersByMonth[yearMonth] = 1;
+            } else {
+              // Increment count if month already exists
+              newSubscribersByMonth[yearMonth] =
+                  (newSubscribersByMonth[yearMonth] ?? 0) + 1;
+            }
+          }
+        }
+      }
+
+      return newSubscribersByMonth;
+    } catch (e) {
+      print('Error calculating new subscribers by month: $e');
+      // Rethrow the error with more context
+      throw Exception(
+          'Failed to calculate new subscribers by month. Please try again later.');
+    }
+  }
 }
