@@ -5,7 +5,9 @@ import 'package:my_flutter_project/components/drop_list.dart';
 import 'package:my_flutter_project/components/my_button.dart';
 import 'package:my_flutter_project/components/my_textfield.dart';
 import 'package:my_flutter_project/components/phone.dart';
-import 'package:my_flutter_project/pages/gym_acc.dart';
+import 'package:my_flutter_project/pages/manager_pages/gym_acc.dart';
+import 'package:my_flutter_project/pages/manager_pages/m_home_page.dart';
+import 'package:my_flutter_project/pages/verif.dart';
 
 class ResgisterScreen extends StatefulWidget {
   final Function()? onTap;
@@ -147,9 +149,9 @@ class _ResgisterScreenState extends State<ResgisterScreen> {
     );
   }
 
-  // sign user up method
   void signUserUp() async {
     if (!mounted) return;
+
     // show loading circle
     showDialog(
       context: context,
@@ -168,21 +170,12 @@ class _ResgisterScreenState extends State<ResgisterScreen> {
             await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailController.text,
           password: passwordController.text,
-
         );
 
         String collectionName;
         switch (_selectedRole) {
           case 0:
             collectionName = 'Manager';
-
-            // Navigate to gym_acc.dart if the role is Manager
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const GymAcc(),
-              ),
-            );
             break;
           case 1:
             collectionName = 'Coach';
@@ -194,17 +187,54 @@ class _ResgisterScreenState extends State<ResgisterScreen> {
             throw Exception('Invalid role');
         }
 
-        // create a new document in Firestore under the appropriate collection
-        await FirebaseFirestore.instance
-            .collection(collectionName)
-            .doc(userCredential.user!.uid)
-            .set({
-          'fname': fnameController.text,
-          'lname': lnameController.text,
-          'email': emailController.text,
-          'phone_number' : phoneNumberController.text,
-          //'role': _selectedRole,
+        // Check if the 'Manager' collection exists
+        final managerCollectionExists = await FirebaseFirestore.instance
+            .collection('Manager')
+            .get()
+            .then((snapshot) {
+          return snapshot.docs.isNotEmpty;
         });
+
+        if (!managerCollectionExists && collectionName == 'Manager') {
+          // Add to the 'Manager' collection if it doesn't exist and the role is 'Manager'
+          await FirebaseFirestore.instance
+              .collection('Manager')
+              .doc(userCredential.user!.uid)
+              .set({
+            'fname': fnameController.text,
+            'lname': lnameController.text,
+            'email': emailController.text,
+            'phone_number': phoneNumberController.text,
+          });
+
+          // Navigate to the manager home page
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MHomePage(),
+            ),
+          );
+        } else if (managerCollectionExists) {
+          // Add to 'Not Verified' collection if 'Manager' collection exists or the role is not 'Manager'
+          await FirebaseFirestore.instance
+              .collection('Not Verified')
+              .doc(userCredential.user!.uid)
+              .set({
+            'fname': fnameController.text,
+            'lname': lnameController.text,
+            'email': emailController.text,
+            'phone_number': phoneNumberController.text,
+            'role': collectionName,
+          });
+
+          // Navigate to the verification pending page
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const Verif(),
+            ),
+          );
+        }
       } else {
         // show error msg, passwords don't match
         showErrorMessage("Passwords don't match!");
@@ -225,6 +255,7 @@ class _ResgisterScreenState extends State<ResgisterScreen> {
         showErrorMessage("Error: ${e.message}");
       }
     }
+
     if (mounted) {
       Navigator.pop(context);
     }

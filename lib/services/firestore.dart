@@ -55,27 +55,25 @@ class FirestoreService {
 
   // Update a subscriber by ID
   Future<void> updateSub(
-  String docID,
-  String newFirstName,
-  String newLastName,
-  String newEmail,
-  String newPhone,
-  String newSelectedDuration,
-  String newStartDate,
-  String newEndDate
-) {
-  return subscribers.doc(docID).update({
-    'fname': newFirstName,
-    'lname': newLastName,
-    'email': newEmail,
-    'phone': newPhone,
-    'selected_duration': newSelectedDuration,
-    'start_date': Timestamp.fromDate(DateTime.parse(newStartDate)),
-    'end_date': Timestamp.fromDate(DateTime.parse(newEndDate)),
-    'timestamp': Timestamp.now(),
-  });
-}
-
+      String docID,
+      String newFirstName,
+      String newLastName,
+      String newEmail,
+      String newPhone,
+      String newSelectedDuration,
+      String newStartDate,
+      String newEndDate) {
+    return subscribers.doc(docID).update({
+      'fname': newFirstName,
+      'lname': newLastName,
+      'email': newEmail,
+      'phone': newPhone,
+      'selected_duration': newSelectedDuration,
+      'start_date': Timestamp.fromDate(DateTime.parse(newStartDate)),
+      'end_date': Timestamp.fromDate(DateTime.parse(newEndDate)),
+      'timestamp': Timestamp.now(),
+    });
+  }
 
   // Delete a subscriber by ID
   Future<void> deleteSub(String docID) {
@@ -240,5 +238,97 @@ class FirestoreService {
 ///////////////////////////////////////// DISPLAY CLASSES ////////////////////////////////////////
   Stream<QuerySnapshot> classesListStream() {
     return FirebaseFirestore.instance.collection('Class').snapshots();
+  }
+
+  Stream<QuerySnapshot> notVerifListStream() {
+    return FirebaseFirestore.instance.collection('Not Verified').snapshots();
+  }
+
+  Future<int> countDocumentsInNotVerifiedCollection() async {
+    try {
+      // Get a reference to Firestore instance
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+      // Reference to the "Not Verified" collection
+      CollectionReference notVerifiedCollectionRef =
+          firestore.collection('Not Verified');
+
+      // Get the documents in the collection
+      QuerySnapshot snapshot = await notVerifiedCollectionRef.get();
+
+      // Count the number of documents
+      int count = snapshot.size;
+
+      // Return the count
+      return count;
+    } catch (e) {
+      print('Error counting documents: $e');
+      // Return -1 or any other value to indicate an error
+      return -1;
+    }
+  }
+
+  Future<void> addNewUser({
+    required String fname,
+    required String lname,
+    required String email,
+    required String phone,
+    required String role,
+  }) async {
+    try {
+      // Check if the email already exists in the collection
+      QuerySnapshot existingUsers = await FirebaseFirestore.instance
+          .collection(role)
+          .where('email', isEqualTo: email)
+          .get();
+
+      if (existingUsers.docs.isNotEmpty) {
+        throw Exception('Email already exists in the $role collection.');
+      }
+
+      // Add the new user if the email does not exist
+      DocumentReference newUserRef =
+          await FirebaseFirestore.instance.collection(role).add({
+        'fname': fname,
+        'lname': lname,
+        'email': email,
+        'phone_number': phone,
+        'timestamp': Timestamp.now(),
+      });
+
+      print('User added successfully with ID: ${newUserRef.id}');
+
+      // Delete the user data from the 'Not Verified' collection
+      await FirebaseFirestore.instance
+          .collection('Not Verified')
+          .where('email', isEqualTo: email)
+          .get()
+          .then((QuerySnapshot snapshot) {
+        snapshot.docs.forEach((doc) {
+          doc.reference.delete();
+          print('User data deleted from "Not Verified" collection');
+        });
+      });
+    } catch (e) {
+      print('Error adding user: $e');
+      throw Exception('Failed to add user. Please try again later.');
+    }
+  }
+
+  Future<void> deleteNotVerifiedUser(String email) async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('Not Verified')
+          .where('email', isEqualTo: email)
+          .get();
+
+      snapshot.docs.forEach((doc) {
+        doc.reference.delete();
+        print('User data deleted from "Not Verified" collection');
+      });
+    } catch (e) {
+      print('Error deleting user: $e');
+      throw Exception('Failed to delete user. Please try again later.');
+    }
   }
 }

@@ -1,12 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_flutter_project/components/my_button.dart';
-import 'package:my_flutter_project/components/skip_button.dart';
-import 'package:my_flutter_project/pages/home_page.dart';
+
 import 'package:my_flutter_project/pages/manager_pages/gym_members.dart';
-import 'package:my_flutter_project/pages/manager_pages/m_home_page.dart';
 
 class GymAcc extends StatefulWidget {
   const GymAcc({Key? key});

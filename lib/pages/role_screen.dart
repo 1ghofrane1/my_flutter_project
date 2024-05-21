@@ -17,13 +17,13 @@ class _PreAuthScreenState extends State<PreAuthScreen> {
       backgroundColor: const Color(0xFF171717),
       body: Column(
         children: [
-          SizedBox(height: 100),
+          const SizedBox(height: 100),
           Center(
             child: Image.asset('lib/pics/logo.png', height: 80),
           ),
-          SizedBox(height: 50),
-          Padding(
-            padding: const EdgeInsets.only(left: 20),
+          const SizedBox(height: 50),
+          const Padding(
+            padding: EdgeInsets.only(left: 20),
             child: Column(
               children: [
                 Align(
@@ -59,7 +59,7 @@ class _PreAuthScreenState extends State<PreAuthScreen> {
               ],
             ),
           ),
-          SizedBox(height: 50),
+          const SizedBox(height: 50),
           RadioListTile<int>(
             title: Text(
               'Admin',
@@ -111,7 +111,7 @@ class _PreAuthScreenState extends State<PreAuthScreen> {
         ],
       ),
       bottomNavigationBar: Container(
-        padding: EdgeInsets.all(30),
+        padding: const EdgeInsets.all(30),
         child: ElevatedButton(
           onPressed: _selectedRole != null
               ? () {
@@ -129,7 +129,7 @@ class _PreAuthScreenState extends State<PreAuthScreen> {
               : () {
                   // Show error message if no radio button is selected
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text('Please select a role first'),
                       backgroundColor: Colors.red,
                     ),
@@ -137,7 +137,7 @@ class _PreAuthScreenState extends State<PreAuthScreen> {
                 },
           style: ElevatedButton.styleFrom(
             backgroundColor:
-                _isButtonClicked ? Color(0xFFBEF264) : Colors.transparent,
+                _isButtonClicked ? const Color(0xFFBEF264) : Colors.transparent,
             side: BorderSide(
               color: _isButtonClicked ? Colors.transparent : Colors.grey,
               width: _isButtonClicked ? 0.0 : 2.0,

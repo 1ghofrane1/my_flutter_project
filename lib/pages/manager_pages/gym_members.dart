@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_flutter_project/forms/membershipTypeForm.dart';
@@ -9,7 +8,6 @@ import 'package:my_flutter_project/pages/manager_pages/controllers/gym_members_c
 import 'package:my_flutter_project/pages/manager_pages/m_home_page.dart';
 import 'package:my_flutter_project/services/firestore.dart';
 import 'package:my_flutter_project/pages/manager_pages/classes.dart';
-import 'package:my_flutter_project/components/expandable_fab.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GymMembers extends StatefulWidget {
