@@ -18,6 +18,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // Method to sign user in
   void signUserIn() async {
+    // Check if email and password fields are empty
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      showErrorMessage("Please enter both email and password.");
+      return;
+    }
+
     // Show loading indicator
     showDialog(
       context: context,
@@ -27,6 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       },
     );
+
     try {
       // Sign in with email and password
       await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -44,9 +51,14 @@ class _LoginScreenState extends State<LoginScreen> {
       } else if (e.code == 'wrong-password') {
         showErrorMessage("Invalid Password!");
       } else {
-        //showErrorMessage("message : ${e.code}");
-        showErrorMessage('Invalid Email or Password!');
+        // Show error message for other FirebaseAuthException codes
+        showErrorMessage("Error: ${e.message}");
       }
+    } catch (e) {
+      // Close loading indicator
+      Navigator.pop(context);
+      // Show error message for other types of exceptions (e.g., network issues)
+      showErrorMessage("Error: ${e.toString()}");
     }
   }
 

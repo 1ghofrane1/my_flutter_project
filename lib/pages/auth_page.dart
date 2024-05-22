@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_flutter_project/pages/coach_pages/coach_page.dart';
 import 'package:my_flutter_project/pages/login_or_register_screen.dart';
 import 'package:my_flutter_project/pages/manager_pages/m_home_page.dart';
-import 'package:my_flutter_project/pages/subscribers_pages/gender.dart';
 import 'package:my_flutter_project/pages/subscribers_pages/sub_home_page.dart';
 import 'package:my_flutter_project/pages/verif.dart';
 

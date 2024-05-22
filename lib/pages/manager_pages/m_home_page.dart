@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
+import 'package:my_flutter_project/charts/subscriber_comparison_chart.dart';
 import 'package:my_flutter_project/pages/manager_pages/bottom_navbar.dart';
 import 'package:my_flutter_project/pages/manager_pages/classes.dart';
 import 'package:my_flutter_project/pages/manager_pages/gym_members.dart';
@@ -76,11 +76,17 @@ class _MHomePageState extends State<MHomePage> {
           ),
         ],
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text('Home Screen Content'),
+            const Text(
+              'Welcome to the Manager Dashboard',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -90,10 +96,17 @@ class _MHomePageState extends State<MHomePage> {
                   ),
                 );
               },
-              child: const Text('Go to Gym Members'),
+              child: const Text('View Not Verified Members'),
             ),
+            SizedBox(height: 20),
             // Display the count of documents
-            Text('Number of Not Verified documents: $_notVerifiedCount'),
+            Text(
+              'Number of Not Verified Members: $_notVerifiedCount',
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 20),
+            // Display the comparison chart
+            SubscriberComparisonChart(),
           ],
         ),
       ),
