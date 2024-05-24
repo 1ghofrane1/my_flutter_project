@@ -27,11 +27,24 @@ class _GymMembersState extends State<GymMembers> {
   late String endDate = "";
   String? membershipDuration = '';
   List<String> _membershipDurations = [];
-
+  String filter = "";
+  late List<DocumentSnapshot> ListSub;
+  late List<DocumentSnapshot> filteredSub;
   @override
   void initState() {
     super.initState();
+    fetchData();
     _fetchMembershipDurations();
+  }
+
+  Future<void> fetchData() async {
+    QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('Subscriber').get();
+    setState(() {
+      ListSub = snapshot.docs;
+      filteredSub =
+          ListSub; // Initialize filteredSub with the same data initially
+    });
   }
 
   Future<void> _fetchMembershipDurations() async {
@@ -44,6 +57,27 @@ class _GymMembersState extends State<GymMembers> {
     } catch (e) {
       print('Error fetching membership durations: $e');
     }
+  }
+
+  changeFilter(String membershipDuration) {
+    print(membershipDuration);
+    print(ListSub);
+
+    setState(() {
+      if (membershipDuration == "All") {
+        print("Alllllllllllll");
+        print(ListSub);
+        print("Alllllllllllll");
+        filteredSub = ListSub;
+      } else {
+        filter = membershipDuration;
+        filteredSub = ListSub.where((sub) {
+          var data = sub.data() as Map<String, dynamic>?;
+          return data?['selected_duration'] == membershipDuration;
+        }).toList();
+      }
+    });
+    print(filteredSub);
   }
 
   void _onItemTapped(int index) {
@@ -169,30 +203,57 @@ class _GymMembersState extends State<GymMembers> {
                                 return SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
                                   child: Row(
-                                    children: listMembership.map((document) {
-                                      Map<String, dynamic> data = document
-                                          .data() as Map<String, dynamic>;
-                                      String membershipDuration =
-                                          data['Membership Duration'] ?? '';
-
-                                      return Card(
-                                        color: Colors.white,
-                                        margin: const EdgeInsets.symmetric(
-                                          vertical: 4.0,
-                                          horizontal: 8.0,
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text(
-                                            membershipDuration,
-                                            style: const TextStyle(
-                                              color: Color(0xFF171717),
-                                              fontSize: 16.0,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () => changeFilter('All'),
+                                        child: const Card(
+                                          color: Colors.white,
+                                          margin: EdgeInsets.symmetric(
+                                            vertical: 4.0,
+                                            horizontal: 8.0,
+                                          ),
+                                          child: Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: Text(
+                                              "All",
+                                              style: TextStyle(
+                                                color: Color(0xFF171717),
+                                                fontSize: 16.0,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      );
-                                    }).toList(),
+                                      ),
+                                      ...listMembership.map((document) {
+                                        Map<String, dynamic> data = document
+                                            .data() as Map<String, dynamic>;
+                                        String membershipDuration =
+                                            data['Membership Duration'] ?? '';
+
+                                        return GestureDetector(
+                                          onTap: () =>
+                                              changeFilter(membershipDuration),
+                                          child: Card(
+                                            color: Colors.white,
+                                            margin: const EdgeInsets.symmetric(
+                                              vertical: 4.0,
+                                              horizontal: 8.0,
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                membershipDuration,
+                                                style: const TextStyle(
+                                                  color: Color(0xFF171717),
+                                                  fontSize: 16.0,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ],
                                   ),
                                 );
                               } else {
@@ -229,7 +290,7 @@ class _GymMembersState extends State<GymMembers> {
                   builder: (context, snapshot) {
                     if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
                       return Text(
-                        "${snapshot.data!.docs.length}",
+                        "${filteredSub.length}",
                         style: const TextStyle(
                           color: Color(0xFFBEF264),
                           fontWeight: FontWeight.bold,
@@ -259,14 +320,12 @@ class _GymMembersState extends State<GymMembers> {
                 }
 
                 if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                  List<DocumentSnapshot> listSub = snapshot.data!.docs;
-
                   return ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: listSub.length,
+                    itemCount: filteredSub.length,
                     itemBuilder: (context, index) {
-                      DocumentSnapshot document = listSub[index];
+                      DocumentSnapshot document = filteredSub[index];
                       String? docID = document.id;
                       print('doc: $docID');
                       Map<String, dynamic> data =
