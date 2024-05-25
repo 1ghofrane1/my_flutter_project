@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:my_flutter_project/pages/subscribers_pages/health.dart';
 import 'package:my_flutter_project/pages/subscribers_pages/sub_home_page.dart';
 
 class TargetMuscleScreen extends StatefulWidget {
@@ -9,6 +12,7 @@ class TargetMuscleScreen extends StatefulWidget {
 class _TargetMuscleScreenState extends State<TargetMuscleScreen> {
   bool _showFrontSide = true;
   List<String> _selectedMuscles = [];
+  String _selectedGoal = '';
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +35,23 @@ class _TargetMuscleScreenState extends State<TargetMuscleScreen> {
                 fontSize: 24,
                 color: Colors.white,
               ),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Text(
+                'Select your goal',
+                style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildGoalButton('Weight loss'),
+                const SizedBox(width: 10),
+                _buildGoalButton('Weight gain'),
+                const SizedBox(width: 10),
+                _buildGoalButton('Endurance improvement'),
+              ],
             ),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -137,30 +158,71 @@ class _TargetMuscleScreenState extends State<TargetMuscleScreen> {
                 child: SizedBox(
                   width: 200,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => SubHomePage()),
-                      );
+                    onPressed: () async {
+                      if (_selectedGoal.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Please select a goal.'),
+                          ),
+                        );
+                        return;
+                      }
+                      if (_selectedMuscles.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                                'Please select at least one muscle group.'),
+                          ),
+                        );
+                        return;
+                      }
+
+                      // Retrieve the current user's ID
+                      String? userId = FirebaseAuth.instance.currentUser?.uid;
+                      if (userId != null && userId.isNotEmpty) {
+                        try {
+                          // Update the subscriber's document with selected muscles and goal
+                          await FirebaseFirestore.instance
+                              .collection('Subscriber')
+                              .doc(userId)
+                              .update({
+                            'selectedMuscles': _selectedMuscles,
+                            'goal': _selectedGoal,
+                          });
+                          // Navigate to the SubHomePage
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HealthDetailsScreen()),
+                          );
+                        } catch (e) {
+                          print('Error updating document: $e');
+                        }
+                      } else {
+                        print('User not logged in');
+                      }
                     },
                     style: ButtonStyle(
                       backgroundColor:
                           MaterialStateProperty.all(const Color(0xFFBEF264)),
-                      padding: MaterialStateProperty.all(
-                          const EdgeInsets.symmetric(vertical: 15)),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                        ),
-                      ),
+                      minimumSize:
+                          MaterialStateProperty.all(const Size(50, 50)),
                     ),
-                    child: const Text(
-                      'Finished',
-                      style: TextStyle(
-                        color: Color(0xFF171717),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Continue',
+                          style: TextStyle(
+                            color: Color(0xFF171717),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Icon(Icons.arrow_forward_ios,
+                            color: Color.fromARGB(197, 255, 255, 255)),
+                      ],
                     ),
                   ),
                 ),
@@ -218,6 +280,38 @@ class _TargetMuscleScreenState extends State<TargetMuscleScreen> {
               style: const TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGoalButton(String title) {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          _selectedGoal = title;
+        });
+      },
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.resolveWith<Color>(
+          (Set<MaterialState> states) {
+            return _selectedGoal == title
+                ? const Color(0xFFBEF264)
+                : Colors.white;
+          },
+        ),
+        minimumSize: MaterialStateProperty.all(const Size(140, 50)),
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30.0),
+          ),
+        ),
+      ),
+      child: Text(
+        title,
+        style: TextStyle(
+          color: _selectedGoal == title ? Colors.black : Colors.black,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );

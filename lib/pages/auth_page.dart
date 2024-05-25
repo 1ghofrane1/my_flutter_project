@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_flutter_project/pages/coach_pages/coach_page.dart';
 import 'package:my_flutter_project/pages/login_or_register_screen.dart';
 import 'package:my_flutter_project/pages/manager_pages/m_home_page.dart';
+import 'package:my_flutter_project/pages/subscribers_pages/gender.dart';
 import 'package:my_flutter_project/pages/subscribers_pages/sub_home_page.dart';
 import 'package:my_flutter_project/pages/verif.dart';
 
@@ -56,8 +57,20 @@ class AuthPage extends StatelessWidget {
                         }
                         if (subscriberSnapshot.hasData &&
                             subscriberSnapshot.data!.exists) {
-                          // If the user's document exists in the 'Subscriber' collection
-                          return SubHomePage();
+                          var subscriberData = subscriberSnapshot.data!.data()
+                              as Map<String, dynamic>;
+
+                          if (/*subscriberData.containsKey('gender') &&
+                              subscriberData.containsKey('birthday') && 
+                              subscriberData.containsKey('height') && 
+                              subscriberData.containsKey('weight') && */
+                              subscriberData.containsKey('selectedMuscles')) {
+                            // If the user's document exists in the 'Subscriber' collection and has completed the gender and birthday selection
+                            return SubHomePage();
+                          } else {
+                            // Navigate to GenderSelectionScreen if gender and birthday are not set
+                            return GenderSelectionScreen();
+                          }
                         } else {
                           return FutureBuilder<DocumentSnapshot>(
                             future: FirebaseFirestore.instance

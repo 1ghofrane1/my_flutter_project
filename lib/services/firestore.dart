@@ -286,9 +286,25 @@ class FirestoreService {
         throw Exception('Email already exists in the $role collection.');
       }
 
-      // Add the new user if the email does not exist
-      DocumentReference newUserRef =
-          await FirebaseFirestore.instance.collection(role).add({
+      // Get the document from "Not Verified" collection
+      QuerySnapshot notVerifiedUsers = await FirebaseFirestore.instance
+          .collection('Not Verified')
+          .where('email', isEqualTo: email)
+          .get();
+
+      if (notVerifiedUsers.docs.isEmpty) {
+        throw Exception(
+            'No user found in "Not Verified" collection with the provided email.');
+      }
+
+      DocumentSnapshot notVerifiedDoc = notVerifiedUsers.docs.first;
+      String notVerifiedDocId = notVerifiedDoc.id;
+
+      // Add the new user to the specified role collection with the same ID
+      await FirebaseFirestore.instance
+          .collection(role)
+          .doc(notVerifiedDocId)
+          .set({
         'fname': fname,
         'lname': lname,
         'email': email,
@@ -296,19 +312,15 @@ class FirestoreService {
         'timestamp': Timestamp.now(),
       });
 
-      print('User added successfully with ID: ${newUserRef.id}');
+      print('User added successfully with ID: $notVerifiedDocId');
 
       // Delete the user data from the 'Not Verified' collection
       await FirebaseFirestore.instance
           .collection('Not Verified')
-          .where('email', isEqualTo: email)
-          .get()
-          .then((QuerySnapshot snapshot) {
-        snapshot.docs.forEach((doc) {
-          doc.reference.delete();
-          print('User data deleted from "Not Verified" collection');
-        });
-      });
+          .doc(notVerifiedDocId)
+          .delete();
+
+      print('User data deleted from "Not Verified" collection');
     } catch (e) {
       print('Error adding user: $e');
       throw Exception('Failed to add user. Please try again later.');

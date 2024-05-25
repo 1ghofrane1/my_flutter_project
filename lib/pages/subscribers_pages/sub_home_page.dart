@@ -1,4 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:my_flutter_project/pages/prg.dart';
 
 class SubHomePage extends StatefulWidget {
   @override
@@ -9,8 +13,9 @@ class _SubHomePageState extends State<SubHomePage> {
   int _currentIndex = 0;
 
   final List<Widget> _children = [
-    GoalScreen(),
     ProgramScreen(),
+    ClassScreen(),
+    HomeScreen(),
     // Add other screens here
   ];
 
@@ -23,6 +28,19 @@ class _SubHomePageState extends State<SubHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
       backgroundColor: const Color(0xFF171717),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -33,12 +51,16 @@ class _SubHomePageState extends State<SubHomePage> {
         unselectedItemColor: Colors.white,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.flag),
-            label: 'Goal',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.fitness_center),
             label: 'Program',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.event),
+            label: 'Classes',
           ),
           // Add other items here
         ],
@@ -47,19 +69,24 @@ class _SubHomePageState extends State<SubHomePage> {
   }
 }
 
-class GoalScreen extends StatelessWidget {
+
+class ClassScreen extends StatelessWidget {
+  const ClassScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Text(
-        'Goal Screen',
+        'Program Screen',
         style: TextStyle(color: Colors.white),
       ),
     );
   }
 }
 
-class ProgramScreen extends StatelessWidget {
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Center(

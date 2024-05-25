@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_flutter_project/pages/subscribers_pages/target_muscle.dart';
 
@@ -67,15 +69,33 @@ class _HeightWeightSelectionScreenState
                 SizedBox(
                   width: 200,
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        // Proceed to the next screen
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => TargetMuscleScreen(),
-                          ),
-                        );
+                        // Retrieve the current user's ID
+                        String? userId = FirebaseAuth.instance.currentUser?.uid;
+                        if (userId != null && userId.isNotEmpty) {
+                          try {
+                            // Update the subscriber's document with height and weight
+                            await FirebaseFirestore.instance
+                                .collection('Subscriber')
+                                .doc(userId)
+                                .update({
+                              'height': double.parse(_heightController.text),
+                              'weight': double.parse(_weightController.text),
+                            });
+                            // Proceed to the next screen
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => TargetMuscleScreen(),
+                              ),
+                            );
+                          } catch (e) {
+                            print('Error updating document: $e');
+                          }
+                        } else {
+                          print('User not logged in');
+                        }
                       }
                     },
                     style: ButtonStyle(
