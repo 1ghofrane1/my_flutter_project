@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:my_flutter_project/pages/prg.dart';
+import 'package:my_flutter_project/pages/subscribers_pages/prg.dart';
 
 class SubHomePage extends StatefulWidget {
   @override

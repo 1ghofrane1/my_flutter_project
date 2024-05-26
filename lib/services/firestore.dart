@@ -389,4 +389,30 @@ class FirestoreService {
           'Failed to calculate new subscribers by month. Please try again later.');
     }
   }
+
+  Future<List<Map<String, dynamic>>> fetchCoaches() async {
+    try {
+      // Get all documents from the "Coach" collection
+      QuerySnapshot coachSnapshots =
+          await FirebaseFirestore.instance.collection('Coach').get();
+
+      // Extract the id, fname, lname, and fullname from each document
+      List<Map<String, dynamic>> coaches = coachSnapshots.docs.map((doc) {
+        return {
+          'id': doc.id,
+          'fname': doc['fname'],
+          'lname': doc['lname'],
+          'fullname': '${doc['fname']} ${doc['lname']}',
+          
+        };
+      }).toList();
+
+      // Return the list of coaches
+      return coaches;
+    } catch (e) {
+      print('Error fetching coaches: $e');
+      // Rethrow the error with more context
+      throw Exception('Failed to fetch coaches. Please try again later.');
+    }
+  }
 }

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_flutter_project/components/class_calendar.dart';
+import 'package:my_flutter_project/forms/addClassForm.dart';
+import 'package:my_flutter_project/forms/subForm.dart';
+import 'package:my_flutter_project/pages/class_detail.dart';
 import 'package:my_flutter_project/pages/manager_pages/bottom_navbar.dart';
 import 'package:my_flutter_project/pages/manager_pages/gym_members.dart';
 import 'package:my_flutter_project/pages/manager_pages/m_home_page.dart';
 import 'package:my_flutter_project/services/firestore.dart';
+import 'package:intl/intl.dart';
 
 class Classes extends StatefulWidget {
   const Classes({Key? key}) : super(key: key);
@@ -126,8 +130,6 @@ class _ClassesState extends State<Classes> {
                 }
 
                 if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                  print(
-                      "HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEREEEEEEEEEEEEEEEEEEEEEEEEEEE");
                   List<DocumentSnapshot> listClass = snapshot.data!.docs;
 
                   return ListView.builder(
@@ -135,11 +137,20 @@ class _ClassesState extends State<Classes> {
                     itemCount: listClass.length,
                     itemBuilder: (context, index) {
                       DocumentSnapshot document = listClass[index];
-                      Map<String, dynamic> data =
-                          document.data() as Map<String, dynamic>;
-                      String className = data['Class Name'];
-                      /*DateTime classTime = data['class_time'].toDate();
-                      String coachName = data['coach_name'];*/
+                      Map<String, dynamic>? data =
+                          document.data() as Map<String, dynamic>?;
+
+                      if (data == null) {
+                        return const SizedBox.shrink();
+                      }
+
+                      String className = data['Class Name'] ?? 'Unknown Class';
+                      DateTime classTime =
+                          (data['Scheduled Time'] as Timestamp?)?.toDate() ??
+                              DateTime.now();
+                      String coachName = data['Coach'] ?? 'Unknown Coach';
+                      String description =
+                          data['description'] ?? 'No description available';
 
                       return Card(
                         color: const Color.fromARGB(255, 39, 38, 38),
@@ -155,8 +166,23 @@ class _ClassesState extends State<Classes> {
                               fontSize: 16.0,
                             ),
                           ),
-                          /*subtitle: Text(
-                              'Time: ${DateFormat.yMMMd().add_jm().format(classTime)}\nCoach: $coachName'),*/
+                          subtitle: Text(
+                            'Time: ${DateFormat.yMMMd().add_jm().format(classTime)}\nCoach: $coachName',
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ClassDetailScreen(
+                                  className: className,
+                                  classTime: classTime,
+                                  coachName: coachName,
+                                  description: description,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       );
                     },
@@ -173,6 +199,22 @@ class _ClassesState extends State<Classes> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return const AlertDialog(
+                title: Text('Add New Class'),
+                content: AddClassForm(),
+              );
+            },
+          );
+        },
+        child: const Icon(Icons.add),
+        backgroundColor: const Color(0xFFBEF264),
+        //shape: const CircleBorder(),
       ),
       bottomNavigationBar: MyBottomNavBar(
         currentIndex: _selectedIndex,

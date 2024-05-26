@@ -28,7 +28,7 @@ class _LoginOrRegisterScreenState extends State<LoginOrRegisterScreen> {
         onTap: togglePages,
       );
     } else {
-      return ResgisterScreen(
+      return RegisterScreen(
         onTap: togglePages,
       );
     }

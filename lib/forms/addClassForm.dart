@@ -19,14 +19,32 @@ class _AddClassFormState extends State<AddClassForm> {
   TimeOfDay? _endTime;
   String? _selectedCoach;
   bool _isSubmitting = false;
+  List<Map<String, dynamic>> _coaches = [];
 
   final FirestoreService _firestoreService = FirestoreService();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCoaches();
+  }
+
+  Future<void> _fetchCoaches() async {
+    try {
+      List<Map<String, dynamic>> coaches =
+          await _firestoreService.fetchCoaches();
+      setState(() {
+        _coaches = coaches;
+      });
+    } catch (e) {
+      print('Error fetching coaches: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
-        //padding: EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
           child: Column(
@@ -50,11 +68,10 @@ class _AddClassFormState extends State<AddClassForm> {
                     _selectedCoach = newValue;
                   });
                 },
-                items: <String>['Coach A', 'Coach B', 'Coach C']
-                    .map<DropdownMenuItem<String>>((String value) {
+                items: _coaches.map<DropdownMenuItem<String>>((coach) {
                   return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
+                    value: coach['id'],
+                    child: Text(coach['fullname']),
                   );
                 }).toList(),
                 decoration: InputDecoration(labelText: 'Select Coach'),
@@ -149,7 +166,6 @@ class _AddClassFormState extends State<AddClassForm> {
                               _selectedDate!.month,
                               _selectedDate!.day,
                             );
-                            // Assign the value to the existing startTime variable, don't redefine it
                             if (_startTime != null) {
                               startTime = DateTime(
                                 _selectedDate!.year,

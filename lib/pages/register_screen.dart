@@ -9,15 +9,15 @@ import 'package:my_flutter_project/pages/manager_pages/gym_acc.dart';
 import 'package:my_flutter_project/pages/manager_pages/m_home_page.dart';
 import 'package:my_flutter_project/pages/verif.dart';
 
-class ResgisterScreen extends StatefulWidget {
+class RegisterScreen extends StatefulWidget {
   final Function()? onTap;
-  ResgisterScreen({super.key, required this.onTap});
+  RegisterScreen({super.key, required this.onTap});
 
   @override
-  State<ResgisterScreen> createState() => _ResgisterScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _ResgisterScreenState extends State<ResgisterScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   int? _selectedRole;
   // text editing controllers
   final fnameController = TextEditingController();
@@ -152,6 +152,32 @@ class _ResgisterScreenState extends State<ResgisterScreen> {
   void signUserUp() async {
     if (!mounted) return;
 
+    // Validate inputs
+    if (fnameController.text.isEmpty ||
+        lnameController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        phoneNumberController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        confirmpasswordController.text.isEmpty) {
+      showErrorMessage('Please fill out all fields.');
+      return;
+    }
+
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(emailController.text)) {
+      showErrorMessage('Please enter a valid email address.');
+      return;
+    }
+
+    if (passwordController.text != confirmpasswordController.text) {
+      showErrorMessage('Passwords do not match.');
+      return;
+    }
+
+    if (_selectedRole == null) {
+      showErrorMessage('Please select a role.');
+      return;
+    }
+
     // show loading circle
     showDialog(
       context: context,
@@ -163,89 +189,77 @@ class _ResgisterScreenState extends State<ResgisterScreen> {
     );
 
     try {
-      // check if passwords match
-      if (passwordController.text == confirmpasswordController.text) {
-        // create user in Firebase Authentication
-        UserCredential userCredential =
-            await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailController.text,
-          password: passwordController.text,
-        );
+      // create user in Firebase Authentication
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
+      );
 
-        String collectionName;
-        switch (_selectedRole) {
-          case 0:
-            collectionName = 'Manager';
-            break;
-          case 1:
-            collectionName = 'Coach';
-            break;
-          case 2:
-            collectionName = 'Subscriber';
-            break;
-          default:
-            throw Exception('Invalid role');
-        }
-
-        // Check if the 'Manager' collection exists
-        final managerCollectionExists = await FirebaseFirestore.instance
-            .collection('Manager')
-            .get()
-            .then((snapshot) {
-          return snapshot.docs.isNotEmpty;
-        });
-
-        if (!managerCollectionExists && collectionName == 'Manager') {
-          // Add to the 'Manager' collection if it doesn't exist and the role is 'Manager'
-          await FirebaseFirestore.instance
-              .collection('Manager')
-              .doc(userCredential.user!.uid)
-              .set({
-            'fname': fnameController.text,
-            'lname': lnameController.text,
-            'email': emailController.text,
-            'phone_number': phoneNumberController.text,
-          });
-
-          // Navigate to the manager home page
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MHomePage(),
-            ),
-          );
-        } else if (managerCollectionExists) {
-          // Add to 'Not Verified' collection if 'Manager' collection exists or the role is not 'Manager'
-          await FirebaseFirestore.instance
-              .collection('Not Verified')
-              .doc(userCredential.user!.uid)
-              .set({
-            'fname': fnameController.text,
-            'lname': lnameController.text,
-            'email': emailController.text,
-            'phone_number': phoneNumberController.text,
-            'role': collectionName,
-          });
-
-          // Navigate to the verification pending page
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const Verif(),
-            ),
-          );
-        }
-      } else {
-        // show error msg, passwords don't match
-        showErrorMessage("Passwords don't match!");
+      String collectionName;
+      switch (_selectedRole) {
+        case 0:
+          collectionName = 'Manager';
+          break;
+        case 1:
+          collectionName = 'Coach';
+          break;
+        case 2:
+          collectionName = 'Subscriber';
+          break;
+        default:
+          throw Exception('Invalid role');
       }
 
-      // pop the loading circle
-      Navigator.pop(context);
-    } on FirebaseAuthException catch (e) {
-      // pop the loading circle
-      Navigator.pop(context);
+      // Check if the 'Manager' collection exists
+      final managerCollectionExists = await FirebaseFirestore.instance
+          .collection('Manager')
+          .get()
+          .then((snapshot) {
+        return snapshot.docs.isNotEmpty;
+      });
 
+      if (!managerCollectionExists && collectionName == 'Manager') {
+        // Add to the 'Manager' collection if it doesn't exist and the role is 'Manager'
+        await FirebaseFirestore.instance
+            .collection('Manager')
+            .doc(userCredential.user!.uid)
+            .set({
+          'fname': fnameController.text,
+          'lname': lnameController.text,
+          'email': emailController.text,
+          'phone_number': phoneNumberController.text,
+        });
+
+        // Navigate to the manager home pagea
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MHomePage(),
+          ),
+        );
+      } else if (managerCollectionExists) {
+        // Add to 'Not Verified' collection if 'Manager' collection exists or the role is not 'Manager'
+        await FirebaseFirestore.instance
+            .collection('Not Verified')
+            .doc(userCredential.user!.uid)
+            .set({
+          'fname': fnameController.text,
+          'lname': lnameController.text,
+          'email': emailController.text,
+          'phone_number': phoneNumberController.text,
+          'role': collectionName,
+        });
+
+        // Navigate to the verification pending page
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const Verif(),
+          ),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
       // handle Firebase Authentication exceptions
       if (e.code == 'invalid-email' || e.code == 'email-already-in-use') {
         showErrorMessage("Invalid Email!");
@@ -254,10 +268,11 @@ class _ResgisterScreenState extends State<ResgisterScreen> {
       } else {
         showErrorMessage("Error: ${e.message}");
       }
-    }
-
-    if (mounted) {
-      Navigator.pop(context);
+    } finally {
+      // pop the loading circle
+      if (mounted) {
+        Navigator.pop(context);
+      }
     }
   }
 
@@ -266,9 +281,16 @@ class _ResgisterScreenState extends State<ResgisterScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(
-            message,
-          ),
+          title: const Text('Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('OK'),
+            ),
+          ],
         );
       },
     );
