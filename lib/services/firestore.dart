@@ -236,9 +236,6 @@ class FirestoreService {
   }
 
 ///////////////////////////////////////// DISPLAY CLASSES ////////////////////////////////////////
-  Stream<QuerySnapshot> classesListStream() {
-    return FirebaseFirestore.instance.collection('Class').snapshots();
-  }
 
   Stream<QuerySnapshot> notVerifListStream() {
     return FirebaseFirestore.instance.collection('Not Verified').snapshots();
@@ -255,6 +252,29 @@ class FirestoreService {
 
       // Get the documents in the collection
       QuerySnapshot snapshot = await notVerifiedCollectionRef.get();
+
+      // Count the number of documents
+      int count = snapshot.size;
+
+      // Return the count
+      return count;
+    } catch (e) {
+      print('Error counting documents: $e');
+      // Return -1 or any other value to indicate an error
+      return -1;
+    }
+  }
+
+  Future<int> countDocumentsInSubscribersCollection() async {
+    try {
+      // Get a reference to Firestore instance
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+      // Reference to the "Not Verified" collection
+      CollectionReference subRef = firestore.collection('Subscriber');
+
+      // Get the documents in the collection
+      QuerySnapshot snapshot = await subRef.get();
 
       // Count the number of documents
       int count = snapshot.size;
@@ -403,7 +423,6 @@ class FirestoreService {
           'fname': doc['fname'],
           'lname': doc['lname'],
           'fullname': '${doc['fname']} ${doc['lname']}',
-          
         };
       }).toList();
 
@@ -415,4 +434,37 @@ class FirestoreService {
       throw Exception('Failed to fetch coaches. Please try again later.');
     }
   }
+
+  Stream<QuerySnapshot> classesListStream() {
+    return FirebaseFirestore.instance.collection('Class').snapshots();
+  }
+
+  Future<String> fetchCoachName() async {
+    final snapshot = await classesListStream().first;
+    if (snapshot.docs.isEmpty) {
+      return '';
+    }
+
+    List<QueryDocumentSnapshot> sortedClasses =
+        snapshot.docs.cast<QueryDocumentSnapshot>();
+    sortedClasses.sort((a, b) {
+      DateTime aStartTime = (a['Start Time'] as Timestamp).toDate();
+      DateTime bStartTime = (b['Start Time'] as Timestamp).toDate();
+      return aStartTime.compareTo(bStartTime);
+    });
+
+    DateTime now = DateTime.now();
+    DateTime nextClassTime = DateTime.fromMillisecondsSinceEpoch(9999999999999);
+    String coachName = '';
+    for (QueryDocumentSnapshot classDocument in sortedClasses) {
+      DateTime startTime = (classDocument['Start Time'] as Timestamp).toDate();
+      if (startTime.isAfter(now) && startTime.isBefore(nextClassTime)) {
+        nextClassTime = startTime;
+        coachName = classDocument['Coach'] as String;
+      }
+    }
+
+    return coachName;
+  }
+  
 }

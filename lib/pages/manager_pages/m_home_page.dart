@@ -1,7 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:my_flutter_project/charts/subscriber_comparison_chart.dart';
+import 'package:get/get.dart';
 import 'package:my_flutter_project/pages/manager_pages/bottom_navbar.dart';
 import 'package:my_flutter_project/pages/manager_pages/classes.dart';
 import 'package:my_flutter_project/pages/manager_pages/gym_members.dart';
@@ -15,31 +15,40 @@ class MHomePage extends StatefulWidget {
 
 class _MHomePageState extends State<MHomePage> {
   int _selectedIndex = 0;
-  int _notVerifiedCount = 0; // Add this variable to hold the count
+  int _notVerifiedCount = 0;
+  int _totalSubscribersCount = 0;
+
   final FirestoreService firestoreService = FirestoreService();
 
   @override
   void initState() {
     super.initState();
-    // Call the function to count documents when the widget initializes
     _updateNotVerifiedCount();
+    _updateTotalSubscribersCount(); // Add this call
   }
 
-  // Function to fetch count from Firestore and update the UI
+  // Function to fetch count of not verified members from Firestore and update the UI
   void _updateNotVerifiedCount() async {
     int count = await firestoreService.countDocumentsInNotVerifiedCollection();
     if (count >= 0) {
-      updateCount(count);
+      setState(() {
+        _notVerifiedCount = count;
+      });
     } else {
-      print('Error counting documents');
+      print('Error counting not verified documents');
     }
   }
 
-  // Function to update the count and refresh the UI
-  void updateCount(int count) {
-    setState(() {
-      _notVerifiedCount = count;
-    });
+  // Function to fetch count of total subscribers from Firestore and update the UI
+  void _updateTotalSubscribersCount() async {
+    int count = await firestoreService.countDocumentsInSubscribersCollection();
+    if (count >= 0) {
+      setState(() {
+        _totalSubscribersCount = count;
+      });
+    } else {
+      print('Error counting total subscribers');
+    }
   }
 
   void _onItemTapped(int index) {
@@ -64,11 +73,12 @@ class _MHomePageState extends State<MHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF171717),
       appBar: AppBar(
-        title: const Text('Home'),
+        backgroundColor: Colors.transparent,
         actions: [
           IconButton(
-            icon: Icon(Icons.logout),
+            icon: const Icon(Icons.logout),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
               Navigator.pop(context);
@@ -84,29 +94,111 @@ class _MHomePageState extends State<MHomePage> {
           children: [
             const Text(
               'Welcome to the Manager Dashboard',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const NotVerified(),
-                  ),
-                );
-              },
-              child: const Text('View Not Verified Members'),
+            const SizedBox(height: 20),
+            // Card for Not Verified Members
+            Card(
+              color: Colors.grey[800],
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Not Verified Members',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Count: $_notVerifiedCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const NotVerified(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.arrow_forward),
+                          color: Colors.white,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
-            SizedBox(height: 20),
-            // Display the count of documents
-            Text(
-              'Number of Not Verified Members: $_notVerifiedCount',
-              style: TextStyle(fontSize: 18),
+            const SizedBox(height: 20),
+            // Card for Total Subscribers
+            Card(
+              color: Colors.grey[800],
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Total Subscribers',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Count: $_totalSubscribersCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const GymMembers(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.arrow_forward),
+                          color: Colors.white,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
-            SizedBox(height: 20),
-            // Display the comparison chart
-            SubscriberComparisonChart(),
           ],
         ),
       ),

@@ -70,7 +70,7 @@ class _AddClassFormState extends State<AddClassForm> {
                 },
                 items: _coaches.map<DropdownMenuItem<String>>((coach) {
                   return DropdownMenuItem<String>(
-                    value: coach['id'],
+                    value: coach['fullname'],
                     child: Text(coach['fullname']),
                   );
                 }).toList(),
