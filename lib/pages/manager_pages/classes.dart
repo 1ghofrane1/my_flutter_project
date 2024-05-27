@@ -6,6 +6,7 @@ import 'package:my_flutter_project/pages/class_detail.dart';
 import 'package:my_flutter_project/pages/manager_pages/bottom_navbar.dart';
 import 'package:my_flutter_project/pages/manager_pages/gym_members.dart';
 import 'package:my_flutter_project/pages/manager_pages/m_home_page.dart';
+import 'package:my_flutter_project/pages/manager_pages/next_class_card.dart';
 import 'package:my_flutter_project/services/firestore.dart';
 import 'package:intl/intl.dart';
 
@@ -22,8 +23,6 @@ class _ClassesState extends State<Classes> {
   late Future<String> _coachNameFuture;
   final ValueNotifier<DateTime> _nextClassTimeNotifier =
       ValueNotifier(DateTime.now().add(const Duration(hours: 1)));
-  int _notVerifiedCount = 0;
-  int _totalSubscribersCount = 0;
 
   @override
   void initState() {
@@ -55,16 +54,12 @@ class _ClassesState extends State<Classes> {
 
   // Function to update the not verified count and refresh the UI
   void updateCount(int count) {
-    setState(() {
-      _notVerifiedCount = count;
-    });
+    setState(() {});
   }
 
   // Function to update the total subscribers count and refresh the UI
   void updateTotalSubscribersCount(int count) {
-    setState(() {
-      _totalSubscribersCount = count;
-    });
+    setState(() {});
   }
 
   void _onItemTapped(int index) {
@@ -96,145 +91,11 @@ class _ClassesState extends State<Classes> {
           const SizedBox(height: 20),
           ClassCalendar(),
           const SizedBox(height: 20),
-          const Center(
-            child: Text('Classes', style: TextStyle(color: Colors.white)),
-          ),
-          const SizedBox(height: 20),
           // Next class countdown section
-          Card(
-            color: Colors.grey[800],
-            elevation: 4,
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          /*const Icon(
-                            Icons.access_time,
-                            color: Colors.white,
-                            size: 20,
-                          ),*/
-                          Text("Next Class in: ",
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 16)),
-                          const SizedBox(width: 8),
-                          ValueListenableBuilder(
-                            valueListenable: _nextClassTimeNotifier,
-                            builder: (context, value, child) {
-                              return StreamBuilder<QuerySnapshot>(
-                                stream: firestoreService.classesListStream(),
-                                builder: (context, snapshot) {
-                                  if (!snapshot.hasData ||
-                                      snapshot.data!.docs.isEmpty) {
-                                    return const Text(
-                                      'No upcoming classes',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                      ),
-                                    );
-                                  }
-
-                                  // Sort classes by start time
-                                  List<DocumentSnapshot> sortedClasses =
-                                      snapshot.data!.docs;
-                                  sortedClasses.sort((a, b) {
-                                    DateTime aStartTime =
-                                        (a['Start Time'] as Timestamp).toDate();
-                                    DateTime bStartTime =
-                                        (b['Start Time'] as Timestamp).toDate();
-                                    return aStartTime.compareTo(bStartTime);
-                                  });
-
-                                  // Find the next class
-                                  DateTime now = DateTime.now();
-                                  DateTime nextClassTime =
-                                      DateTime.fromMillisecondsSinceEpoch(
-                                          9999999999999);
-                                  for (DocumentSnapshot classDocument
-                                      in sortedClasses) {
-                                    DateTime startTime =
-                                        (classDocument['Start Time']
-                                                as Timestamp)
-                                            .toDate();
-                                    if (startTime.isAfter(now) &&
-                                        startTime.isBefore(nextClassTime)) {
-                                      nextClassTime = startTime;
-                                    }
-                                  }
-
-                                  // Calculate the time difference
-                                  final timeDifference =
-                                      nextClassTime.difference(DateTime.now());
-                                  final timeRemaining =
-                                      '${timeDifference.inHours}h ${timeDifference.inMinutes.remainder(60)}m';
-
-                                  return Text(
-                                    timeRemaining,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      FutureBuilder<String>(
-                        future: _coachNameFuture,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Text(
-                              'Loading...',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Text(
-                              'Error: ${snapshot.error}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            );
-                          } else {
-                            return Text(
-                              'With Coach: ${snapshot.data}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                  /*const Icon(
-                    Icons.person,
-                    color: Colors.white,
-                    size: 24,
-                  ),*/
-                ],
-              ),
-            ),
+          NextClassCard(
+            nextClassTimeNotifier: _nextClassTimeNotifier,
+            coachNameFuture: _coachNameFuture,
           ),
-
           const SizedBox(height: 20),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
@@ -250,6 +111,15 @@ class _ClassesState extends State<Classes> {
 
                 if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
                   List<DocumentSnapshot> listClass = snapshot.data!.docs;
+
+                  // Sort classes by start time
+                  listClass.sort((a, b) {
+                    DateTime aStartTime =
+                        (a['Start Time'] as Timestamp).toDate();
+                    DateTime bStartTime =
+                        (b['Start Time'] as Timestamp).toDate();
+                    return aStartTime.compareTo(bStartTime);
+                  });
 
                   return ListView.builder(
                     shrinkWrap: true,
@@ -272,8 +142,7 @@ class _ClassesState extends State<Classes> {
                           data['Start Time'] ?? 'Unknown Time';
                       Timestamp endTime = data['End Time'] ?? 'Unknown Time';
                       String coachName = data['Coach'] ?? 'Unknown Coach';
-                      String description =
-                          data['description'] ?? 'No description available';
+
                       // Convert Timestamp to DateTime
                       DateTime startDateTime = startTime.toDate();
                       DateTime endDateTime = endTime.toDate();
@@ -309,22 +178,24 @@ class _ClassesState extends State<Classes> {
                                     children: [
                                       Text(
                                         'Date: ${DateFormat.yMMMd().format(scheduledTime)}',
-                                        style: TextStyle(color: Colors.black87),
+                                        style: const TextStyle(
+                                            color: Colors.black87),
                                       ),
-                                      SizedBox(height: 8),
+                                      const SizedBox(height: 8),
                                       Text(
                                         'Time: ${DateFormat.Hm().format(startDateTime)} - ${DateFormat.Hm().format(endDateTime)}',
-                                        style: TextStyle(color: Colors.black87),
+                                        style: const TextStyle(
+                                            color: Colors.black87),
                                       ),
-                                      SizedBox(height: 8),
+                                      const SizedBox(height: 8),
                                       Text(
                                         'Coach: $coachName',
-                                        style: TextStyle(color: Colors.black87),
+                                        style: const TextStyle(
+                                            color: Colors.black87),
                                       ),
-                                      SizedBox(height: 8),
+                                      const SizedBox(height: 8),
                                       Text(
-                                        'Description: $description',
-                                        style: TextStyle(color: Colors.black87),
+                                        'Capacity: ${data['Capacity']}',
                                       ),
                                     ],
                                   ),
@@ -333,7 +204,7 @@ class _ClassesState extends State<Classes> {
                                       onPressed: () {
                                         Navigator.of(context).pop();
                                       },
-                                      child: Text('Close'),
+                                      child: const Text('Close'),
                                     ),
                                   ],
                                 );

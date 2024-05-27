@@ -22,7 +22,6 @@ class _GymMembersState extends State<GymMembers> {
   final controller = Get.put(GymMemberController());
   final FirestoreService firestoreService = FirestoreService();
 
-  String? _selectedMembership;
   late TextEditingController startDate = TextEditingController();
   late String endDate = "";
   String? membershipDuration = '';
@@ -345,7 +344,386 @@ class _GymMembersState extends State<GymMembers> {
                           barrierDismissible: false,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: const Text('Subscriber Details'),
+                              title: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text('Subscriber Details'),
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.edit),
+                                        tooltip: 'Edit Subscriber',
+                                        onPressed: () async {
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              TextEditingController
+                                                  startDateController =
+                                                  TextEditingController(
+                                                text: data['start_date'] != null
+                                                    ? (data['start_date']
+                                                            as Timestamp)
+                                                        .toDate()
+                                                        .toString()
+                                                        .substring(0, 10)
+                                                    : 'N/A',
+                                              );
+
+                                              TextEditingController
+                                                  endDateController =
+                                                  TextEditingController(
+                                                text: endDate,
+                                              );
+
+                                              TextEditingController
+                                                  firstNameController =
+                                                  TextEditingController(
+                                                text: firstName,
+                                              );
+                                              TextEditingController
+                                                  lastNameController =
+                                                  TextEditingController(
+                                                text: lastName,
+                                              );
+                                              TextEditingController
+                                                  emailController =
+                                                  TextEditingController(
+                                                text: email,
+                                              );
+                                              TextEditingController
+                                                  phoneController =
+                                                  TextEditingController(
+                                                text: phone,
+                                              );
+
+                                              String? selectedDuration =
+                                                  data['selected_duration'];
+
+                                              return StatefulBuilder(
+                                                builder: (context, setState) {
+                                                  return AlertDialog(
+                                                    title: const Text(
+                                                        'Edit Subscriber'),
+                                                    content:
+                                                        SingleChildScrollView(
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          TextField(
+                                                            controller:
+                                                                firstNameController,
+                                                            decoration:
+                                                                const InputDecoration(
+                                                                    labelText:
+                                                                        'First Name'),
+                                                          ),
+                                                          TextField(
+                                                            controller:
+                                                                lastNameController,
+                                                            decoration:
+                                                                const InputDecoration(
+                                                                    labelText:
+                                                                        'Last Name'),
+                                                          ),
+                                                          TextField(
+                                                            controller:
+                                                                emailController,
+                                                            decoration:
+                                                                const InputDecoration(
+                                                                    labelText:
+                                                                        'Email'),
+                                                          ),
+                                                          TextField(
+                                                            controller:
+                                                                phoneController,
+                                                            decoration:
+                                                                const InputDecoration(
+                                                                    labelText:
+                                                                        'Phone'),
+                                                          ),
+                                                          DropdownButtonFormField<
+                                                              String>(
+                                                            value:
+                                                                selectedDuration,
+                                                            onChanged:
+                                                                (newValue) {
+                                                              setState(() {
+                                                                selectedDuration =
+                                                                    newValue;
+                                                                // Update end date based on selected duration
+                                                                DateTime
+                                                                    pickedDate =
+                                                                    DateTime.parse(
+                                                                        startDateController
+                                                                            .text);
+                                                                DateTime
+                                                                    endDateValue;
+                                                                switch (
+                                                                    newValue) {
+                                                                  case 'Monthly':
+                                                                    endDateValue =
+                                                                        pickedDate.add(const Duration(
+                                                                            days:
+                                                                                30));
+                                                                    break;
+                                                                  case 'Quarterly':
+                                                                    endDateValue =
+                                                                        pickedDate.add(const Duration(
+                                                                            days:
+                                                                                90));
+                                                                    break;
+                                                                  case 'Semi-annual':
+                                                                    endDateValue =
+                                                                        pickedDate.add(const Duration(
+                                                                            days:
+                                                                                180));
+                                                                    break;
+                                                                  case 'Annual':
+                                                                    endDateValue =
+                                                                        pickedDate.add(const Duration(
+                                                                            days:
+                                                                                365));
+                                                                    break;
+                                                                  default:
+                                                                    endDateValue =
+                                                                        pickedDate;
+                                                                }
+                                                                endDateController
+                                                                        .text =
+                                                                    endDateValue
+                                                                        .toString()
+                                                                        .substring(
+                                                                            0,
+                                                                            10);
+                                                              });
+                                                            },
+                                                            decoration:
+                                                                const InputDecoration(
+                                                              labelText:
+                                                                  'Membership Duration',
+                                                              labelStyle:
+                                                                  TextStyle(
+                                                                      fontSize:
+                                                                          14.0),
+                                                            ),
+                                                            items: _membershipDurations.map<
+                                                                DropdownMenuItem<
+                                                                    String>>((String
+                                                                duration) {
+                                                              return DropdownMenuItem<
+                                                                  String>(
+                                                                value: duration,
+                                                                child: Text(
+                                                                    duration),
+                                                              );
+                                                            }).toList(),
+                                                            validator: (value) {
+                                                              if (value ==
+                                                                      null ||
+                                                                  value
+                                                                      .isEmpty) {
+                                                                return 'Please select membership duration';
+                                                              }
+                                                              return null;
+                                                            },
+                                                          ),
+                                                          TextField(
+                                                            controller:
+                                                                startDateController,
+                                                            decoration:
+                                                                const InputDecoration(
+                                                              icon: Icon(Icons
+                                                                  .calendar_today),
+                                                              labelText:
+                                                                  "Start Date",
+                                                              labelStyle:
+                                                                  TextStyle(
+                                                                      fontSize:
+                                                                          14.0),
+                                                            ),
+                                                            readOnly: true,
+                                                            onTap: () async {
+                                                              DateTime?
+                                                                  pickedDate =
+                                                                  await showDatePicker(
+                                                                context:
+                                                                    context,
+                                                                initialDate: startDateController
+                                                                            .text !=
+                                                                        'N/A'
+                                                                    ? DateTime.parse(
+                                                                        startDateController
+                                                                            .text)
+                                                                    : DateTime
+                                                                        .now(),
+                                                                firstDate:
+                                                                    DateTime(
+                                                                        2000),
+                                                                lastDate:
+                                                                    DateTime(
+                                                                        2101),
+                                                              );
+                                                              if (pickedDate !=
+                                                                  null) {
+                                                                setState(() {
+                                                                  startDateController
+                                                                          .text =
+                                                                      pickedDate
+                                                                          .toString()
+                                                                          .substring(
+                                                                              0,
+                                                                              10);
+                                                                  // Update end date based on selected duration
+                                                                  DateTime
+                                                                      endDateValue;
+                                                                  switch (
+                                                                      selectedDuration) {
+                                                                    case 'Monthly':
+                                                                      endDateValue =
+                                                                          pickedDate
+                                                                              .add(const Duration(days: 30));
+                                                                      break;
+                                                                    case 'Quarterly':
+                                                                      endDateValue =
+                                                                          pickedDate
+                                                                              .add(const Duration(days: 90));
+                                                                      break;
+                                                                    case 'Semi-annual':
+                                                                      endDateValue =
+                                                                          pickedDate
+                                                                              .add(const Duration(days: 180));
+                                                                      break;
+                                                                    case 'Annual':
+                                                                      endDateValue =
+                                                                          pickedDate
+                                                                              .add(const Duration(days: 365));
+                                                                      break;
+                                                                    default:
+                                                                      endDateValue =
+                                                                          pickedDate;
+                                                                  }
+                                                                  endDateController
+                                                                          .text =
+                                                                      endDateValue
+                                                                          .toString()
+                                                                          .substring(
+                                                                              0,
+                                                                              10);
+                                                                });
+                                                              }
+                                                            },
+                                                          ),
+                                                          TextField(
+                                                            controller:
+                                                                endDateController,
+                                                            decoration:
+                                                                const InputDecoration(
+                                                              icon: Icon(Icons
+                                                                  .calendar_today),
+                                                              labelText:
+                                                                  "End Date",
+                                                              labelStyle:
+                                                                  TextStyle(
+                                                                      fontSize:
+                                                                          14.0),
+                                                            ),
+                                                            readOnly: true,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    actions: <Widget>[
+                                                      ElevatedButton(
+                                                        onPressed: () {
+                                                          firestoreService
+                                                              .updateSub(
+                                                            docID,
+                                                            firstNameController
+                                                                .text,
+                                                            lastNameController
+                                                                .text,
+                                                            emailController
+                                                                .text,
+                                                            phoneController
+                                                                .text,
+                                                            selectedDuration ??
+                                                                '',
+                                                            startDateController
+                                                                .text,
+                                                            endDateController
+                                                                .text,
+                                                          )
+                                                              .then((_) {
+                                                            Navigator.pop(
+                                                                context);
+                                                          });
+                                                        },
+                                                        child:
+                                                            const Text('Save'),
+                                                      ),
+                                                      ElevatedButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                        child: const Text(
+                                                            'Cancel'),
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              );
+                                            },
+                                          );
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete),
+                                        tooltip: 'Delete Subscriber',
+                                        onPressed: () async {
+                                          bool confirmDelete = await showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: const Text(
+                                                    'Confirm Delete'),
+                                                content: const Text(
+                                                    'Are you sure you want to delete this subscriber?'),
+                                                actions: <Widget>[
+                                                  ElevatedButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(
+                                                          context, false);
+                                                    },
+                                                    child: const Text('Cancel'),
+                                                  ),
+                                                  ElevatedButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(
+                                                          context, true);
+                                                    },
+                                                    child: const Text('Delete'),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+
+                                          if (confirmDelete) {
+                                            firestoreService
+                                                .deleteSub(docID)
+                                                .then((_) {
+                                              Navigator.pop(context);
+                                            });
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                               content: SingleChildScrollView(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -380,308 +758,6 @@ class _GymMembersState extends State<GymMembers> {
                                     // Action to perform when generating invoice
                                   },
                                   child: const Text('Generate Invoice'),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () async {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        TextEditingController
-                                            startDateController =
-                                            TextEditingController(
-                                          text: data['start_date'] != null
-                                              ? (data['start_date']
-                                                      as Timestamp)
-                                                  .toDate()
-                                                  .toString()
-                                                  .substring(0, 10)
-                                              : 'N/A',
-                                        );
-
-                                        TextEditingController
-                                            endDateController =
-                                            TextEditingController(
-                                          text: endDate,
-                                        );
-
-                                        TextEditingController
-                                            firstNameController =
-                                            TextEditingController(
-                                          text: firstName,
-                                        );
-                                        TextEditingController
-                                            lastNameController =
-                                            TextEditingController(
-                                          text: lastName,
-                                        );
-                                        TextEditingController emailController =
-                                            TextEditingController(
-                                          text: email,
-                                        );
-                                        TextEditingController phoneController =
-                                            TextEditingController(
-                                          text: phone,
-                                        );
-
-                                        String? selectedDuration =
-                                            data['selected_duration'];
-
-                                        return StatefulBuilder(
-                                          builder: (context, setState) {
-                                            return AlertDialog(
-                                              title:
-                                                  const Text('Edit Subscriber'),
-                                              content: SingleChildScrollView(
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    TextField(
-                                                      controller:
-                                                          firstNameController,
-                                                      decoration:
-                                                          const InputDecoration(
-                                                              labelText:
-                                                                  'First Name'),
-                                                    ),
-                                                    TextField(
-                                                      controller:
-                                                          lastNameController,
-                                                      decoration:
-                                                          const InputDecoration(
-                                                              labelText:
-                                                                  'Last Name'),
-                                                    ),
-                                                    TextField(
-                                                      controller:
-                                                          emailController,
-                                                      decoration:
-                                                          const InputDecoration(
-                                                              labelText:
-                                                                  'Email'),
-                                                    ),
-                                                    TextField(
-                                                      controller:
-                                                          phoneController,
-                                                      decoration:
-                                                          const InputDecoration(
-                                                              labelText:
-                                                                  'Phone'),
-                                                    ),
-                                                    DropdownButtonFormField<
-                                                        String>(
-                                                      value: selectedDuration,
-                                                      onChanged: (newValue) {
-                                                        setState(() {
-                                                          selectedDuration =
-                                                              newValue;
-                                                          // Update end date based on selected duration
-                                                          DateTime pickedDate =
-                                                              DateTime.parse(
-                                                                  startDateController
-                                                                      .text);
-                                                          DateTime endDateValue;
-                                                          switch (newValue) {
-                                                            case 'Monthly':
-                                                              endDateValue =
-                                                                  pickedDate.add(
-                                                                      const Duration(
-                                                                          days:
-                                                                              30));
-                                                              break;
-                                                            case 'Quarterly':
-                                                              endDateValue =
-                                                                  pickedDate.add(
-                                                                      const Duration(
-                                                                          days:
-                                                                              90));
-                                                              break;
-                                                            case 'Semi-annual':
-                                                              endDateValue =
-                                                                  pickedDate.add(
-                                                                      const Duration(
-                                                                          days:
-                                                                              180));
-                                                              break;
-                                                            case 'Annual':
-                                                              endDateValue =
-                                                                  pickedDate.add(
-                                                                      const Duration(
-                                                                          days:
-                                                                              365));
-                                                              break;
-                                                            default:
-                                                              endDateValue =
-                                                                  pickedDate;
-                                                          }
-                                                          endDateController
-                                                                  .text =
-                                                              endDateValue
-                                                                  .toString()
-                                                                  .substring(
-                                                                      0, 10);
-                                                        });
-                                                      },
-                                                      decoration:
-                                                          const InputDecoration(
-                                                        labelText:
-                                                            'Membership Duration',
-                                                        labelStyle: TextStyle(
-                                                            fontSize: 14.0),
-                                                      ),
-                                                      items: _membershipDurations
-                                                          .map<
-                                                              DropdownMenuItem<
-                                                                  String>>((String
-                                                              duration) {
-                                                        return DropdownMenuItem<
-                                                            String>(
-                                                          value: duration,
-                                                          child: Text(duration),
-                                                        );
-                                                      }).toList(),
-                                                      validator: (value) {
-                                                        if (value == null ||
-                                                            value.isEmpty) {
-                                                          return 'Please select membership duration';
-                                                        }
-                                                        return null;
-                                                      },
-                                                    ),
-                                                    TextField(
-                                                      controller:
-                                                          startDateController,
-                                                      decoration:
-                                                          const InputDecoration(
-                                                        icon: Icon(Icons
-                                                            .calendar_today),
-                                                        labelText: "Start Date",
-                                                        labelStyle: TextStyle(
-                                                            fontSize: 14.0),
-                                                      ),
-                                                      readOnly: true,
-                                                      onTap: () async {
-                                                        DateTime? pickedDate =
-                                                            await showDatePicker(
-                                                          context: context,
-                                                          initialDate: startDateController
-                                                                      .text !=
-                                                                  'N/A'
-                                                              ? DateTime.parse(
-                                                                  startDateController
-                                                                      .text)
-                                                              : DateTime.now(),
-                                                          firstDate:
-                                                              DateTime(2000),
-                                                          lastDate:
-                                                              DateTime(2101),
-                                                        );
-                                                        if (pickedDate !=
-                                                            null) {
-                                                          setState(() {
-                                                            startDateController
-                                                                    .text =
-                                                                pickedDate
-                                                                    .toString()
-                                                                    .substring(
-                                                                        0, 10);
-                                                            // Update end date based on selected duration
-                                                            DateTime
-                                                                endDateValue;
-                                                            switch (
-                                                                selectedDuration) {
-                                                              case 'Monthly':
-                                                                endDateValue =
-                                                                    pickedDate.add(
-                                                                        const Duration(
-                                                                            days:
-                                                                                30));
-                                                                break;
-                                                              case 'Quarterly':
-                                                                endDateValue =
-                                                                    pickedDate.add(
-                                                                        const Duration(
-                                                                            days:
-                                                                                90));
-                                                                break;
-                                                              case 'Semi-annual':
-                                                                endDateValue =
-                                                                    pickedDate.add(
-                                                                        const Duration(
-                                                                            days:
-                                                                                180));
-                                                                break;
-                                                              case 'Annual':
-                                                                endDateValue =
-                                                                    pickedDate.add(
-                                                                        const Duration(
-                                                                            days:
-                                                                                365));
-                                                                break;
-                                                              default:
-                                                                endDateValue =
-                                                                    pickedDate;
-                                                            }
-                                                            endDateController
-                                                                    .text =
-                                                                endDateValue
-                                                                    .toString()
-                                                                    .substring(
-                                                                        0, 10);
-                                                          });
-                                                        }
-                                                      },
-                                                    ),
-                                                    TextField(
-                                                      controller:
-                                                          endDateController,
-                                                      decoration:
-                                                          const InputDecoration(
-                                                        icon: Icon(Icons
-                                                            .calendar_today),
-                                                        labelText: "End Date",
-                                                        labelStyle: TextStyle(
-                                                            fontSize: 14.0),
-                                                      ),
-                                                      readOnly: true,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              actions: <Widget>[
-                                                ElevatedButton(
-                                                  onPressed: () {
-                                                    firestoreService
-                                                        .updateSub(
-                                                      docID,
-                                                      firstNameController.text,
-                                                      lastNameController.text,
-                                                      emailController.text,
-                                                      phoneController.text,
-                                                      selectedDuration ?? '',
-                                                      startDateController.text,
-                                                      endDateController.text,
-                                                    )
-                                                        .then((_) {
-                                                      Navigator.pop(context);
-                                                    });
-                                                  },
-                                                  child: const Text('Save'),
-                                                ),
-                                                ElevatedButton(
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child: const Text('Cancel'),
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        );
-                                      },
-                                    );
-                                  },
-                                  child: const Text('Edit'),
                                 ),
                                 ElevatedButton(
                                   onPressed: () {

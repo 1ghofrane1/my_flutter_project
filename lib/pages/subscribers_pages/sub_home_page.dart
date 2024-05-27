@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:my_flutter_project/pages/subscribers_pages/class_screen.dart';
 import 'package:my_flutter_project/pages/subscribers_pages/prg.dart';
 
 class SubHomePage extends StatefulWidget {
@@ -14,8 +15,8 @@ class _SubHomePageState extends State<SubHomePage> {
 
   final List<Widget> _children = [
     ProgramScreen(),
-    ClassScreen(),
     HomeScreen(),
+    ClassScreen(),
     // Add other screens here
   ];
 
@@ -64,21 +65,6 @@ class _SubHomePageState extends State<SubHomePage> {
           ),
           // Add other items here
         ],
-      ),
-    );
-  }
-}
-
-
-class ClassScreen extends StatelessWidget {
-  const ClassScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Program Screen',
-        style: TextStyle(color: Colors.white),
       ),
     );
   }

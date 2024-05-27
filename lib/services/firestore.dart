@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FirestoreService {
   final CollectionReference subscribers =
@@ -224,6 +225,8 @@ class FirestoreService {
         'Creation Date': Timestamp.now(),
         'Start Time': startTime,
         'End Time': endTime,
+        'enrolled_count': 0,
+        //'available_spots': capacity,
       });
 
       // Optionally, log a success message
@@ -466,5 +469,162 @@ class FirestoreService {
 
     return coachName;
   }
-  
+
+  Future<Map<String, dynamic>?> getEnrolledClassDetails(String docID) async {
+    try {
+      // Get the user's ID
+      String userID = FirebaseAuth.instance.currentUser!.uid;
+
+      // Get the enrolled class document by its ID
+      DocumentSnapshot classSnapshot = await FirebaseFirestore.instance
+          .collection('Subscriber')
+          .doc(userID)
+          .collection('EnrolledClasses')
+          .doc(docID)
+          .get();
+
+      // Check if the document exists
+      if (!classSnapshot.exists) {
+        throw Exception('Enrolled class document not found');
+      }
+
+      // Extract the class details map
+      Map<String, dynamic>? classData =
+          classSnapshot.data() as Map<String, dynamic>?;
+
+      // Return the nested class details if available
+      return classData?['class_details'] as Map<String, dynamic>?;
+    } catch (e) {
+      print('Error fetching enrolled class details: $e');
+      // Return null in case of error
+      return null;
+    }
+  }
+
+  Future<void> addToEnrolledClasses(
+      String docID, Map<String, dynamic> classDetails) async {
+    try {
+      // Get the user's ID
+      String userID = FirebaseAuth.instance.currentUser!.uid;
+
+      // Add the class with details to the user's enrolled classes
+      await FirebaseFirestore.instance
+          .collection('Subscriber')
+          .doc(userID)
+          .collection('EnrolledClasses')
+          .doc(docID)
+          .set({
+        'class_details': classDetails, // Add class details here
+      });
+
+      // Increment the enrollment count for the class
+      DocumentReference classRef =
+          FirebaseFirestore.instance.collection('Class').doc(docID);
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        DocumentSnapshot classSnapshot = await transaction.get(classRef);
+        if (!classSnapshot.exists) {
+          throw Exception('Class document does not exist!');
+        }
+
+        int newEnrolledCount = (classSnapshot['enrolled_count'] ?? 0) + 1;
+        transaction.update(classRef, {'enrolled_count': newEnrolledCount});
+        /*int availableSpots = (classSnapshot['available_spots'] ?? 0) - 1;
+        transaction.update(classRef, {'available_spots': availableSpots});*/
+      });
+
+      print(
+          'Class added to enrolled classes successfully and counter incremented');
+    } catch (e) {
+      print('Error adding class to enrolled classes: $e');
+      // Rethrow the error with more context
+      throw Exception('Failed to add class to enrolled classes');
+    }
+  }
+
+  Future<void> removeFromEnrolledClasses(String docID) async {
+    try {
+      // Get the user's ID
+      String userID = FirebaseAuth.instance.currentUser!.uid;
+
+      // Remove the class from the user's enrolled classes
+      await FirebaseFirestore.instance
+          .collection('Subscriber')
+          .doc(userID)
+          .collection('EnrolledClasses')
+          .doc(docID)
+          .delete();
+
+      // Decrement the enrollment count for the class
+      DocumentReference classRef =
+          FirebaseFirestore.instance.collection('Class').doc(docID);
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        DocumentSnapshot classSnapshot = await transaction.get(classRef);
+        if (!classSnapshot.exists) {
+          throw Exception('Class document does not exist!');
+        }
+
+        int currentEnrolledCount = classSnapshot['enrolled_count'] ?? 0;
+        int newEnrolledCount =
+            currentEnrolledCount > 0 ? currentEnrolledCount - 1 : 0;
+        transaction.update(classRef, {'enrolled_count': newEnrolledCount});
+        /*int availableSpots = (classSnapshot['available_spots'] ?? 0) + 1;
+        transaction.update(classRef, {'available_spots': availableSpots});*/
+      });
+
+      print(
+          'Class removed from enrolled classes successfully and counter decremented');
+    } catch (e) {
+      print('Error removing class from enrolled classes: $e');
+      // Rethrow the error with more context
+      throw Exception('Failed to remove class from enrolled classes');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchClassesWithAvailableSpots() async {
+    try {
+      QuerySnapshot classSnapshot =
+          await FirebaseFirestore.instance.collection('Class').get();
+
+      List<Map<String, dynamic>> classDataList = classSnapshot.docs.map((doc) {
+        int capacity = doc['Capacity'] ?? 0;
+        int enrolledCount = doc['enrolled_count'] ?? 0;
+        double availableSpotsPercent =
+            ((capacity - enrolledCount) / capacity) * 100;
+
+        return {
+          'Class Name': doc['Class Name'],
+          'Coach': doc['Coach'],
+          'Capacity': capacity,
+          'Enrolled Count': enrolledCount,
+          'Available Spots Percent': availableSpotsPercent,
+        };
+      }).toList();
+
+      return classDataList;
+    } catch (e) {
+      print('Error fetching classes with available spots: $e');
+      throw Exception('Failed to fetch classes. Please try again later.');
+    }
+  }
+
+  Future<bool> checkEnrolledClassesExist() async {
+    try {
+      // Get the current user's ID
+      String userID = FirebaseAuth.instance.currentUser!.uid;
+
+      // Reference to the EnrolledClasses subcollection
+      CollectionReference enrolledClassesRef =
+          subscribers.doc(userID).collection('EnrolledClasses');
+
+      // Get the documents in the EnrolledClasses subcollection
+      QuerySnapshot snapshot = await enrolledClassesRef.get();
+
+      // Check if any documents exist in the EnrolledClasses subcollection
+      return snapshot.docs.isNotEmpty;
+    } catch (e) {
+      print('Error checking EnrolledClasses existence: $e');
+      // Return false if an error occurs (assuming EnrolledClasses doesn't exist)
+      return false;
+    }
+  }
 }
