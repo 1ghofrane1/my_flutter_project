@@ -38,106 +38,127 @@ class _CustomProgramState extends State<CustomProgram> {
 
               return Container(
                 decoration: BoxDecoration(
-                  border: Border.all(
-                    color: isSelected
-                        ? const Color(0xFFBEF264)
-                        : Colors.transparent,
-                    width: 2.0,
-                  ),
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: Card(
                   color: Colors.grey[850],
-                  child: ListTile(
+                  child: ExpansionTile(
+                    key: PageStorageKey(subscriber.id),
                     title: Text(
                       '${subscriberData['fname']} ${subscriberData['lname']}',
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                     ),
-                    subtitle: Text(subscriberData['email'],
-                        style: TextStyle(color: Colors.white70)),
-                    onTap: () {
+                    subtitle: Text(
+                      'Goal: ${subscriberData['goal']}',
+                      style: const TextStyle(color: Color(0xFFBEF264)),
+                    ),
+                    trailing: Icon(
+                      isSelected ? Icons.expand_less : Icons.expand_more,
+                      color: Colors.white,
+                    ),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                // Add your onPressed code here!
+                              },
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                    const Color(0xFFBEF264)),
+                                padding: MaterialStateProperty.all(
+                                    const EdgeInsets.symmetric(
+                                        vertical: 15, horizontal: 20)),
+                                shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                  ),
+                                ),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.add,
+                                      color: Color(0xFF171717)), // Add icon
+                                  SizedBox(
+                                      width:
+                                          6), // Spacing between icon and text
+                                  Text(
+                                    'Add workout plan',
+                                    style: TextStyle(
+                                      color: Color(0xFF171717),
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            ListTile(
+                              title: const Text('Gender',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold)),
+                              subtitle: Text(subscriberData['gender'],
+                                  style:
+                                      const TextStyle(color: Colors.white70)),
+                            ),
+                            ListTile(
+                              title: const Text('Weight',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold)),
+                              subtitle: Text(
+                                  '${subscriberData['weight'].toString()} kg',
+                                  style:
+                                      const TextStyle(color: Colors.white70)),
+                            ),
+                            ListTile(
+                              title: const Text('Height',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold)),
+                              subtitle: Text(
+                                  '${subscriberData['height'].toString()} cm',
+                                  style:
+                                      const TextStyle(color: Colors.white70)),
+                            ),
+                            const Text(
+                              'Selected Muscles',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            Wrap(
+                              spacing: 8.0,
+                              runSpacing: 4.0,
+                              children: (subscriberData['selectedMuscles']
+                                      as List<dynamic>)
+                                  .map((muscle) => Chip(
+                                        label: Text(muscle),
+                                        backgroundColor:
+                                            const Color(0xFFBEF264),
+                                        labelStyle: const TextStyle(
+                                            color: Color(0xFF171717)),
+                                      ))
+                                  .toList(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    onExpansionChanged: (bool expanded) {
                       setState(() {
-                        selectedSubscriberId = subscriber.id;
+                        selectedSubscriberId = expanded ? subscriber.id : null;
                       });
                     },
                   ),
                 ),
               );
             },
-          );
-        },
-      ),
-      /*floatingActionButton: selectedSubscriberId != null
-          ? FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SubscriberDetailsScreen(
-                      subscriberId: selectedSubscriberId!,
-                    ),
-                  ),
-                );
-              },
-              child: const Icon(Icons.fitness_center),
-            )
-          : null,*/
-    );
-  }
-}
-
-class SubscriberDetailsScreen extends StatelessWidget {
-  final String subscriberId;
-
-  const SubscriberDetailsScreen({super.key, required this.subscriberId});
-
-  @override
-  Widget build(BuildContext context) {
-    final FirestoreService _firestoreService = FirestoreService();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Subscriber Details'),
-      ),
-      body: FutureBuilder<DocumentSnapshot>(
-        future: _firestoreService.subscribers.doc(subscriberId).get(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final subscriberData = snapshot.data?.data() as Map<String, dynamic>?;
-
-          if (subscriberData == null) {
-            return const Center(child: Text('No data available'));
-          }
-
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                    'Name: ${subscriberData['fname']} ${subscriberData['lname']}'),
-                Text('Email: ${subscriberData['email']}'),
-                Text('Phone: ${subscriberData['phone_number']}'),
-                Text('Weight: ${subscriberData['weight']}'),
-                Text('Height: ${subscriberData['height']}'),
-                Text('Gender: ${subscriberData['gender']}'),
-                Text(
-                    'Selected Muscles: ${subscriberData['selectedMuscles'].join(', ')}'),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    // Add logic to provide a workout program
-                  },
-                  child: const Text('Provide Workout Program'),
-                ),
-              ],
-            ),
           );
         },
       ),

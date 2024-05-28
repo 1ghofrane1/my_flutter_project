@@ -17,9 +17,9 @@ class _CoachPageState extends State<CoachPage> {
   int _currentIndex = 0;
 
   final List<Widget> _children = [
-    CustomProgram(),
-    myClasses(),
-    coachHome(),
+    const CustomProgram(),
+    const myClasses(),
+    const coachHome(),
     // Add other screens here
   ];
 
@@ -37,7 +37,7 @@ class _CoachPageState extends State<CoachPage> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.logout),
+            icon: const Icon(Icons.logout),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
               Navigator.pop(context);
@@ -78,7 +78,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Text(
         'Program Screen',
         style: TextStyle(color: Colors.white),

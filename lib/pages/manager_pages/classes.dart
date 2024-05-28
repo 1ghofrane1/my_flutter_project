@@ -162,7 +162,7 @@ class _ClassesState extends State<Classes> {
                             ),
                           ),
                           subtitle: Text(
-                            'Date: ${DateFormat.yMMMd().format(scheduledTime)}\nTime: ${DateFormat.Hm().format(startDateTime)} - ${DateFormat.Hm().format(endDateTime)}\nCoach: $coachName',
+                            'Date: ${DateFormat.yMMMd().format(scheduledTime)}\nTime: ${DateFormat.Hm().format(startDateTime)} - ${DateFormat.Hm().format(endDateTime)}\nCoach: $coachName\nAvailable Spots: ${data['Capacity'] - data['enrolled_count']} / ${data['Capacity']}',
                             style: const TextStyle(color: Colors.white70),
                           ),
                           onTap: () {
@@ -170,34 +170,121 @@ class _ClassesState extends State<Classes> {
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
-                                  title: Text(className),
-                                  content: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
+                                  title: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                        'Date: ${DateFormat.yMMMd().format(scheduledTime)}',
-                                        style: const TextStyle(
-                                            color: Colors.black87),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'Time: ${DateFormat.Hm().format(startDateTime)} - ${DateFormat.Hm().format(endDateTime)}',
-                                        style: const TextStyle(
-                                            color: Colors.black87),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'Coach: $coachName',
-                                        style: const TextStyle(
-                                            color: Colors.black87),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'Capacity: ${data['Capacity']}',
+                                      Text(className),
+                                      Row(
+                                        children: [
+                                          IconButton(
+                                              onPressed: () {},
+                                              icon: const Icon(Icons.edit)),
+                                          IconButton(
+                                            icon: const Icon(Icons.delete),
+                                            tooltip: 'Delete Class',
+                                            onPressed: () async {
+                                              if (data['enrolled_count'] == 0) {
+                                                bool confirmDelete =
+                                                    await showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return AlertDialog(
+                                                      title: const Text(
+                                                          'Confirm Delete'),
+                                                      content: const Text(
+                                                          'Are you sure you want to delete this Class?'),
+                                                      actions: <Widget>[
+                                                        ElevatedButton(
+                                                          onPressed: () {
+                                                            Navigator.pop(
+                                                                context, false);
+                                                          },
+                                                          child: const Text(
+                                                              'Cancel'),
+                                                        ),
+                                                        ElevatedButton(
+                                                          onPressed: () {
+                                                            Navigator.pop(
+                                                                context, true);
+                                                          },
+                                                          child: const Text(
+                                                              'Delete'),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  },
+                                                );
+
+                                                if (confirmDelete != null &&
+                                                    confirmDelete) {
+                                                  firestoreService
+                                                      .deleteClass(document.id)
+                                                      .then((_) {
+                                                    Navigator.pop(context);
+                                                  });
+                                                }
+                                              } else {
+                                                showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return AlertDialog(
+                                                      title: const Text(
+                                                          'Cannot Delete Class'),
+                                                      content: const Text(
+                                                        'This class cannot be deleted because there are enrolled members.',
+                                                      ),
+                                                      actions: <Widget>[
+                                                        ElevatedButton(
+                                                          onPressed: () {
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                          child:
+                                                              const Text('OK'),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  },
+                                                );
+                                              }
+                                            },
+                                          )
+                                        ],
                                       ),
                                     ],
+                                  ),
+                                  content: SingleChildScrollView(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Date: ${DateFormat.yMMMd().format(scheduledTime)}',
+                                          style: const TextStyle(
+                                              color: Colors.black87),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Time: ${DateFormat.Hm().format(startDateTime)} - ${DateFormat.Hm().format(endDateTime)}',
+                                          style: const TextStyle(
+                                              color: Colors.black87),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Coach: $coachName',
+                                          style: const TextStyle(
+                                              color: Colors.black87),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Capacity: ${data['Capacity']}',
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                   actions: [
                                     TextButton(

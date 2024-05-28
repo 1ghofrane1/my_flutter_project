@@ -44,17 +44,17 @@ class _ProgramScreenState extends State<ProgramScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF171717),
+      backgroundColor: const Color(0xFF171717),
       appBar: AppBar(
         backgroundColor: const Color(0xFF171717),
-        title: Text(
+        title: const Text(
           'Program Details',
           style: TextStyle(color: Colors.white),
         ),
       ),
       body: _loading
-          ? Center(
-              child: CircularProgressIndicator(color: const Color(0xFFBEF264)),
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFFBEF264)),
             )
           : Column(
               children: [
@@ -77,34 +77,34 @@ class _ProgramScreenState extends State<ProgramScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(
+                      const Text(
                         'Your Goal',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFFBEF264),
+                          color: Color(0xFFBEF264),
                         ),
                       ),
                       const SizedBox(height: 20),
                       Text(
                         _goal,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 18,
-                          color: const Color.fromRGBO(255, 255, 255, 1),
+                          color: Color.fromRGBO(255, 255, 255, 1),
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Text(
+                      const Text(
                         'Goal Completion',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFFBEF264),
+                          color: Color(0xFFBEF264),
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Container(
+                      SizedBox(
                         height: 200,
                         child: PieChart(
                           PieChartData(
@@ -114,10 +114,10 @@ class _ProgramScreenState extends State<ProgramScreen> {
                                 value: 75,
                                 title: '75%',
                                 radius: 60,
-                                titleStyle: TextStyle(
+                                titleStyle: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF171717),
+                                  color: Color(0xFF171717),
                                 ),
                               ),
                               PieChartSectionData(

@@ -7,6 +7,7 @@ import 'package:my_flutter_project/pages/manager_pages/classes.dart';
 import 'package:my_flutter_project/pages/manager_pages/gym_members.dart';
 import 'package:my_flutter_project/pages/manager_pages/not_verified.dart';
 import 'package:my_flutter_project/services/firestore.dart';
+import 'package:intl/intl.dart';
 
 class MHomePage extends StatefulWidget {
   @override
@@ -86,11 +87,10 @@ class _MHomePageState extends State<MHomePage> {
           ),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
               'Welcome to the Manager Dashboard',
@@ -100,111 +100,243 @@ class _MHomePageState extends State<MHomePage> {
                   fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
-            // Card for Not Verified Members
-            Card(
-              color: Colors.grey[800],
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Not Verified Members',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Count: $_notVerifiedCount',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const NotVerified(),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.arrow_forward),
-                          color: Colors.white,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+            // Not Verified Members Card
+            _buildCard(
+              title: 'Not Verified Members',
+              count: _notVerifiedCount,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const NotVerified()),
               ),
             ),
             const SizedBox(height: 20),
-            // Card for Total Subscribers
-            Card(
-              color: Colors.grey[800],
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Total Subscribers',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Count: $_totalSubscribersCount',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const GymMembers(),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.arrow_forward),
-                          color: Colors.white,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+            // Total Subscribers Card
+            _buildCard(
+              title: 'Total Subscribers',
+              count: _totalSubscribersCount,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const GymMembers()),
               ),
             ),
+            const SizedBox(height: 20),
+            // Upcoming Classes Card
+            _buildUpcomingClassesCard(),
+            const SizedBox(height: 20),
+            // Recent Activity Card
+            _buildRecentActivityCard(),
+            const SizedBox(height: 20),
+            // Quick Actions Card
+            _buildQuickActionsCard(),
           ],
         ),
       ),
       bottomNavigationBar: MyBottomNavBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
+      ),
+    );
+  }
+
+  Widget _buildCard({
+    required String title,
+    required int count,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      color: Colors.grey[800],
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Count: $count',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
+                IconButton(
+                  onPressed: onTap,
+                  icon: const Icon(Icons.arrow_forward),
+                  color: Colors.white,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUpcomingClassesCard() {
+    return Card(
+      color: Colors.grey[800],
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Upcoming Classes',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 10),
+            // Example upcoming classes list
+            StreamBuilder<QuerySnapshot>(
+              stream: firestoreService.classesListStream(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                List<DocumentSnapshot> classes = snapshot.data!.docs;
+                return Column(
+                  children: classes.take(3).map((doc) {
+                    Map<String, dynamic> data =
+                        doc.data() as Map<String, dynamic>;
+                    DateTime startTime =
+                        (data['Start Time'] as Timestamp).toDate();
+                    return ListTile(
+                      title: Text(
+                        data['Class Name'] ?? 'Unknown Class',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      subtitle: Text(
+                        DateFormat('yyyy-MM-dd – kk:mm').format(startTime),
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecentActivityCard() {
+    return Card(
+      color: Colors.grey[800],
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Recent Activity',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 10),
+            // Example recent activities
+            ListTile(
+              title: Text(
+                'New member added: John Doe',
+                style: TextStyle(color: Colors.white),
+              ),
+              subtitle: Text(
+                '2 hours ago',
+                style: TextStyle(color: Colors.white70),
+              ),
+              leading: Icon(Icons.person_add, color: Colors.white),
+            ),
+            ListTile(
+              title: Text(
+                'Class created: Yoga Basics',
+                style: TextStyle(color: Colors.white),
+              ),
+              subtitle: Text(
+                '1 day ago',
+                style: TextStyle(color: Colors.white70),
+              ),
+              leading: Icon(Icons.event_note, color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickActionsCard() {
+    return Card(
+      color: Colors.grey[800],
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Quick Actions',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    // Implement add new class functionality
+                  },
+                  child: const Text('Add Class'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Implement add new member functionality
+                  },
+                  child: const Text('Add Member'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Implement send notification functionality
+                  },
+                  child: const Text('Send Notification'),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

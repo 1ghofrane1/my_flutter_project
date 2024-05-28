@@ -207,7 +207,6 @@ class FirestoreService {
       QuerySnapshot existingClasses = await FirebaseFirestore.instance
           .collection('Class')
           .where('Coach', isEqualTo: coach)
-          .where('Scheduled Time', isEqualTo: scheduledDate)
           .where('Start Time', isEqualTo: startTime)
           .get();
 
@@ -528,8 +527,6 @@ class FirestoreService {
 
         int newEnrolledCount = (classSnapshot['enrolled_count'] ?? 0) + 1;
         transaction.update(classRef, {'enrolled_count': newEnrolledCount});
-        /*int availableSpots = (classSnapshot['available_spots'] ?? 0) - 1;
-        transaction.update(classRef, {'available_spots': availableSpots});*/
       });
 
       print(
@@ -567,8 +564,6 @@ class FirestoreService {
         int newEnrolledCount =
             currentEnrolledCount > 0 ? currentEnrolledCount - 1 : 0;
         transaction.update(classRef, {'enrolled_count': newEnrolledCount});
-        /*int availableSpots = (classSnapshot['available_spots'] ?? 0) + 1;
-        transaction.update(classRef, {'available_spots': availableSpots});*/
       });
 
       print(
@@ -627,4 +622,88 @@ class FirestoreService {
       return false;
     }
   }
+
+  Future<bool> isClassEnrolled(String docID) async {
+    try {
+      // Get the user's ID
+      String userID = FirebaseAuth.instance.currentUser!.uid;
+
+      // Check if the class is enrolled by the user
+      DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
+          .collection('Subscriber')
+          .doc(userID)
+          .collection('EnrolledClasses')
+          .doc(docID)
+          .get();
+
+      // Return true if the class is already enrolled, false otherwise
+      return docSnapshot.exists;
+    } catch (e) {
+      print('Error checking if class is enrolled: $e');
+      // Return false in case of error
+      return false;
+    }
+  }
+
+// Method to edit a class
+  Future<void> editClass(String classId, Map<String, dynamic> newData) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('classes')
+          .doc(classId)
+          .update(newData);
+    } catch (e) {
+      // Handle errors
+      print('Error editing class: $e');
+      throw e;
+    }
+  }
+
+  // Method to delete a class
+  Future<void> deleteClass(String classId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('Class')
+          .doc(classId)
+          .delete();
+    } catch (e) {
+      // Handle errors
+      print('Error deleting class: $e');
+      throw e;
+    }
+  }
+
+  Future<void> updateClass(
+    String classId,
+    String className,
+    DateTime scheduledTime,
+    DateTime startTime,
+    DateTime endTime,
+    String coachName,
+    int capacity,
+  ) async {
+    try {
+      await FirebaseFirestore.instance.collection('Class').doc(classId).update({
+        'Class Name': className,
+        'Scheduled Time': scheduledTime,
+        'Start Time': startTime,
+        'End Time': endTime,
+        'Coach': coachName,
+        'Capacity': capacity,
+      });
+    } catch (e) {
+      throw Exception('Error updating class: $e');
+    }
+  }
+
+Future<void> updateWorkoutProgram(String subscriberId, List<String> workouts) async {
+    try {
+      await FirebaseFirestore.instance.collection('Subscriber').doc(subscriberId).update({
+        'workoutProgram': workouts,
+      });
+    } catch (e) {
+      throw Exception('Failed to update workout program: $e');
+    }
+  }
+
 }

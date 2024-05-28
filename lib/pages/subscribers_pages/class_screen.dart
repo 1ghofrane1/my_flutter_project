@@ -120,17 +120,38 @@ class _ClassScreenState extends State<ClassScreen> {
                                   'Date: ${DateFormat.yMMMd().format(scheduledTime)}\nTime: ${DateFormat.Hm().format(startDateTime)} - ${DateFormat.Hm().format(endDateTime)}\nCoach: $coachName\nAvailable spots:  ${capacity - enrolledCount} / $capacity',
                                   style: const TextStyle(color: Colors.white70),
                                 ),
-                                trailing: IconButton(
-                                  icon: const Icon(
-                                    Icons.add,
-                                    color:
-                                        Colors.green, // Initially set to green
-                                  ),
-                                  onPressed: () {
-                                    String docID = document.id;
-                                    // Remove the class from user's enrolled classes
-                                    firestoreService.addToEnrolledClasses(
-                                        docID, data);
+                                // Inside the ListView.builder for available classes
+                                trailing: FutureBuilder<bool>(
+                                  future:
+                                      firestoreService.isClassEnrolled(doc.id),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const CircularProgressIndicator(); // Show loading indicator while checking
+                                    }
+
+                                    if (snapshot.hasData &&
+                                        snapshot.data == true) {
+                                      // Class is already enrolled, disable add icon button
+                                      return const IconButton(
+                                        icon: Icon(Icons.add,
+                                            color:
+                                                Colors.grey), // Disabled color
+                                        onPressed: null, // Disable onPressed
+                                      );
+                                    } else {
+                                      // Class is not enrolled, enable add icon button
+                                      return IconButton(
+                                        icon: const Icon(Icons.add,
+                                            color: Colors.green),
+                                        onPressed: () {
+                                          // Add logic to add the class to "My Classes" section
+                                          String docID = doc.id;
+                                          firestoreService.addToEnrolledClasses(
+                                              docID, data);
+                                        },
+                                      );
+                                    }
                                   },
                                 ),
                               ),
@@ -206,7 +227,7 @@ class _ClassScreenState extends State<ClassScreen> {
                                 if (classDetailsSnapshot.connectionState ==
                                     ConnectionState.waiting) {
                                   // While fetching class details, show a loading indicator
-                                  return CircularProgressIndicator();
+                                  return const CircularProgressIndicator();
                                 }
 
                                 if (classDetailsSnapshot.hasData) {
@@ -272,7 +293,8 @@ class _ClassScreenState extends State<ClassScreen> {
                                 }
 
                                 // If class details couldn't be fetched, show a message
-                                return Text('Failed to fetch class details');
+                                return const Text(
+                                    'Failed to fetch class details');
                               },
                             );
                           },

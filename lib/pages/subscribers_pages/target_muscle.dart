@@ -43,15 +43,18 @@ class _TargetMuscleScreenState extends State<TargetMuscleScreen> {
                 style: TextStyle(fontSize: 18, color: Colors.white),
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildGoalButton('Weight loss'),
-                const SizedBox(width: 10),
-                _buildGoalButton('Weight gain'),
-                const SizedBox(width: 10),
-                _buildGoalButton('Endurance improvement'),
-              ],
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildGoalButton('Weight loss'),
+                  const SizedBox(width: 10),
+                  _buildGoalButton('Weight gain'),
+                  const SizedBox(width: 10),
+                  _buildGoalButton('Endurance improvement'),
+                ],
+              ),
             ),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
