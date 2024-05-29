@@ -6,11 +6,11 @@ class SummaryCard extends StatelessWidget {
   final VoidCallback onPressed; // Callback for button press
 
   const SummaryCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.value,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,7 @@ class SummaryCard extends StatelessWidget {
             ),
             IconButton(
               onPressed: onPressed, // Navigate to ManageSub on button press
-              icon: Icon(Icons.arrow_forward), // Add your desired icon
+              icon: const Icon(Icons.arrow_forward), // Add your desired icon
             ),
           ],
         ),

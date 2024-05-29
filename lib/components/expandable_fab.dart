@@ -8,12 +8,12 @@ class ExpandableFab extends StatefulWidget {
   final VoidCallback secondSecondaryOnPressed;
 
   const ExpandableFab({
-    Key? key,
+    super.key,
     required this.firstSecondaryIcon,
     required this.secondSecondaryIcon,
     required this.firstSecondaryOnPressed,
     required this.secondSecondaryOnPressed,
-  }) : super(key: key);
+  });
 
   @override
   _ExpandableFabState createState() => _ExpandableFabState();

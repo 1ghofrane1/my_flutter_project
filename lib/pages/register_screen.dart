@@ -5,13 +5,12 @@ import 'package:my_flutter_project/components/drop_list.dart';
 import 'package:my_flutter_project/components/my_button.dart';
 import 'package:my_flutter_project/components/my_textfield.dart';
 import 'package:my_flutter_project/components/phone.dart';
-import 'package:my_flutter_project/pages/manager_pages/gym_acc.dart';
 import 'package:my_flutter_project/pages/manager_pages/m_home_page.dart';
 import 'package:my_flutter_project/pages/verif.dart';
 
 class RegisterScreen extends StatefulWidget {
   final Function()? onTap;
-  RegisterScreen({super.key, required this.onTap});
+  const RegisterScreen({super.key, required this.onTap});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -85,7 +84,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 //choose role
 
                 DropDownList(
-                  items: ['Manager', 'Coach', 'Subscriber'],
+                  items: const ['Manager', 'Coach', 'Subscriber'],
                   hintText: 'Select Role',
                   value: _selectedRole != null
                       ? ['Manager', 'Coach', 'Subscriber'][_selectedRole!]
@@ -235,7 +234,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MHomePage(),
+            builder: (context) => const MHomePage(),
           ),
         );
       } else if (managerCollectionExists) {

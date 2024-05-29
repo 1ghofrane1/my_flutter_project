@@ -1,7 +1,6 @@
 // lib/components/next_class_card.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
 import 'package:my_flutter_project/services/firestore.dart';
 
 class NextClassCard extends StatelessWidget {
@@ -9,10 +8,10 @@ class NextClassCard extends StatelessWidget {
   final Future<String> coachNameFuture;
 
   const NextClassCard({
-    Key? key,
+    super.key,
     required this.nextClassTimeNotifier,
     required this.coachNameFuture,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -35,9 +34,9 @@ class NextClassCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text("Next Class in: ",
+                    const Text("Next Class in: ",
                         style:
-                            const TextStyle(color: Colors.white, fontSize: 16)),
+                            TextStyle(color: Colors.white, fontSize: 16)),
                     const SizedBox(width: 8),
                     ValueListenableBuilder(
                       valueListenable: nextClassTimeNotifier,

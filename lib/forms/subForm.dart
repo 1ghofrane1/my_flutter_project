@@ -4,7 +4,7 @@ import 'package:my_flutter_project/pages/manager_pages/controllers/gym_members_c
 import 'package:get/get.dart';
 
 class SubForm extends StatefulWidget {
-  const SubForm({Key? key}) : super(key: key);
+  const SubForm({super.key});
 
   @override
   State<SubForm> createState() => _SubFormState();

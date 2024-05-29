@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_flutter_project/services/firestore.dart';
 
 class MembershipForm extends StatefulWidget {
-  const MembershipForm({Key? key}) : super(key: key);
+  const MembershipForm({super.key});
 
   @override
   State<MembershipForm> createState() => _MembershipFormState();

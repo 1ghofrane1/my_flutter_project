@@ -11,7 +11,7 @@ import 'package:my_flutter_project/pages/manager_pages/classes.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GymMembers extends StatefulWidget {
-  const GymMembers({Key? key}) : super(key: key);
+  const GymMembers({super.key});
 
   @override
   State<GymMembers> createState() => _GymMembersState();
@@ -84,7 +84,7 @@ class _GymMembersState extends State<GymMembers> {
       if (index == 0) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => MHomePage()),
+          MaterialPageRoute(builder: (context) => const MHomePage()),
         );
       } else if (index == 2) {
         Navigator.pushReplacement(
@@ -251,7 +251,7 @@ class _GymMembersState extends State<GymMembers> {
                                             ),
                                           ),
                                         );
-                                      }).toList(),
+                                      }),
                                     ],
                                   ),
                                 );
@@ -784,13 +784,13 @@ class _GymMembersState extends State<GymMembers> {
                               children: [
                                 IconButton(
                                   onPressed: () async {
-                                    final Uri _emailLaunchUri =
+                                    final Uri emailLaunchUri =
                                         Uri(scheme: 'mailto', path: email);
                                     if (await canLaunch(
-                                        _emailLaunchUri.toString())) {
-                                      await launch(_emailLaunchUri.toString());
+                                        emailLaunchUri.toString())) {
+                                      await launch(emailLaunchUri.toString());
                                     } else {
-                                      throw 'Could not launch $_emailLaunchUri';
+                                      throw 'Could not launch $emailLaunchUri';
                                     }
                                   },
                                   icon: const Icon(Icons.email,
@@ -855,8 +855,8 @@ class _GymMembersState extends State<GymMembers> {
             },
           );
         },
-        child: const Icon(Icons.add),
         backgroundColor: const Color(0xFFBEF264),
+        child: const Icon(Icons.add),
         //shape: const CircleBorder(),
       ),
       bottomNavigationBar: MyBottomNavBar(

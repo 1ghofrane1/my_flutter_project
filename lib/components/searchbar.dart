@@ -99,10 +99,10 @@ class SearchBar extends StatefulWidget {
   final ValueChanged<String>? onChanged;
 
   const SearchBar({
-    Key? key,
+    super.key,
     required this.searchTerms,
     this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   State<SearchBar> createState() => _SearchBarState();
@@ -116,10 +116,10 @@ class _SearchBarState extends State<SearchBar> {
         color: Colors.grey[200],
         borderRadius: BorderRadius.circular(8.0),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: TextField(
         onChanged: widget.onChanged,
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           hintText: 'Search',
           border: InputBorder.none,
           icon: Icon(Icons.search),

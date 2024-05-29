@@ -6,7 +6,7 @@ import 'package:my_flutter_project/components/my_button.dart';
 import 'package:my_flutter_project/pages/manager_pages/gym_members.dart';
 
 class GymAcc extends StatefulWidget {
-  const GymAcc({Key? key});
+  const GymAcc({super.key});
 
   @override
   State<GymAcc> createState() => _GymAccState();

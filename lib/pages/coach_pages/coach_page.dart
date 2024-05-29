@@ -1,14 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:my_flutter_project/pages/coach_pages/coach_home.dart';
 import 'package:my_flutter_project/pages/coach_pages/custom_program.dart';
 import 'package:my_flutter_project/pages/coach_pages/my_classes.dart';
-import 'package:my_flutter_project/pages/subscribers_pages/class_screen.dart';
-import 'package:my_flutter_project/pages/subscribers_pages/prg.dart';
 
 class CoachPage extends StatefulWidget {
+  const CoachPage({super.key});
+
   @override
   _CoachPageState createState() => _CoachPageState();
 }

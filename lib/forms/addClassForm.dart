@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_flutter_project/services/firestore.dart';
 
 class AddClassForm extends StatefulWidget {
-  const AddClassForm({Key? key}) : super(key: key);
+  const AddClassForm({super.key});
 
   @override
   _AddClassFormState createState() => _AddClassFormState();
@@ -52,7 +52,7 @@ class _AddClassFormState extends State<AddClassForm> {
             children: [
               TextFormField(
                 controller: _classNameController,
-                decoration: InputDecoration(labelText: 'Class Name'),
+                decoration: const InputDecoration(labelText: 'Class Name'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter class name';
@@ -60,7 +60,7 @@ class _AddClassFormState extends State<AddClassForm> {
                   return null;
                 },
               ),
-              SizedBox(height: 20.0),
+              const SizedBox(height: 20.0),
               DropdownButtonFormField<String>(
                 value: _selectedCoach,
                 onChanged: (String? newValue) {
@@ -74,7 +74,7 @@ class _AddClassFormState extends State<AddClassForm> {
                     child: Text(coach['fullname']),
                   );
                 }).toList(),
-                decoration: InputDecoration(labelText: 'Select Coach'),
+                decoration: const InputDecoration(labelText: 'Select Coach'),
                 validator: (value) {
                   if (value == null) {
                     return 'Please select a coach';
@@ -82,11 +82,11 @@ class _AddClassFormState extends State<AddClassForm> {
                   return null;
                 },
               ),
-              SizedBox(height: 20.0),
+              const SizedBox(height: 20.0),
               TextFormField(
                 controller: _classCapacityController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Class Capacity'),
+                decoration: const InputDecoration(labelText: 'Class Capacity'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter class capacity';
@@ -94,7 +94,7 @@ class _AddClassFormState extends State<AddClassForm> {
                   return null;
                 },
               ),
-              SizedBox(height: 20.0),
+              const SizedBox(height: 20.0),
               ListTile(
                 title: Text(_selectedDate == null
                     ? 'Select Date'
@@ -145,7 +145,7 @@ class _AddClassFormState extends State<AddClassForm> {
                   }
                 },
               ),
-              SizedBox(height: 20.0),
+              const SizedBox(height: 20.0),
               ElevatedButton(
                 onPressed: _isSubmitting
                     ? null
@@ -210,7 +210,7 @@ class _AddClassFormState extends State<AddClassForm> {
                           } catch (e) {
                             print('Error adding class: $e');
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Failed to add class')),
+                              const SnackBar(content: Text('Failed to add class')),
                             );
                           } finally {
                             setState(() {
@@ -219,7 +219,7 @@ class _AddClassFormState extends State<AddClassForm> {
                           }
                         }
                       },
-                child: Text('Submit'),
+                child: const Text('Submit'),
               ),
             ],
           ),

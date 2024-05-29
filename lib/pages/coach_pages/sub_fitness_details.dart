@@ -1,13 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:my_flutter_project/pages/coach_pages/workout_plan_customization_screen.dart';
 import 'package:my_flutter_project/services/firestore.dart';
 
 class SubscriberDetailsScreen extends StatelessWidget {
   final String subscriberId;
 
-  const SubscriberDetailsScreen({Key? key, required this.subscriberId})
-      : super(key: key);
+  const SubscriberDetailsScreen({super.key, required this.subscriberId});
 
   @override
   Widget build(BuildContext context) {

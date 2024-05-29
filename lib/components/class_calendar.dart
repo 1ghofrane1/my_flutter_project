@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class ClassCalendar extends StatefulWidget {
+  const ClassCalendar({super.key});
+
   @override
   _ClassCalendarState createState() => _ClassCalendarState();
 }
@@ -37,7 +39,7 @@ class _ClassCalendarState extends State<ClassCalendar> {
             titleCentered: true,
             formatButtonVisible: true, // Show the format button
             formatButtonDecoration: BoxDecoration(
-              color: Color.fromARGB(207, 190, 242, 100),
+              color: const Color.fromARGB(207, 190, 242, 100),
               borderRadius: BorderRadius.circular(10.0),
             ),
             formatButtonTextStyle: const TextStyle(
@@ -56,15 +58,15 @@ class _ClassCalendarState extends State<ClassCalendar> {
           onDaySelected: _onDaySelected,
           calendarStyle: CalendarStyle(
             todayDecoration: BoxDecoration(
-              color: Color.fromARGB(255, 190, 242, 100).withOpacity(0.5),
+              color: const Color.fromARGB(255, 190, 242, 100).withOpacity(0.5),
               shape: BoxShape.circle,
             ),
             selectedDecoration: BoxDecoration(
-              color: Color(0xFFBEF264).withOpacity(0.8),
+              color: const Color(0xFFBEF264).withOpacity(0.8),
               shape: BoxShape.circle,
             ),
-            selectedTextStyle: TextStyle(color: Color(0xFF171717)),
-            outsideTextStyle: TextStyle(color: Colors.black54),
+            selectedTextStyle: const TextStyle(color: Color(0xFF171717)),
+            outsideTextStyle: const TextStyle(color: Colors.black54),
           ),
         ),
       ),

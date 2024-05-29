@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:my_flutter_project/pages/subscribers_pages/height_weight.dart';
 
 class GenderSelectionScreen extends StatefulWidget {
+  const GenderSelectionScreen({super.key});
+
   @override
   _GenderSelectionScreenState createState() => _GenderSelectionScreenState();
 }
@@ -102,7 +104,7 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Container(
+                  SizedBox(
                     height: 200,
                     child: CupertinoTheme(
                       data: const CupertinoThemeData(
@@ -152,7 +154,7 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            HeightWeightSelectionScreen(),
+                                            const HeightWeightSelectionScreen(),
                                       ),
                                     );
                                   } catch (e) {
@@ -165,7 +167,7 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
                             }
                           : () {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
+                                const SnackBar(
                                   content: Text('Please select your gender'),
                                 ),
                               );

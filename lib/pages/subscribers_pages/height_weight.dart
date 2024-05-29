@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:my_flutter_project/pages/subscribers_pages/target_muscle.dart';
 
 class HeightWeightSelectionScreen extends StatefulWidget {
+  const HeightWeightSelectionScreen({super.key});
+
   @override
   _HeightWeightSelectionScreenState createState() =>
       _HeightWeightSelectionScreenState();
@@ -87,7 +89,7 @@ class _HeightWeightSelectionScreenState
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => TargetMuscleScreen(),
+                                builder: (context) => const TargetMuscleScreen(),
                               ),
                             );
                           } catch (e) {

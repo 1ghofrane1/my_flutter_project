@@ -45,6 +45,7 @@ dependencies:
   get: ^4.6.6
   #calendar_date_picker2: ^1.0.2
 
+  intl: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

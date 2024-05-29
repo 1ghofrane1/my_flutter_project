@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:my_flutter_project/services/firestore.dart';
 
 class ClassScreen extends StatefulWidget {
-  const ClassScreen({Key? key}) : super(key: key);
+  const ClassScreen({super.key});
 
   @override
   _ClassScreenState createState() => _ClassScreenState();

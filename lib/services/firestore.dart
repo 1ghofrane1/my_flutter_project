@@ -356,10 +356,10 @@ class FirestoreService {
           .where('email', isEqualTo: email)
           .get();
 
-      snapshot.docs.forEach((doc) {
+      for (var doc in snapshot.docs) {
         doc.reference.delete();
         print('User data deleted from "Not Verified" collection');
-      });
+      }
     } catch (e) {
       print('Error deleting user: $e');
       throw Exception('Failed to delete user. Please try again later.');
@@ -655,7 +655,7 @@ class FirestoreService {
     } catch (e) {
       // Handle errors
       print('Error editing class: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -669,7 +669,7 @@ class FirestoreService {
     } catch (e) {
       // Handle errors
       print('Error deleting class: $e');
-      throw e;
+      rethrow;
     }
   }
 

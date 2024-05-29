@@ -2,16 +2,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_flutter_project/pages/subscribers_pages/health.dart';
-import 'package:my_flutter_project/pages/subscribers_pages/sub_home_page.dart';
 
 class TargetMuscleScreen extends StatefulWidget {
+  const TargetMuscleScreen({super.key});
+
   @override
   _TargetMuscleScreenState createState() => _TargetMuscleScreenState();
 }
 
 class _TargetMuscleScreenState extends State<TargetMuscleScreen> {
   bool _showFrontSide = true;
-  List<String> _selectedMuscles = [];
+  final List<String> _selectedMuscles = [];
   String _selectedGoal = '';
 
   @override
@@ -196,7 +197,7 @@ class _TargetMuscleScreenState extends State<TargetMuscleScreen> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => HealthDetailsScreen()),
+                                builder: (context) => const HealthDetailsScreen()),
                           );
                         } catch (e) {
                           print('Error updating document: $e');

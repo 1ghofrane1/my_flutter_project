@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PreAuthScreen extends StatefulWidget {
-  const PreAuthScreen({Key? key}) : super(key: key);
+  const PreAuthScreen({super.key});
 
   @override
   _PreAuthScreenState createState() => _PreAuthScreenState();

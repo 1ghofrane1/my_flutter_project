@@ -10,7 +10,7 @@ class ClassDetailScreen extends StatelessWidget {
   final String coachName;
   final String description;
 
-  const ClassDetailScreen({
+  const ClassDetailScreen({super.key, 
     required this.className,
     required this.classTime,
     required this.startTime,

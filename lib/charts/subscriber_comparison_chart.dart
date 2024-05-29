@@ -3,24 +3,26 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:my_flutter_project/services/firestore.dart';
 
 class SubscriberComparisonChart extends StatelessWidget {
+  const SubscriberComparisonChart({super.key});
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, int>>(
       future: FirestoreService().calculateNewSubscribersByMonth(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Text('No data available.');
+          return const Text('No data available.');
         } else {
           return AspectRatio(
             aspectRatio: 1.7,
             child: BarChart(
               BarChartData(
                 barGroups: _buildBarGroups(snapshot.data!),
-                titlesData: FlTitlesData(
+                titlesData: const FlTitlesData(
                   show: true,
                 ),
               ),

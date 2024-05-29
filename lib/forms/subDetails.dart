@@ -61,10 +61,10 @@ class SubDetailsDialog {
             //DropdownButtonFormField<String>(
               // Add your dropdown button widget here
             //),
-            TextField(
+            const TextField(
               // Add your text field widget for start date here
             ),
-            TextField(
+            const TextField(
               // Add your text field widget for end date here
             ),
             const SizedBox(

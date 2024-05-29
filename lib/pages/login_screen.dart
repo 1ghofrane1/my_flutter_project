@@ -5,7 +5,7 @@ import 'package:my_flutter_project/components/my_textfield.dart';
 
 class LoginScreen extends StatefulWidget {
   final Function()? onTap;
-  const LoginScreen({Key? key, required this.onTap});
+  const LoginScreen({super.key, required this.onTap});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();

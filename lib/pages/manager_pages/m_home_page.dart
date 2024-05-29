@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:my_flutter_project/pages/manager_pages/bottom_navbar.dart';
 import 'package:my_flutter_project/pages/manager_pages/classes.dart';
 import 'package:my_flutter_project/pages/manager_pages/gym_members.dart';
@@ -10,6 +9,8 @@ import 'package:my_flutter_project/services/firestore.dart';
 import 'package:intl/intl.dart';
 
 class MHomePage extends StatefulWidget {
+  const MHomePage({super.key});
+
   @override
   _MHomePageState createState() => _MHomePageState();
 }

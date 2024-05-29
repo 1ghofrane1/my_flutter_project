@@ -4,7 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class ProgramScreen extends StatefulWidget {
-  const ProgramScreen({Key? key});
+  const ProgramScreen({super.key});
 
   @override
   _ProgramScreenState createState() => _ProgramScreenState();

@@ -1,11 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:my_flutter_project/pages/subscribers_pages/class_screen.dart';
 import 'package:my_flutter_project/pages/subscribers_pages/prg.dart';
 
 class SubHomePage extends StatefulWidget {
+  const SubHomePage({super.key});
+
   @override
   _SubHomePageState createState() => _SubHomePageState();
 }
@@ -14,9 +14,9 @@ class _SubHomePageState extends State<SubHomePage> {
   int _currentIndex = 0;
 
   final List<Widget> _children = [
-    ProgramScreen(),
-    HomeScreen(),
-    ClassScreen(),
+    const ProgramScreen(),
+    const HomeScreen(),
+    const ClassScreen(),
     // Add other screens here
   ];
 
@@ -34,7 +34,7 @@ class _SubHomePageState extends State<SubHomePage> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.logout),
+            icon: const Icon(Icons.logout),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
               Navigator.pop(context);
@@ -75,7 +75,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Text(
         'Program Screen',
         style: TextStyle(color: Colors.white),

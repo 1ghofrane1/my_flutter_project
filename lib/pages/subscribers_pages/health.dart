@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:my_flutter_project/pages/subscribers_pages/sub_home_page.dart';
 
 class HealthDetailsScreen extends StatefulWidget {
+  const HealthDetailsScreen({super.key});
+
   @override
   _HealthDetailsScreenState createState() => _HealthDetailsScreenState();
 }
 
 class _HealthDetailsScreenState extends State<HealthDetailsScreen> {
-  TextEditingController _healthDetailsController = TextEditingController();
+  final TextEditingController _healthDetailsController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +99,7 @@ class _HealthDetailsScreenState extends State<HealthDetailsScreen> {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => SubHomePage()),
+                                  builder: (context) => const SubHomePage()),
                             );
                           } catch (e) {
                             print('Error updating document: $e');

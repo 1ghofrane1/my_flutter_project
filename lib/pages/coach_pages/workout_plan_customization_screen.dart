@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class WorkoutPlanCustomizationScreen extends StatefulWidget {
   final String subscriberName; // Name of the selected subscriber
 
-  WorkoutPlanCustomizationScreen({required this.subscriberName});
+  const WorkoutPlanCustomizationScreen({super.key, required this.subscriberName});
 
   @override
   _WorkoutPlanCustomizationScreenState createState() =>
@@ -52,7 +52,7 @@ class _WorkoutPlanCustomizationScreenState
           // Save selected workouts and navigate back
           Navigator.pop(context, selectedWorkouts);
         },
-        child: Icon(Icons.save),
+        child: const Icon(Icons.save),
       ),
     );
   }

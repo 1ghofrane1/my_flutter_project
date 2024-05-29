@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:my_flutter_project/services/firestore.dart';
 
 class NotVerified extends StatefulWidget {
-  const NotVerified({Key? key}) : super(key: key);
+  const NotVerified({super.key});
 
   @override
   State<NotVerified> createState() => _NotVerifiedState();
@@ -23,7 +22,7 @@ class _NotVerifiedState extends State<NotVerified> {
             'Not Verified List',
             style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: Color.fromARGB(255, 0, 0, 0),
+          backgroundColor: const Color.fromARGB(255, 0, 0, 0),
           centerTitle: true,
           iconTheme: const IconThemeData(
             color: Color(0xFFBEF264),
@@ -97,7 +96,7 @@ class _NotVerifiedState extends State<NotVerified> {
                             firestoreService
                                 .deleteNotVerifiedUser(data['email']);
                           },
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.close,
                             color: Colors.red,
                           ),

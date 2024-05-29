@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_flutter_project/components/class_calendar.dart';
 import 'package:my_flutter_project/forms/addClassForm.dart';
-import 'package:my_flutter_project/pages/class_detail.dart';
 import 'package:my_flutter_project/pages/manager_pages/bottom_navbar.dart';
 import 'package:my_flutter_project/pages/manager_pages/gym_members.dart';
 import 'package:my_flutter_project/pages/manager_pages/m_home_page.dart';
@@ -11,7 +10,7 @@ import 'package:my_flutter_project/services/firestore.dart';
 import 'package:intl/intl.dart';
 
 class Classes extends StatefulWidget {
-  const Classes({Key? key}) : super(key: key);
+  const Classes({super.key});
 
   @override
   _ClassesState createState() => _ClassesState();
@@ -67,7 +66,7 @@ class _ClassesState extends State<Classes> {
       if (index == 0) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => MHomePage()),
+          MaterialPageRoute(builder: (context) => const MHomePage()),
         );
       } else if (index == 1) {
         Navigator.pushReplacement(
@@ -89,7 +88,7 @@ class _ClassesState extends State<Classes> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: 20),
-          ClassCalendar(),
+          const ClassCalendar(),
           const SizedBox(height: 20),
           // Next class countdown section
           NextClassCard(
@@ -217,8 +216,7 @@ class _ClassesState extends State<Classes> {
                                                   },
                                                 );
 
-                                                if (confirmDelete != null &&
-                                                    confirmDelete) {
+                                                if (confirmDelete) {
                                                   firestoreService
                                                       .deleteClass(document.id)
                                                       .then((_) {
@@ -327,8 +325,8 @@ class _ClassesState extends State<Classes> {
             },
           );
         },
-        child: const Icon(Icons.add),
         backgroundColor: const Color(0xFFBEF264),
+        child: const Icon(Icons.add),
 //shape: const CircleBorder(),
       ),
       bottomNavigationBar: MyBottomNavBar(
