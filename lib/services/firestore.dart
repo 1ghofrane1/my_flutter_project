@@ -696,9 +696,13 @@ class FirestoreService {
     }
   }
 
-Future<void> updateWorkoutProgram(String subscriberId, List<String> workouts) async {
+  Future<void> updateWorkoutProgram(
+      String subscriberId, List<String> workouts) async {
     try {
-      await FirebaseFirestore.instance.collection('Subscriber').doc(subscriberId).update({
+      await FirebaseFirestore.instance
+          .collection('Subscriber')
+          .doc(subscriberId)
+          .update({
         'workoutProgram': workouts,
       });
     } catch (e) {
@@ -706,4 +710,47 @@ Future<void> updateWorkoutProgram(String subscriberId, List<String> workouts) as
     }
   }
 
+  Future<void> saveWorkoutPlan(
+      String? subscriberId, List<Map<String, dynamic>> workoutPlan) async {
+    await FirebaseFirestore.instance
+        .collection('Subscriber')
+        .doc(subscriberId)
+        .collection('workoutPlans')
+        .add({
+      'createdAt': FieldValue.serverTimestamp(),
+      'workoutPlan': workoutPlan,
+    });
+  }
+
+  // Method to add a workout plan
+  Future<void> addWorkoutPlan(String? subscriberId, String title,
+      String description, int duration) async {
+    if (subscriberId == null) {
+      throw ArgumentError('Subscriber ID cannot be null');
+    }
+
+    final workoutPlan = {
+      'title': title,
+      'description': description,
+      'duration': duration,
+      'created_at': FieldValue.serverTimestamp(),
+    };
+
+    await FirebaseFirestore.instance
+        .collection('subscribers')
+        .doc(subscriberId)
+        .collection('workout_plans')
+        .add(workoutPlan);
+  }
+
+ Future<void> addWorkoutPlann(String? subscriberId, String title, String description, List<Map<String, dynamic>> workoutSets) async {
+    if (subscriberId == null) return;
+
+    await FirebaseFirestore.instance.collection('workoutPlans').doc(subscriberId).set({
+      'title': title,
+      'description': description,
+      'workoutSets': workoutSets,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
 }
