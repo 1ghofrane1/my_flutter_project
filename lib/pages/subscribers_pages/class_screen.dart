@@ -19,6 +19,13 @@ class _ClassScreenState extends State<ClassScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Classes',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF171717),
+      ),
       backgroundColor: const Color(0xFF171717),
       body: Column(
         children: [
@@ -144,11 +151,34 @@ class _ClassScreenState extends State<ClassScreen> {
                                       return IconButton(
                                         icon: const Icon(Icons.add,
                                             color: Colors.green),
-                                        onPressed: () {
-                                          // Add logic to add the class to "My Classes" section
-                                          String docID = doc.id;
-                                          firestoreService.addToEnrolledClasses(
-                                              docID, data);
+                                        onPressed: () async {
+                                          try {
+                                            // Add logic to add the class to "My Classes" section
+                                            String docID = doc.id;
+
+                                            // Create an instance of FirestoreService
+                                            FirestoreService firestoreService =
+                                                FirestoreService();
+
+                                            // Call method to add class to user's enrolled classes
+                                            await firestoreService
+                                                .addClassToUserEnrolledClasses(
+                                                    docID, data);
+
+                                            // Call method to add subscriber to class and update count
+                                            await firestoreService
+                                                .addSubscriberToClassAndUpdateCount(
+                                                    docID);
+
+                                            // Show success message or perform any other actions
+                                            print(
+                                                'Class added to "My Classes" successfully');
+                                          } catch (e) {
+                                            // Handle any errors
+                                            print(
+                                                'Error adding class to "My Classes": $e');
+                                            // Show error message to the user or handle it appropriately
+                                          }
                                         },
                                       );
                                     }

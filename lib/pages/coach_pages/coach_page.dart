@@ -30,7 +30,7 @@ class _CoachPageState extends State<CoachPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      /*appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
@@ -42,7 +42,7 @@ class _CoachPageState extends State<CoachPage> {
             },
           ),
         ],
-      ),
+      ),*/
       backgroundColor: const Color(0xFF171717),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(

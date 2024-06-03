@@ -18,6 +18,10 @@ class _CustomProgramState extends State<CustomProgram> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Subscribers', style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFF171717),
+      ),
       backgroundColor: const Color(0xFF171717),
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestoreService.subscribersListStream(),
@@ -165,7 +169,7 @@ class _CustomProgramState extends State<CustomProgram> {
                                           color: Color(0xFF171717)), // Add icon
                                       SizedBox(width: 6),
                                       Text(
-                                        'Add workout plan',
+                                        'Add plan',
                                         style: TextStyle(
                                           color: Color(0xFF171717),
                                           fontSize: 14,

@@ -29,7 +29,7 @@ class _SubHomePageState extends State<SubHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      /*appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
@@ -41,7 +41,7 @@ class _SubHomePageState extends State<SubHomePage> {
             },
           ),
         ],
-      ),
+      ),*/
       backgroundColor: const Color(0xFF171717),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -75,10 +75,17 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Program Screen',
-        style: TextStyle(color: Colors.white),
+    return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pop(context);
+            },
+          ),
+        ],
       ),
     );
   }

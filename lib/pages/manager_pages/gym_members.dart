@@ -135,6 +135,13 @@ class _GymMembersState extends State<GymMembers> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Gym Members',
+            style: TextStyle(
+              color: Colors.white,
+            )),
+        backgroundColor: Colors.transparent,
+      ),
       backgroundColor: const Color(0xFF171717),
       body: SingleChildScrollView(
         child: Column(
@@ -785,9 +792,11 @@ class _GymMembersState extends State<GymMembers> {
                                 IconButton(
                                   onPressed: () async {
                                     final Uri emailLaunchUri =
-                                        Uri(scheme: 'mailto', path: email);
+                                        Uri(scheme: 'mailto', path: email,);
+                                    // ignore: deprecated_member_use
                                     if (await canLaunch(
                                         emailLaunchUri.toString())) {
+                                      // ignore: deprecated_member_use
                                       await launch(emailLaunchUri.toString());
                                     } else {
                                       throw 'Could not launch $emailLaunchUri';

@@ -19,13 +19,12 @@ class _NotVerifiedState extends State<NotVerified> {
       backgroundColor: const Color(0xFF171717),
       appBar: AppBar(
           title: const Text(
-            'Not Verified List',
+            'Requests for Verification',
             style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: const Color.fromARGB(255, 0, 0, 0),
-          centerTitle: true,
+          backgroundColor: Color.fromARGB(0, 0, 0, 0),
           iconTheme: const IconThemeData(
-            color: Color(0xFFBEF264),
+            color: Color.fromRGBO(255, 255, 255, 1),
           )),
       body: StreamBuilder<QuerySnapshot>(
         stream: firestoreService.notVerifListStream(),

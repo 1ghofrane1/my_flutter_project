@@ -80,9 +80,44 @@ class _ClassesState extends State<Classes> {
     });
   }
 
+  Future<List<Map<String, dynamic>>> getSubscriberNames(
+      String classDocID) async {
+    try {
+      // Reference to the "Subscribers" subcollection of the class document
+      CollectionReference subscribersRef = FirebaseFirestore.instance
+          .collection('Class')
+          .doc(classDocID)
+          .collection('Subscribers');
+
+      // Fetch all documents in the "Subscribers" subcollection
+      QuerySnapshot snapshot = await subscribersRef.get();
+
+      // Extract and return the subscriber details
+      List<Map<String, dynamic>> subscriberNames = snapshot.docs.map((doc) {
+        return {
+          'fname': doc['fname'] ?? '',
+          'lname': doc['lname'] ?? '',
+        };
+      }).toList();
+
+      return subscriberNames;
+    } catch (e) {
+      print('Error fetching subscriber names: $e');
+      // Rethrow the error with more context
+      throw Exception('Failed to fetch subscriber names');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Classes',
+            style: TextStyle(
+              color: Colors.white,
+            )),
+        backgroundColor: Colors.transparent,
+      ),
       backgroundColor: const Color(0xFF171717),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -164,138 +199,101 @@ class _ClassesState extends State<Classes> {
                             'Date: ${DateFormat.yMMMd().format(scheduledTime)}\nTime: ${DateFormat.Hm().format(startDateTime)} - ${DateFormat.Hm().format(endDateTime)}\nCoach: $coachName\nAvailable Spots: ${data['Capacity'] - data['enrolled_count']} / ${data['Capacity']}',
                             style: const TextStyle(color: Colors.white70),
                           ),
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(className),
-                                      Row(
-                                        children: [
-                                          IconButton(
-                                              onPressed: () {},
-                                              icon: const Icon(Icons.edit)),
-                                          IconButton(
-                                            icon: const Icon(Icons.delete),
-                                            tooltip: 'Delete Class',
-                                            onPressed: () async {
-                                              if (data['enrolled_count'] == 0) {
-                                                bool confirmDelete =
-                                                    await showDialog(
-                                                  context: context,
-                                                  builder:
-                                                      (BuildContext context) {
-                                                    return AlertDialog(
-                                                      title: const Text(
-                                                          'Confirm Delete'),
-                                                      content: const Text(
-                                                          'Are you sure you want to delete this Class?'),
-                                                      actions: <Widget>[
-                                                        ElevatedButton(
-                                                          onPressed: () {
-                                                            Navigator.pop(
-                                                                context, false);
-                                                          },
-                                                          child: const Text(
-                                                              'Cancel'),
-                                                        ),
-                                                        ElevatedButton(
-                                                          onPressed: () {
-                                                            Navigator.pop(
-                                                                context, true);
-                                                          },
-                                                          child: const Text(
-                                                              'Delete'),
-                                                        ),
-                                                      ],
-                                                    );
-                                                  },
-                                                );
-
-                                                if (confirmDelete) {
-                                                  firestoreService
-                                                      .deleteClass(document.id)
-                                                      .then((_) {
-                                                    Navigator.pop(context);
-                                                  });
-                                                }
-                                              } else {
-                                                showDialog(
-                                                  context: context,
-                                                  builder:
-                                                      (BuildContext context) {
-                                                    return AlertDialog(
-                                                      title: const Text(
-                                                          'Cannot Delete Class'),
-                                                      content: const Text(
-                                                        'This class cannot be deleted because there are enrolled members.',
-                                                      ),
-                                                      actions: <Widget>[
-                                                        ElevatedButton(
-                                                          onPressed: () {
-                                                            Navigator.pop(
-                                                                context);
-                                                          },
-                                                          child:
-                                                              const Text('OK'),
-                                                        ),
-                                                      ],
-                                                    );
-                                                  },
-                                                );
-                                              }
-                                            },
-                                          )
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  content: SingleChildScrollView(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
+                          trailing: IconButton(
+                            icon: const Icon(Icons.open_in_full,
+                                color: Colors.white),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(
-                                          'Date: ${DateFormat.yMMMd().format(scheduledTime)}',
-                                          style: const TextStyle(
-                                              color: Colors.black87),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          'Time: ${DateFormat.Hm().format(startDateTime)} - ${DateFormat.Hm().format(endDateTime)}',
-                                          style: const TextStyle(
-                                              color: Colors.black87),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          'Coach: $coachName',
-                                          style: const TextStyle(
-                                              color: Colors.black87),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          'Capacity: ${data['Capacity']}',
+                                        Text(className),
+                                        Row(
+                                          children: [
+                                            IconButton(
+                                              onPressed: () {
+                                                // Add your edit logic here
+                                              },
+                                              icon: const Icon(Icons.edit),
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(Icons.delete),
+                                              tooltip: 'Delete Class',
+                                              onPressed: () async {
+                                                // Delete logic
+                                              },
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text('Close'),
+                                    content: SingleChildScrollView(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          // Other content
+                                          FutureBuilder<
+                                              List<Map<String, dynamic>>>(
+                                            future:
+                                                getSubscriberNames(document.id),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.connectionState ==
+                                                  ConnectionState.waiting) {
+                                                return const CircularProgressIndicator();
+                                              } else if (snapshot.hasError) {
+                                                return Text(
+                                                    'Error: ${snapshot.error}');
+                                              } else if (!snapshot.hasData ||
+                                                  snapshot.data!.isEmpty) {
+                                                return const Text(
+                                                    'No subscribers found');
+                                              } else {
+                                                List<Map<String, dynamic>>
+                                                    subscribers =
+                                                    snapshot.data!;
+                                                return Wrap(
+                                                  children: subscribers
+                                                      .map((subscriber) {
+                                                    String fname =
+                                                        subscriber['fname'] ??
+                                                            'Unknown';
+                                                    String lname =
+                                                        subscriber['lname'] ??
+                                                            'Unknown';
+                                                    return Padding(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 8.0),
+                                                      child: Text(
+                                                          'Subscriber: $fname $lname'),
+                                                    );
+                                                  }).toList(),
+                                                );
+                                              }
+                                            },
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('Close'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          ),
                         ),
                       );
                     },
@@ -327,7 +325,6 @@ class _ClassesState extends State<Classes> {
         },
         backgroundColor: const Color(0xFFBEF264),
         child: const Icon(Icons.add),
-//shape: const CircleBorder(),
       ),
       bottomNavigationBar: MyBottomNavBar(
         currentIndex: _selectedIndex,
