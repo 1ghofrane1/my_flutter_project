@@ -125,24 +125,9 @@ class _CustomProgramState extends State<CustomProgram> {
                                   onPressed: () {
                                     showModalBottomSheet(
                                       context: context,
-                                      isScrollControlled: true,
-                                      backgroundColor: const Color(0xFF171717),
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.vertical(
-                                            top: Radius.circular(20)),
-                                      ),
-                                      builder: (context) {
-                                        return Padding(
-                                          padding: EdgeInsets.only(
-                                            bottom: MediaQuery.of(context)
-                                                .viewInsets
-                                                .bottom,
-                                          ),
-                                          child: WorkoutPlan(
-                                              selectedSubscriberId,
-                                              subscriberData[
-                                                  'selectedMuscles']),
-                                        );
+                                      builder: (BuildContext context) {
+                                        return WorkoutPlan(selectedSubscriberId,
+                                            subscriberData['selectedMuscles']);
                                       },
                                     );
                                   },

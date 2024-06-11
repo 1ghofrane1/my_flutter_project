@@ -120,80 +120,81 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
                 ),
                 const SizedBox(height: 20),
                 Row(
-  children: [
-    Expanded(
-      flex: 2,
-      child: DropdownButtonFormField<String>(
-        value: _selectedMuscleGroup,
-        items: remainingMuscleGroups
-            .map((muscle) => DropdownMenuItem<String>(
-          value: muscle,
-          child: Text(muscle,
-              style: const TextStyle(color: Colors.black)),
-        ))
-            .toList(),
-        onChanged: (value) {
-          setState(() {
-            _selectedMuscleGroup = value;
-          });
-        },
-        selectedItemBuilder: (context) {
-          return remainingMuscleGroups.map((muscle) {
-            return Text(
-              muscle,
-              style: const TextStyle(color: Colors.white),
-            );
-          }).toList();
-        },
-        decoration: const InputDecoration(
-          labelText: 'Muscle Group',
-          labelStyle: TextStyle(color: Colors.white70),
-          enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Colors.white70),
-          ),
-          focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFFBEF264)),
-          ),
-        ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Please select a muscle group';
-          }
-          return null;
-        },
-      ),
-    ),
-    const SizedBox(
-        width: 10), // Adjust the spacing between the elements
-    Expanded(
-      flex: 1,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(
-            color: const Color(0xFFBEF264),
-            width: 1, // Adjust the width of the border
-          ), // Colored border
-        ),
-        child: IconButton(
-          onPressed: _addMuscleGroup,
-          icon: Icon(
-            Icons.add,
-            color: const Color(0xFFBEF264), // Icon color
-          ),
-          iconSize: 28, // Icon size
-          padding: const EdgeInsets.all(
-              5), // Adjust the padding around the icon
-          splashRadius: 24, // Splash radius
-          tooltip: 'Add Muscle Group', // Tooltip
-          splashColor: Colors.transparent, // Splash color
-          highlightColor: Colors.transparent, // Highlight color
-        ),
-      ),
-    ),
-  ],
-),
-const SizedBox(height: 20),
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: DropdownButtonFormField<String>(
+                        value: _selectedMuscleGroup,
+                        items: remainingMuscleGroups
+                            .map((muscle) => DropdownMenuItem<String>(
+                                  value: muscle,
+                                  child: Text(muscle,
+                                      style:
+                                          const TextStyle(color: Colors.black)),
+                                ))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedMuscleGroup = value;
+                          });
+                        },
+                        selectedItemBuilder: (context) {
+                          return remainingMuscleGroups.map((muscle) {
+                            return Text(
+                              muscle,
+                              style: const TextStyle(color: Colors.white),
+                            );
+                          }).toList();
+                        },
+                        decoration: const InputDecoration(
+                          labelText: 'Muscle Group',
+                          labelStyle: TextStyle(color: Colors.white70),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white70),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xFFBEF264)),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select a muscle group';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(
+                        width: 10), // Adjust the spacing between the elements
+                    Expanded(
+                      flex: 1,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(
+                            color: const Color(0xFFBEF264),
+                            width: 1, // Adjust the width of the border
+                          ), // Colored border
+                        ),
+                        child: IconButton(
+                          onPressed: _addMuscleGroup,
+                          icon: Icon(
+                            Icons.add,
+                            color: const Color(0xFFBEF264), // Icon color
+                          ),
+                          iconSize: 28, // Icon size
+                          padding: const EdgeInsets.all(
+                              5), // Adjust the padding around the icon
+                          splashRadius: 24, // Splash radius
+                          tooltip: 'Add Muscle Group', // Tooltip
+                          splashColor: Colors.transparent, // Splash color
+                          highlightColor: Colors.transparent, // Highlight color
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
                 ...muscleGroupWorkouts.entries.map((entry) {
                   String muscleGroup = entry.key;
                   List<WorkoutSet> workoutSets = entry.value;
@@ -318,8 +319,8 @@ const SizedBox(height: 20),
                                       },
                                       decoration: const InputDecoration(
                                         enabledBorder: UnderlineInputBorder(
-                                          borderSide:
-                                              BorderSide(color: Color(0xB3FFFFFF)),
+                                          borderSide: BorderSide(
+                                              color: Color(0xB3FFFFFF)),
                                         ),
                                         focusedBorder: UnderlineInputBorder(
                                           borderSide: BorderSide(
