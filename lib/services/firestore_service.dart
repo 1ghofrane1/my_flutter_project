@@ -82,12 +82,12 @@ class FirestoreService {
   }
 
 ///////////////////////////////////////// NEW MEMBERSHIP ////////////////////////////////////////
+
   Future<void> addMembership({
     required String? selectedDuration,
     required double membershipPricing,
   }) async {
     // Validate input parameters
-
     if (selectedDuration == null || selectedDuration.isEmpty) {
       throw ArgumentError('Selected duration cannot be empty');
     }
@@ -96,7 +96,7 @@ class FirestoreService {
     }
 
     try {
-      // Optionally, check if the membership already exists
+      // Check if the membership already exists
       QuerySnapshot existingMemberships = await FirebaseFirestore.instance
           .collection('Membership')
           .where('Membership Duration', isEqualTo: selectedDuration)
@@ -108,14 +108,17 @@ class FirestoreService {
       }
 
       // Add new membership to the 'Membership' collection
-      DocumentReference newMembershipType =
-          await FirebaseFirestore.instance.collection('Membership').add({
+      await FirebaseFirestore.instance
+          .collection('Membership')
+          .doc(selectedDuration)
+          .set({
         'Membership Duration': selectedDuration,
         'Membership Pricing': membershipPricing,
       });
 
-      // Optionally, log or return a success message
-      print('Membership added successfully with ID: ${newMembershipType.id}');
+      // Log success message
+      print(
+          'Membership added successfully: $selectedDuration, $membershipPricing');
     } catch (e) {
       print('Error adding membership: $e');
       // Rethrow the error with more context
@@ -142,6 +145,18 @@ class FirestoreService {
       throw Exception(
           'Failed to fetch membership durations. Please try again later.');
     }
+  }
+
+  Future<int?> getPricing(String duration) async {
+    DocumentSnapshot doc = await FirebaseFirestore.instance
+        .collection('Membership')
+        .doc(duration)
+        .get();
+    if (doc.exists) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      return data['Membership Pricing'];
+    }
+    return null;
   }
 
 //////////////////////////////////////// DISPLAY MEMBERSHIPS ////////////////////////////////////////
@@ -441,6 +456,28 @@ class FirestoreService {
     return FirebaseFirestore.instance.collection('Class').snapshots();
   }
 
+  Stream<QuerySnapshot> classesListStreamNow() {
+    // Get the current time
+    DateTime now = DateTime.now();
+
+    // Create a query that fetches documents where "Start Time" is less than the current time
+    return FirebaseFirestore.instance
+        .collection('Class')
+        .where('Start Time', isGreaterThan: now)
+        .snapshots();
+  }
+
+  Stream<QuerySnapshot> myClassesListStreamNow() {
+    // Get the current time
+    DateTime now = DateTime.now();
+
+    // Create a query that fetches documents where "Start Time" is less than the current time
+    return FirebaseFirestore.instance
+        .collection('Class')
+        .where('Start Time', isGreaterThan: now)
+        .snapshots();
+  }
+
   Future<String> fetchCoachName() async {
     final snapshot = await classesListStream().first;
     if (snapshot.docs.isEmpty) {
@@ -578,105 +615,103 @@ class FirestoreService {
   }*/
 
   Future<void> addClassToUserEnrolledClasses(
-    String docID, Map<String, dynamic> classDetails) async {
-  try {
-    // Get the user's ID
-    String userID = FirebaseAuth.instance.currentUser!.uid;
+      String docID, Map<String, dynamic> classDetails) async {
+    try {
+      // Get the user's ID
+      String userID = FirebaseAuth.instance.currentUser!.uid;
 
-    // Add the class with details to the user's enrolled classes
-    await FirebaseFirestore.instance
-        .collection('Subscriber')
-        .doc(userID)
-        .collection('EnrolledClasses')
-        .doc(docID)
-        .set({
-      'class_details': classDetails, // Add class details here
-    });
+      // Add the class with details to the user's enrolled classes
+      await FirebaseFirestore.instance
+          .collection('Subscriber')
+          .doc(userID)
+          .collection('EnrolledClasses')
+          .doc(docID)
+          .set({
+        'class_details': classDetails, // Add class details here
+      });
 
-    print('Class added to user\'s enrolled classes successfully');
-  } catch (e) {
-    print('Error adding class to user\'s enrolled classes: $e');
-    throw Exception('Failed to add class to user\'s enrolled classes');
+      print('Class added to user\'s enrolled classes successfully');
+    } catch (e) {
+      print('Error adding class to user\'s enrolled classes: $e');
+      throw Exception('Failed to add class to user\'s enrolled classes');
+    }
   }
-}
 
+  Future<void> addSubscriberToClassAndUpdateCount(String docID) async {
+    try {
+      // Get the user's ID
+      String userID = FirebaseAuth.instance.currentUser!.uid;
 
-Future<void> addSubscriberToClassAndUpdateCount(String docID) async {
-  try {
-    // Get the user's ID
-    String userID = FirebaseAuth.instance.currentUser!.uid;
+      // Retrieve subscriber details
+      Map<String, dynamic> subscriberDetails =
+          await getSubscriberDetails(userID);
 
-    // Retrieve subscriber details
-    Map<String, dynamic> subscriberDetails = await getSubscriberDetails(userID);
+      // Extract first name and last name
+      String fname = subscriberDetails['fname'] ?? '';
+      String lname = subscriberDetails['lname'] ?? '';
 
-    // Extract first name and last name
-    String fname = subscriberDetails['fname'] ?? '';
-    String lname = subscriberDetails['lname'] ?? '';
-
-    // Add the subscriber's first and last name to the class subcollection
-    await FirebaseFirestore.instance
-        .collection('Class')
-        .doc(docID)
-        .collection('Subscribers')
-        .doc(userID)
-        .set({
-      'fname': fname,
-      'lname': lname,
-    });
-
-    // Update the enrollment count for the class
-    DocumentReference classRef = FirebaseFirestore.instance.collection('Class').doc(docID);
-    await FirebaseFirestore.instance.runTransaction((transaction) async {
-      DocumentSnapshot classSnapshot = await transaction.get(classRef);
-      if (!classSnapshot.exists) {
-        throw Exception('Class document does not exist!');
-      }
-
-      // Count the number of documents in the "Subscribers" subcollection
-      QuerySnapshot subscribersSnapshot = await FirebaseFirestore.instance
+      // Add the subscriber's first and last name to the class subcollection
+      await FirebaseFirestore.instance
           .collection('Class')
           .doc(docID)
           .collection('Subscribers')
-          .get();
-      int newEnrolledCount = subscribersSnapshot.docs.length;
+          .doc(userID)
+          .set({
+        'fname': fname,
+        'lname': lname,
+      });
 
-      transaction.update(classRef, {'enrolled_count': newEnrolledCount});
-    });
+      // Update the enrollment count for the class using a transaction
+      DocumentReference classRef =
+          FirebaseFirestore.instance.collection('Class').doc(docID);
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        DocumentSnapshot classSnapshot = await transaction.get(classRef);
+        if (!classSnapshot.exists) {
+          throw Exception('Class document does not exist!');
+        }
 
-    print('Subscriber added to class and enrollment count updated successfully');
-  } catch (e) {
-    print('Error adding subscriber to class and updating enrollment count: $e');
-    throw Exception('Failed to add subscriber to class and update enrollment count');
+        int currentEnrolledCount = classSnapshot['enrolled_count'] ?? 0;
+        transaction
+            .update(classRef, {'enrolled_count': currentEnrolledCount + 1});
+      });
+
+      print(
+          'Subscriber added to class and enrollment count updated successfully');
+    } catch (e) {
+      print(
+          'Error adding subscriber to class and updating enrollment count: $e');
+      throw Exception(
+          'Failed to add subscriber to class and update enrollment count');
+    }
   }
-}
 
+  Future<List<Map<String, dynamic>>> getSubscriberNames(
+      String classDocID) async {
+    try {
+      // Reference to the "Subscribers" subcollection of the class document
+      CollectionReference subscribersRef = FirebaseFirestore.instance
+          .collection('Class')
+          .doc(classDocID)
+          .collection('Subscribers');
 
-  Future<List<Map<String, dynamic>>> getSubscriberNames(String classDocID) async {
-  try {
-    // Reference to the "Subscribers" subcollection of the class document
-    CollectionReference subscribersRef = FirebaseFirestore.instance
-        .collection('Class')
-        .doc(classDocID)
-        .collection('Subscribers');
+      // Fetch all documents in the "Subscribers" subcollection
+      QuerySnapshot snapshot = await subscribersRef.get();
 
-    // Fetch all documents in the "Subscribers" subcollection
-    QuerySnapshot snapshot = await subscribersRef.get();
+      // Extract and return the subscriber details
+      List<Map<String, dynamic>> subscriberNames = snapshot.docs.map((doc) {
+        return {
+          'fname': doc['fname'] ?? '',
+          'lname': doc['lname'] ?? '',
+        };
+      }).toList();
 
-    // Extract and return the subscriber details
-    List<Map<String, dynamic>> subscriberNames = snapshot.docs.map((doc) {
-      return {
-        'fname': doc['fname'] ?? '',
-        'lname': doc['lname'] ?? '',
-      };
-    }).toList();
-
-    return subscriberNames;
-  } catch (e) {
-    print('Error fetching subscriber names: $e');
-    // Rethrow the error with more context
-    throw Exception('Failed to fetch subscriber names');
+      return subscriberNames;
+    } catch (e) {
+      print('Error fetching subscriber names: $e');
+      // Rethrow the error with more context
+      throw Exception('Failed to fetch subscriber names');
+    }
   }
-}
 
   Future<void> removeFromEnrolledClasses(String docID) async {
     try {
@@ -800,7 +835,7 @@ Future<void> addSubscriberToClassAndUpdateCount(String docID) async {
   }
 
   // Method to delete a class
-  Future<void> deleteClass(String classId) async {
+  /*Future<void> deleteClass(String classId) async {
     try {
       await FirebaseFirestore.instance
           .collection('Class')
@@ -811,7 +846,7 @@ Future<void> addSubscriberToClassAndUpdateCount(String docID) async {
       print('Error deleting class: $e');
       rethrow;
     }
-  }
+  }*/
 
   Future<void> updateClass(
     String classId,
@@ -863,21 +898,22 @@ Future<void> addSubscriberToClassAndUpdateCount(String docID) async {
   }
 
   // Method to add a workout plan
-  Future<void> addWorkoutPlan(String? subscriberId, String title,
-      String description, int duration) async {
+  Future<void> addWorkoutPlan(String? subscriberId, String title, int duration,
+      String selectedMudcles, List<Map<String, dynamic>> workoutSets) async {
     if (subscriberId == null) {
       throw ArgumentError('Subscriber ID cannot be null');
     }
 
     final workoutPlan = {
       'title': title,
-      'description': description,
       'duration': duration,
+      'muscle group': selectedMudcles,
       'created_at': FieldValue.serverTimestamp(),
+      'workout_sets': workoutSets, // include the workout sets in the document
     };
 
     await FirebaseFirestore.instance
-        .collection('subscribers')
+        .collection('Subscriber')
         .doc(subscriberId)
         .collection('workout_plans')
         .add(workoutPlan);

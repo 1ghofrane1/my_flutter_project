@@ -1,19 +1,22 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:my_flutter_project/services/firestore_service.dart';
 import 'package:intl/intl.dart';
 
-class AddClassForm extends StatefulWidget {
-  const AddClassForm({super.key});
+class EditClassForm extends StatefulWidget {
+  final String classId;
+  final Map<String, dynamic> initialData;
+
+  const EditClassForm({super.key, required this.classId, required this.initialData});
 
   @override
-  _AddClassFormState createState() => _AddClassFormState();
+  _EditClassFormState createState() => _EditClassFormState();
 }
 
-class _AddClassFormState extends State<AddClassForm> {
+class _EditClassFormState extends State<EditClassForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _classNameController = TextEditingController();
-  final TextEditingController _classCapacityController =
-      TextEditingController();
+  late TextEditingController _classNameController;
+  late TextEditingController _classCapacityController;
   DateTime? _selectedDate;
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
@@ -26,13 +29,18 @@ class _AddClassFormState extends State<AddClassForm> {
   @override
   void initState() {
     super.initState();
+    _classNameController = TextEditingController(text: widget.initialData['Class Name']);
+    _classCapacityController = TextEditingController(text: widget.initialData['Capacity'].toString());
+    _selectedCoach = widget.initialData['Coach'];
+    _selectedDate = (widget.initialData['Scheduled Time'] as Timestamp?)?.toDate();
+    _startTime = _selectedDate != null ? TimeOfDay.fromDateTime((widget.initialData['Start Time'] as Timestamp).toDate()) : null;
+    _endTime = _selectedDate != null ? TimeOfDay.fromDateTime((widget.initialData['End Time'] as Timestamp).toDate()) : null;
     _fetchCoaches();
   }
 
   Future<void> _fetchCoaches() async {
     try {
-      List<Map<String, dynamic>> coaches =
-          await _firestoreService.fetchCoaches();
+      List<Map<String, dynamic>> coaches = await _firestoreService.fetchCoaches();
       setState(() {
         _coaches = coaches;
       });
@@ -181,8 +189,7 @@ class _AddClassFormState extends State<AddClassForm> {
                               _isSubmitting = true;
                             });
                             final className = _classNameController.text;
-                            final classCapacity =
-                                int.parse(_classCapacityController.text);
+                            final classCapacity = int.parse(_classCapacityController.text);
                             DateTime? classDateTime;
                             DateTime? endTime;
                             DateTime? startTime;
@@ -212,32 +219,28 @@ class _AddClassFormState extends State<AddClassForm> {
                               }
                             }
                             try {
-                              await _firestoreService.addClass(
-                                className: className,
-                                coach: _selectedCoach!,
-                                capacity: classCapacity,
-                                scheduledDate: classDateTime,
-                                startTime: startTime,
-                                endTime: endTime,
+                              await _firestoreService.editClass(
+                                widget.classId,
+                                {
+                                  'Class Name': className,
+                                  'Coach': _selectedCoach!,
+                                  'Capacity': classCapacity,
+                                  'Scheduled Time': classDateTime,
+                                  'Start Time': startTime,
+                                  'End Time': endTime,
+                                },
                               );
-                              _classNameController.clear();
-                              _classCapacityController.clear();
-                              setState(() {
-                                _selectedDate = null;
-                                _startTime = null;
-                                _endTime = null;
-                                _selectedCoach = null;
-                              });
+                              Navigator.of(context).pop(); // Close the dialog
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('Class added successfully'),
+                                  content: Text('Class updated successfully'),
                                 ),
                               );
                             } catch (e) {
-                              print('Error adding class: $e');
+                              print('Error updating class: $e');
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content: Text('Failed to add class')),
+                                    content: Text('Failed to update class')),
                               );
                             } finally {
                               setState(() {

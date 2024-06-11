@@ -10,7 +10,7 @@ class ClassCalendar extends StatefulWidget {
 
 class _ClassCalendarState extends State<ClassCalendar> {
   DateTime today = DateTime.now();
-  CalendarFormat _calendarFormat = CalendarFormat.month; // Added state variable
+  CalendarFormat _calendarFormat = CalendarFormat.week; // Added state variable
 
   void _onDaySelected(DateTime day, DateTime focusedDay) {
     setState(() {
@@ -39,7 +39,7 @@ class _ClassCalendarState extends State<ClassCalendar> {
             titleCentered: true,
             formatButtonVisible: true, // Show the format button
             formatButtonDecoration: BoxDecoration(
-              color: const Color.fromARGB(207, 190, 242, 100),
+              color: const Color(0xCFBEF264),
               borderRadius: BorderRadius.circular(10.0),
             ),
             formatButtonTextStyle: const TextStyle(
@@ -58,7 +58,7 @@ class _ClassCalendarState extends State<ClassCalendar> {
           onDaySelected: _onDaySelected,
           calendarStyle: CalendarStyle(
             todayDecoration: BoxDecoration(
-              color: const Color.fromARGB(255, 190, 242, 100).withOpacity(0.5),
+              color: Color(0xFF171717).withOpacity(0.5),
               shape: BoxShape.circle,
             ),
             selectedDecoration: BoxDecoration(

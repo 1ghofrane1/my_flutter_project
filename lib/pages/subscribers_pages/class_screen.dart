@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import 'package:my_flutter_project/services/firestore.dart';
+import 'package:my_flutter_project/services/firestore_service.dart';
 
 class ClassScreen extends StatefulWidget {
   const ClassScreen({super.key});
@@ -237,17 +237,46 @@ class _ClassScreenState extends State<ClassScreen> {
                         List<DocumentSnapshot> enrolledClasses =
                             snapshot.data!.docs;
 
+                        // Filter and sort classes by start time
+                        DateTime now = DateTime.now();
+                        myClasses = enrolledClasses.where((doc) {
+                          Map<String, dynamic>? class_details =
+                              doc['class_details'] as Map<String, dynamic>?;
+                          DateTime startTime =
+                              (class_details?['Start Time'] as Timestamp?)
+                                      ?.toDate() ??
+                                  DateTime.now();
+                          return startTime.isAfter(now);
+                        }).toList();
+
+                        myClasses.sort((a, b) {
+                          Map<String, dynamic>? aData =
+                              a['class_details'] as Map<String, dynamic>?;
+                          Map<String, dynamic>? bData =
+                              b['class_details'] as Map<String, dynamic>?;
+                          DateTime aStartTime =
+                              (aData?['Start Time'] as Timestamp?)?.toDate() ??
+                                  DateTime.now();
+                          DateTime bStartTime =
+                              (bData?['Start Time'] as Timestamp?)?.toDate() ??
+                                  DateTime.now();
+                          return aStartTime.compareTo(bStartTime);
+                        });
+
                         return ListView.builder(
                           shrinkWrap: true,
-                          itemCount: enrolledClasses.length,
+                          itemCount: myClasses.length,
                           itemBuilder: (context, index) {
-                            DocumentSnapshot document = enrolledClasses[index];
+                            DocumentSnapshot document = myClasses[index];
                             Map<String, dynamic>? data =
                                 document.data() as Map<String, dynamic>?;
 
                             if (data == null) {
                               return const SizedBox.shrink();
                             }
+
+                            Map<String, dynamic>? class_details =
+                                data['class_details'] as Map<String, dynamic>?;
 
                             // Fetch class details asynchronously
                             return FutureBuilder<Map<String, dynamic>?>(
@@ -309,12 +338,15 @@ class _ClassScreenState extends State<ClassScreen> {
                                           icon: const Icon(Icons.remove,
                                               color: Colors.red),
                                           onPressed: () {
-                                            // Get the document ID of the selected class
                                             String docID = document.id;
-                                            // Remove the class from user's enrolled classes
                                             firestoreService
                                                 .removeFromEnrolledClasses(
                                                     docID);
+                                            setState(() {
+                                              myClasses.removeWhere(
+                                                  (classDoc) =>
+                                                      classDoc.id == docID);
+                                            });
                                           },
                                         ),
                                       ),
@@ -322,7 +354,6 @@ class _ClassScreenState extends State<ClassScreen> {
                                   }
                                 }
 
-                                // If class details couldn't be fetched, show a message
                                 return const Text(
                                     'Failed to fetch class details');
                               },

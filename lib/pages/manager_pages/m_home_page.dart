@@ -5,7 +5,7 @@ import 'package:my_flutter_project/pages/manager_pages/bottom_navbar.dart';
 import 'package:my_flutter_project/pages/manager_pages/classes.dart';
 import 'package:my_flutter_project/pages/manager_pages/gym_members.dart';
 import 'package:my_flutter_project/pages/manager_pages/not_verified.dart';
-import 'package:my_flutter_project/services/firestore.dart';
+import 'package:my_flutter_project/services/firestore_service.dart';
 import 'package:intl/intl.dart';
 
 class MHomePage extends StatefulWidget {

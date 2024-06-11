@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_flutter_project/components/class_calendar.dart';
+import 'package:my_flutter_project/forms/EditClassForm.dart';
 import 'package:my_flutter_project/forms/addClassForm.dart';
 import 'package:my_flutter_project/pages/manager_pages/bottom_navbar.dart';
 import 'package:my_flutter_project/pages/manager_pages/gym_members.dart';
 import 'package:my_flutter_project/pages/manager_pages/m_home_page.dart';
 import 'package:my_flutter_project/pages/manager_pages/next_class_card.dart';
-import 'package:my_flutter_project/services/firestore.dart';
+import 'package:my_flutter_project/services/firestore_service.dart';
 import 'package:intl/intl.dart';
 
 class Classes extends StatefulWidget {
@@ -108,6 +109,56 @@ class _ClassesState extends State<Classes> {
     }
   }
 
+  // Method to delete a class
+  Future<void> deleteClass(String classId) async {
+    try {
+      // Get the class document
+      DocumentSnapshot classDoc = await FirebaseFirestore.instance
+          .collection('Class')
+          .doc(classId)
+          .get();
+
+      // Check the enrolled_count
+      int enrolledCount = classDoc['enrolled_count'] ?? 0;
+
+      if (enrolledCount != 0) {
+        // If there are enrolled subscribers, show an alert dialog
+        _showUnableToDeleteDialog();
+      } else {
+        // If there are no enrolled subscribers, delete the class
+        await FirebaseFirestore.instance
+            .collection('Class')
+            .doc(classId)
+            .delete();
+      }
+    } catch (e) {
+      // Handle errors
+      print('Error deleting class: $e');
+      rethrow;
+    }
+  }
+
+  // Show an alert dialog indicating that the class cannot be deleted
+  void _showUnableToDeleteDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Cannot Delete'),
+          content: const Text('Class has enrolled subscribers.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -133,7 +184,7 @@ class _ClassesState extends State<Classes> {
           const SizedBox(height: 20),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: firestoreService.classesListStream(),
+              stream: firestoreService.classesListStreamNow(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
@@ -215,8 +266,30 @@ class _ClassesState extends State<Classes> {
                                         Row(
                                           children: [
                                             IconButton(
-                                              onPressed: () {
-                                                // Add your edit logic here
+                                              onPressed: () async {
+                                                // Fetch current class data
+                                                Map<String, dynamic>?
+                                                    currentData =
+                                                    document.data() as Map<
+                                                        String, dynamic>?;
+
+                                                if (currentData == null) return;
+
+                                                // Show dialog to edit class
+                                                await showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return AlertDialog(
+                                                      title: const Text(
+                                                          'Edit Class'),
+                                                      content: EditClassForm(
+                                                          classId: document.id,
+                                                          initialData:
+                                                              currentData),
+                                                    );
+                                                  },
+                                                );
                                               },
                                               icon: const Icon(Icons.edit),
                                             ),
@@ -224,7 +297,7 @@ class _ClassesState extends State<Classes> {
                                               icon: const Icon(Icons.delete),
                                               tooltip: 'Delete Class',
                                               onPressed: () async {
-                                                // Delete logic
+                                                deleteClass(document.id);
                                               },
                                             ),
                                           ],

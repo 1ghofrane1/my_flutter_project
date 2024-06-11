@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_flutter_project/services/firestore.dart';
+import 'package:my_flutter_project/services/firestore_service.dart';
 import 'package:my_flutter_project/pages/manager_pages/controllers/gym_members_controller.dart';
 import 'package:get/get.dart';
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_flutter_project/services/firestore.dart';
+import 'package:my_flutter_project/services/firestore_service.dart';
 
 class MembershipForm extends StatefulWidget {
   const MembershipForm({super.key});

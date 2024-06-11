@@ -71,12 +71,15 @@ class _SubHomePageState extends State<SubHomePage> {
 }
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF171717),
       appBar: AppBar(
+        backgroundColor: const Color(0xFF171717),
+        // Setting background color
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -86,6 +89,15 @@ class HomeScreen extends StatelessWidget {
             },
           ),
         ],
+      ),
+      body: const Center(
+        child: Text(
+          'Dashboard Here',
+          style: TextStyle(
+            color: Colors.white, // Setting text color
+            fontSize: 24, // Setting text size
+          ),
+        ),
       ),
     );
   }

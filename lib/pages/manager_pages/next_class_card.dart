@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:my_flutter_project/services/firestore.dart';
+import 'package:my_flutter_project/services/firestore_service.dart';
 import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
 
 class NextClassCard extends StatelessWidget {
@@ -90,7 +90,7 @@ class NextClassCard extends StatelessWidget {
                     final timeDifference = nextClassTime.difference(now);
 
                     return TimerCountdown(
-                      format: CountDownTimerFormat.hoursMinutesSeconds,
+                      format: CountDownTimerFormat.daysHoursMinutesSeconds,
                       endTime: nextClassTime,
                       timeTextStyle: const TextStyle(
                           color: Color(0xFFBEF264),

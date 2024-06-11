@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_flutter_project/pages/coach_pages/workout_plan.dart';
-import 'package:my_flutter_project/services/firestore.dart';
+import 'package:my_flutter_project/services/firestore_service.dart';
 
 class CustomProgram extends StatefulWidget {
   const CustomProgram({Key? key}) : super(key: key);
@@ -126,26 +126,24 @@ class _CustomProgramState extends State<CustomProgram> {
                                     showModalBottomSheet(
                                       context: context,
                                       isScrollControlled: true,
-                                      backgroundColor: Colors.transparent,
-                                      builder: (context) =>
-                                          DraggableScrollableSheet(
-                                        initialChildSize: 0.8,
-                                        maxChildSize: 0.9,
-                                        minChildSize: 0.5,
-                                        builder: (context, scrollController) {
-                                          return Container(
-                                            decoration: const BoxDecoration(
-                                              color: Color(0xFF171717),
-                                              borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(20),
-                                                topRight: Radius.circular(20),
-                                              ),
-                                            ),
-                                            child: WorkoutPlan(
-                                                selectedSubscriberId),
-                                          );
-                                        },
+                                      backgroundColor: const Color(0xFF171717),
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.vertical(
+                                            top: Radius.circular(20)),
                                       ),
+                                      builder: (context) {
+                                        return Padding(
+                                          padding: EdgeInsets.only(
+                                            bottom: MediaQuery.of(context)
+                                                .viewInsets
+                                                .bottom,
+                                          ),
+                                          child: WorkoutPlan(
+                                              selectedSubscriberId,
+                                              subscriberData[
+                                                  'selectedMuscles']),
+                                        );
+                                      },
                                     );
                                   },
                                   style: ButtonStyle(
@@ -177,7 +175,7 @@ class _CustomProgramState extends State<CustomProgram> {
                                       ),
                                     ],
                                   ),
-                                ),
+                                )
                               ],
                             ),
                           ],

@@ -5,8 +5,9 @@ import 'package:my_flutter_project/forms/membershipTypeForm.dart';
 import 'package:my_flutter_project/forms/subForm.dart';
 import 'package:my_flutter_project/pages/manager_pages/bottom_navbar.dart';
 import 'package:my_flutter_project/pages/manager_pages/controllers/gym_members_controller.dart';
+import 'package:my_flutter_project/pages/manager_pages/invoice.dart';
 import 'package:my_flutter_project/pages/manager_pages/m_home_page.dart';
-import 'package:my_flutter_project/services/firestore.dart';
+import 'package:my_flutter_project/services/firestore_service.dart';
 import 'package:my_flutter_project/pages/manager_pages/classes.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -348,7 +349,7 @@ class _GymMembersState extends State<GymMembers> {
                       return GestureDetector(
                         onTap: () => showDialog(
                           context: context,
-                          barrierDismissible: false,
+                          barrierDismissible: true,
                           builder: (BuildContext context) {
                             return AlertDialog(
                               title: Row(
@@ -423,32 +424,36 @@ class _GymMembersState extends State<GymMembers> {
                                                                 firstNameController,
                                                             decoration:
                                                                 const InputDecoration(
-                                                                    labelText:
-                                                                        'First Name'),
+                                                              labelText:
+                                                                  'First Name',
+                                                            ),
                                                           ),
                                                           TextField(
                                                             controller:
                                                                 lastNameController,
                                                             decoration:
                                                                 const InputDecoration(
-                                                                    labelText:
-                                                                        'Last Name'),
+                                                              labelText:
+                                                                  'Last Name',
+                                                            ),
                                                           ),
                                                           TextField(
                                                             controller:
                                                                 emailController,
                                                             decoration:
                                                                 const InputDecoration(
-                                                                    labelText:
-                                                                        'Email'),
+                                                              labelText:
+                                                                  'Email',
+                                                            ),
                                                           ),
                                                           TextField(
                                                             controller:
                                                                 phoneController,
                                                             decoration:
                                                                 const InputDecoration(
-                                                                    labelText:
-                                                                        'Phone'),
+                                                              labelText:
+                                                                  'Phone',
+                                                            ),
                                                           ),
                                                           DropdownButtonFormField<
                                                               String>(
@@ -686,47 +691,6 @@ class _GymMembersState extends State<GymMembers> {
                                           );
                                         },
                                       ),
-                                      IconButton(
-                                        icon: const Icon(Icons.delete),
-                                        tooltip: 'Delete Subscriber',
-                                        onPressed: () async {
-                                          bool confirmDelete = await showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                title: const Text(
-                                                    'Confirm Delete'),
-                                                content: const Text(
-                                                    'Are you sure you want to delete this subscriber?'),
-                                                actions: <Widget>[
-                                                  ElevatedButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(
-                                                          context, false);
-                                                    },
-                                                    child: const Text('Cancel'),
-                                                  ),
-                                                  ElevatedButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(
-                                                          context, true);
-                                                    },
-                                                    child: const Text('Delete'),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
-
-                                          if (confirmDelete) {
-                                            firestoreService
-                                                .deleteSub(docID)
-                                                .then((_) {
-                                              Navigator.pop(context);
-                                            });
-                                          }
-                                        },
-                                      ),
                                     ],
                                   ),
                                 ],
@@ -762,15 +726,56 @@ class _GymMembersState extends State<GymMembers> {
                               actions: <Widget>[
                                 ElevatedButton(
                                   onPressed: () {
+                                    generateInvoice(
+                                        context,
+                                        firstName,
+                                        lastName,
+                                        data['selected_duration'],
+                                        document.id);
                                     // Action to perform when generating invoice
                                   },
+                                  style: ElevatedButton.styleFrom(
+                                    textStyle: const TextStyle(
+                                        color: Color(0xFF171717)),
+                                  ),
                                   child: const Text('Generate Invoice'),
                                 ),
                                 ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
+                                  onPressed: () async {
+                                    bool confirmDelete = await showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: const Text('Confirm Delete'),
+                                          content: const Text(
+                                              'Are you sure you want to delete this subscriber?'),
+                                          actions: <Widget>[
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                Navigator.pop(context, false);
+                                              },
+                                              child: const Text('Cancel'),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                Navigator.pop(context, true);
+                                              },
+                                              child: const Text('Delete'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+
+                                    if (confirmDelete) {
+                                      firestoreService
+                                          .deleteSub(docID)
+                                          .then((_) {
+                                        Navigator.pop(context);
+                                      });
+                                    }
                                   },
-                                  child: const Text('Close'),
+                                  child: const Text('Delete'),
                                 ),
                               ],
                             );
@@ -791,8 +796,10 @@ class _GymMembersState extends State<GymMembers> {
                               children: [
                                 IconButton(
                                   onPressed: () async {
-                                    final Uri emailLaunchUri =
-                                        Uri(scheme: 'mailto', path: email,);
+                                    final Uri emailLaunchUri = Uri(
+                                      scheme: 'mailto',
+                                      path: email,
+                                    );
                                     // ignore: deprecated_member_use
                                     if (await canLaunch(
                                         emailLaunchUri.toString())) {
